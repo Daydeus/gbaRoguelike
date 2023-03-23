@@ -70,8 +70,10 @@ int main(void)
 void doPlayerInput()
 {
     if (KEY_EQ(key_hit, KI_RIGHT) && (playerX < MAP_WIDTH - 1))
+    {
+        playerFacing = RIGHT;
+        if(isSolid(playerX + 1, playerY) ==  false)
         {
-            playerFacing = RIGHT;
             playerX++;
 
             if (7 < playerX && playerX < MAP_WIDTH - 7)
@@ -79,18 +81,25 @@ void doPlayerInput()
             else
                 playerScreenX++;
         }
-        if (KEY_EQ(key_hit, KI_LEFT) && (playerX > 0))
+    }
+    if (KEY_EQ(key_hit, KI_LEFT) && (playerX > 0))
+    {
+        playerFacing = LEFT;
+        if(isSolid(playerX - 1, playerY) ==  false)
         {
-            playerFacing = LEFT;
             playerX--;
 
             if (6 < playerX && playerX < MAP_WIDTH - 8)
                 screenOffsetX -= TILE_SIZE;
             else
                 playerScreenX--;
-        }if (KEY_EQ(key_hit, KI_DOWN) && (playerY < MAP_HEIGHT - 1))
+        }
+    }
+    if (KEY_EQ(key_hit, KI_DOWN) && (playerY < MAP_HEIGHT - 1))
+    {
+        playerFacing = DOWN;
+        if(isSolid(playerX, playerY + 1) ==  false)
         {
-            playerFacing = DOWN;
             playerY++;
 
             if (5 < playerY && playerY < MAP_HEIGHT - 4)
@@ -98,9 +107,12 @@ void doPlayerInput()
             else
                 playerScreenY++;
         }
-        if (KEY_EQ(key_hit, KI_UP) && (playerY > 0))
+    }
+    if (KEY_EQ(key_hit, KI_UP) && (playerY > 0))
+    {
+        playerFacing = UP;
+        if(isSolid(playerX, playerY - 1) ==  false)
         {
-            playerFacing = UP;
             playerY--;
 
             if (4 < playerY && playerY < MAP_HEIGHT - 5)
@@ -108,15 +120,16 @@ void doPlayerInput()
             else
                 playerScreenY--;
         }
-        if (KEY_EQ(key_hit, KI_START))
-        {
-            playerX = 7;
-            playerY = 5;
-            playerScreenX = 7;
-            playerScreenY = 5;
-            screenOffsetX = 0;
-            screenOffsetY = 0;
-        }
+    }
+    if (KEY_EQ(key_hit, KI_START))
+    {
+        playerX = 7;
+        playerY = 5;
+        playerScreenX = 7;
+        playerScreenY = 5;
+        screenOffsetX = 0;
+        screenOffsetY = 0;
+    }
 }
 
 void updatePlayerDraw(int playerX, int playerY)

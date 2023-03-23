@@ -192,3 +192,11 @@ int* getTilesetIndex(struct Tile tile, uint8_t screenEntryCorner)
 
     return tilesetIndex;
 }
+
+bool isSolid(uint8_t positionX, uint8_t positionY)
+{
+    if(gameMap[positionY][positionX].tileId == ID_FLOOR)
+        return false;
+    else
+        return true;
+}

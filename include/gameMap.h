@@ -15,5 +15,5 @@ extern void initGameMap();
 extern void loadGameMap();
 extern uint8_t getDynamicTileId(struct Tile tile);
 extern int* getTilesetIndex(struct Tile tile, uint8_t screenEntryCorner);
-
+extern bool isSolid(uint8_t positionX, uint8_t positionY);
 #endif // GAME_MAP_H
