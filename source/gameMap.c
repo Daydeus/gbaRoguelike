@@ -6,7 +6,6 @@
 
 extern struct Tile gameMap[MAP_HEIGHT][MAP_WIDTH];
 
-
 void initGameMap()
 {
     for (int y = 0; y <= MAP_HEIGHT - 1; y++)
@@ -27,19 +26,19 @@ void initGameMap()
 void loadGameMap()
 {
     int screenBlock = 30;
-    int screenEntryTL = 0;
-    int screenEntryTR = 0;
-    int screenEntryBL = 0;
-    int screenEntryBR = 0;
+    int screenEntryTL = 0;  // screenEntryTopLeft
+    int screenEntryTR = 0;  // screenEntryTopRight
+    int screenEntryBL = 0;  // screenEntryBottomLeft
+    int screenEntryBR = 0;  // screenEntryBottomRight
     int *tileToDraw = NULL;
     
     // Load palette
-	memcpy(pal_bg_mem, tileset_stonePal, tileset_stonePalLen);
-	// Load tiles into CBB 0
-	memcpy(&tile_mem[0][0], tileset_stoneTiles, tileset_stoneTilesLen);
+    memcpy(pal_bg_mem, tileset_stonePal, tileset_stonePalLen);
+    // Load tiles into CBB 0
+    memcpy(&tile_mem[0][0], tileset_stoneTiles, tileset_stoneTilesLen);
 
-    // For each gameMap[y][x], there are four screen entries to fill. There is a 8x8 tile from the tileset that
-    //   must be drawn for each screen entry.
+    // For each gameMap[y][x], there are four screen entries to fill. We need to draw an 8x8 tile 
+    //   from the tileset for each screen entry.
     for (int y = 0; y <= MAP_HEIGHT - 1; y++)
     {
         for (int x = 0; x <= MAP_WIDTH - 1; x++)
@@ -111,16 +110,16 @@ int* getTilesetIndex(struct Tile tile, uint8_t screenEntryCorner)
         switch (screenEntryCorner)
         {
         case SCREEN_ENTRY_TL:
-            tilesetIndex = (int*)0x06000002;
+            tilesetIndex = (int*)FLOOR_FOUR_TL;
             break;
         case SCREEN_ENTRY_TR:
-            tilesetIndex = (int*)0x06000003;
+            tilesetIndex = (int*)FLOOR_FOUR_TR;
             break;
         case SCREEN_ENTRY_BL:
-            tilesetIndex = (int*)0x06000004;
+            tilesetIndex = (int*)FLOOR_FOUR_BL;
             break;
         case SCREEN_ENTRY_BR:
-            tilesetIndex = (int*)0x06000005;
+            tilesetIndex = (int*)FLOOR_FOUR_BR;
             break;
         default:
             break;
@@ -130,38 +129,38 @@ int* getTilesetIndex(struct Tile tile, uint8_t screenEntryCorner)
         switch (screenEntryCorner)
         {
         case SCREEN_ENTRY_TL:
-            tilesetIndex = (int*)0x06000006;
+            tilesetIndex = (int*)FLOOR_BIG_TL;
             break;
         case SCREEN_ENTRY_TR:
-            tilesetIndex = (int*)0x06000007;
+            tilesetIndex = (int*)FLOOR_BIG_TR;
             break;
         case SCREEN_ENTRY_BL:
-            tilesetIndex = (int*)0x06000008;
+            tilesetIndex = (int*)FLOOR_BIG_BL;
             break;
         case SCREEN_ENTRY_BR:
-            tilesetIndex = (int*)0x06000009;
+            tilesetIndex = (int*)FLOOR_BIG_BR;
             break;
         default:
             break;
         }
         break;
     case ID_FLOOR_BLANK:
-        tilesetIndex = (int*)0x06000001;
+        tilesetIndex = (int*)FLOOR_BLANK_ALL;
         break;
     case ID_WALL:
         switch (screenEntryCorner)
         {
         case SCREEN_ENTRY_TL:
-            tilesetIndex = (int*)0x0600000A;
+            tilesetIndex = (int*)WALL_TOP_TL;
             break;
         case SCREEN_ENTRY_TR:
-            tilesetIndex = (int*)0x0600000B;
+            tilesetIndex = (int*)WALL_TOP_TR;
             break;
         case SCREEN_ENTRY_BL:
-            tilesetIndex = (int*)0x0600000C;
+            tilesetIndex = (int*)WALL_TOP_BL;
             break;
         case SCREEN_ENTRY_BR:
-            tilesetIndex = (int*)0x0600000D;
+            tilesetIndex = (int*)WALL_TOP_BR;
             break;
         default:
             break;
@@ -171,23 +170,23 @@ int* getTilesetIndex(struct Tile tile, uint8_t screenEntryCorner)
         switch (screenEntryCorner)
         {
         case SCREEN_ENTRY_TL:
-            tilesetIndex = (int*)0x0600000E;
+            tilesetIndex = (int*)WALL_FRONT_TL;
             break;
         case SCREEN_ENTRY_TR:
-            tilesetIndex = (int*)0x0600000F;
+            tilesetIndex = (int*)WALL_FRONT_TR;
             break;
         case SCREEN_ENTRY_BL:
-            tilesetIndex = (int*)0x06000010;
+            tilesetIndex = (int*)WALL_FRONT_BL;
             break;
         case SCREEN_ENTRY_BR:
-            tilesetIndex = (int*)0x06000011;
+            tilesetIndex = (int*)WALL_FRONT_BR;
             break;
         default:
             break;
         }
         break;
     default:
-        tilesetIndex = (int*)0x06000001;
+        tilesetIndex = (int*)TRANSPARENT_ALL;
         break;
     }
 

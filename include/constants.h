@@ -7,6 +7,26 @@
 
 #define SCREEN_BLOCK_WIDTH 32
 
+// Tileset Indexes
+#define TRANSPARENT_ALL 0x06000000
+#define FLOOR_BLANK_ALL 0x06000001
+#define FLOOR_FOUR_TL   0x06000002
+#define FLOOR_FOUR_TR   0x06000003
+#define FLOOR_FOUR_BL   0x06000004
+#define FLOOR_FOUR_BR   0x06000005
+#define FLOOR_BIG_TL    0x06000006
+#define FLOOR_BIG_TR    0x06000007
+#define FLOOR_BIG_BL    0x06000008
+#define FLOOR_BIG_BR    0x06000009
+#define WALL_TOP_TL     0x0600000A
+#define WALL_TOP_TR     0x0600000B
+#define WALL_TOP_BL     0x0600000C
+#define WALL_TOP_BR     0x0600000D
+#define WALL_FRONT_TL   0x0600000E
+#define WALL_FRONT_TR   0x0600000F
+#define WALL_FRONT_BL   0x06000010
+#define WALL_FRONT_BR   0x06000011
+
 enum
 {
     ID_TRANSPARENT = 0,
@@ -23,6 +43,14 @@ enum
     SCREEN_ENTRY_TR,
     SCREEN_ENTRY_BL,
     SCREEN_ENTRY_BR
+};
+
+enum facing
+{
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT
 };
 
 #endif // CONSTANTS_H

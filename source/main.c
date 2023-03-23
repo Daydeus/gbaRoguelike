@@ -8,14 +8,6 @@
 
 struct Tile gameMap[MAP_HEIGHT][MAP_WIDTH];
 
-enum facing
-{
-    UP,
-    DOWN,
-    LEFT,
-    RIGHT
-};
-
 void initGameMap();
 void loadGameMap();
 uint8_t getDynamicTileId(struct Tile tile);
