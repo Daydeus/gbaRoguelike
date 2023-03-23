@@ -19,6 +19,9 @@ void initGameMap()
                 gameMap[y][x].tileId = ID_WALL;
             else
                 gameMap[y][x].tileId = ID_FLOOR;
+
+            if (rand() % 5 == 0)
+                gameMap[y][x].tileId = ID_WALL;
         }
     }
 }
