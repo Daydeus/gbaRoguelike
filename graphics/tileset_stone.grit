@@ -1,0 +1,4 @@
+#
+# tileset_stone : 4bpp, not compressed. Only use the first 16 columns.
+#
+-gB4 -ar16

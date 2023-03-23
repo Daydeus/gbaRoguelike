@@ -1,0 +1,7 @@
+build/
+*.log
+*.sav
+*.gba
+*.lnk
+*.elf
+*.png
