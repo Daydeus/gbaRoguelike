@@ -1,0 +1,4 @@
+#
+# PlayerSprite : 4bpp, not compressed. Metatile width and Metatile height is 2 (8x8 tiles)
+#
+-gB4 -Mw 2 -Mh 2
