@@ -38,26 +38,26 @@ int screenOffsetX = 0, screenOffsetY = 0;
 
 int main(void)
 {
-	irq_init(NULL);
-	irq_enable(II_VBLANK);
+    irq_init(NULL);
+    irq_enable(II_VBLANK);
 
     initGameMap();
     loadGameMap();
 
-	// set up BG0 for a 4bpp 64x32t map,
-	//   using charblock 0 and screenblock 31
-	REG_BG0CNT= BG_CBB(0) | BG_SBB(30) | BG_4BPP | BG_REG_64x32;
-	REG_DISPCNT= DCNT_MODE0 | DCNT_BG0 | DCNT_OBJ | DCNT_OBJ_1D;
+    // set up BG0 for a 4bpp 64x32t map,
+    //   using charblock 0 and screenblock 31
+    REG_BG0CNT= BG_CBB(0) | BG_SBB(30) | BG_4BPP | BG_REG_64x32;
+    REG_DISPCNT= DCNT_MODE0 | DCNT_BG0 | DCNT_OBJ | DCNT_OBJ_1D;
 
     /*
-	tte_init_chr4c_default(0, BG_CBB(0) | BG_SBB(31));
-	tte_set_pos(92, 68);
-	tte_write("Hello World!");
+    tte_init_chr4c_default(0, BG_CBB(0) | BG_SBB(31));
+    tte_set_pos(92, 68);
+    tte_write("Hello World!");
     */
 
-	while (1)
+    while (1)
     {
-		// Get player input
+        // Get player input
         key_poll();
 
         // Update position, AI, etc.
@@ -66,13 +66,13 @@ int main(void)
         // Render updates
         //updatePlayerDraw();
         loadSprite(playerScreenX, playerScreenY);
-		REG_BG0HOFS = screenOffsetX;
-		REG_BG0VOFS = screenOffsetY;
+        REG_BG0HOFS = screenOffsetX;
+        REG_BG0VOFS = screenOffsetY;
         
         // Low-power for rest of frame
         VBlankIntrWait();
         frame++;
-	}
+    }
 }
 
 void doPlayerInput()
@@ -134,7 +134,7 @@ void updatePlayerDraw(int playerX, int playerY)
 
 void loadSprite(int playerScreenX, int playerScreenY)
 {
-	// Load tiles and palette of sprite into video and palete RAM
+    // Load tiles and palette of sprite into video and palete RAM
     if (frame % 20 > 9)
     {
         memcpy32(&tile_mem[4][0], player_frame1Tiles, player_frame1TilesLen / 4);
@@ -146,16 +146,16 @@ void loadSprite(int playerScreenX, int playerScreenY)
         memcpy32(pal_obj_mem, player_frame2Pal, player_frame2PalLen / 4);
     }
 
-	oam_init(obj_buffer, 128);
+    oam_init(obj_buffer, 128);
 
-	OBJ_ATTR *player = &obj_buffer[0];
-	obj_set_attr(player,
-		ATTR0_SQUARE,  // Square, regular sprite
-		ATTR1_SIZE_16, // 16x16 pixels,
-		ATTR2_PALBANK(0) | 0); // palette index 0, tile index 0
+    OBJ_ATTR *player = &obj_buffer[0];
+    obj_set_attr(player,
+        ATTR0_SQUARE,  // Square, regular sprite
+        ATTR1_SIZE_16, // 16x16 pixels,
+        ATTR2_PALBANK(0) | 0); // palette index 0, tile index 0
 
-	// Set position
-	obj_set_pos(player, playerScreenX * TILE_SIZE, playerScreenY * TILE_SIZE);
+    // Set position
+    obj_set_pos(player, playerScreenX * TILE_SIZE, playerScreenY * TILE_SIZE);
 
-	oam_copy(oam_mem, obj_buffer, 1); // Update first OAM object
+    oam_copy(oam_mem, obj_buffer, 1); // Update first OAM object
 }
