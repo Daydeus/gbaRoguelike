@@ -7,11 +7,6 @@
 
 struct Tile gameMap[MAP_HEIGHT][MAP_WIDTH];
 
-void initGameMap();
-void loadGameMap();
-uint8_t getDynamicTileId(struct Tile tile);
-int* getTilesetIndex(struct Tile tile, uint8_t screenEntryCorner);
-
 void doPlayerInput();
 void updatePlayerDraw(int playerX, int playerY);
 void loadPlayerSprite(int playerScreenX, int playerScreenY);
