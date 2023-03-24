@@ -6,17 +6,16 @@
 
 
 struct Tile gameMap[MAP_HEIGHT][MAP_WIDTH];
-
+void doStateTransition(enum state targetState);
 void doPlayerInput();
 void updatePlayerDraw(int playerX, int playerY);
 void loadPlayerSprite(int playerScreenX, int playerScreenY);
 
+// Global Variables ---------------------------------
 OBJ_ATTR obj_buffer[128];
 OBJ_AFFINE *obj_aff_buffer = (OBJ_AFFINE*)obj_buffer;
-
-
-// Global Variables ---------------------------------
 unsigned int frame = 0;
+enum state gameState = STATE_GAMEPLAY;
 int playerX = 10, playerY = 8;               // Player position on gameMap[][]
 int playerScreenX = 7, playerScreenY = 5;   // Position of player sprite drawn on screen
 int screenOffsetX = 48, screenOffsetY = 48; // Screen offset from TopLeft corner of gameMap[][]
@@ -41,29 +40,58 @@ int main(void)
     REG_BG0CNT= BG_CBB(0) | BG_SBB(30) | BG_4BPP | BG_REG_64x32;
     REG_DISPCNT= DCNT_MODE0 | DCNT_BG0 | DCNT_OBJ | DCNT_OBJ_1D;
 
-    /*
-    tte_init_chr4c_default(0, BG_CBB(0) | BG_SBB(31));
-    tte_set_pos(92, 68);
-    tte_write("Hello World!");
-    */
-
     while (1)
     {
         // Get player input
         key_poll();
 
-        // Update position, AI, etc.
-        doPlayerInput();
+        // gameState program control
+        switch(gameState)
+        {
+        case STATE_GAMEPLAY:
+            // Update position, AI, etc.
+            doPlayerInput();
 
-        // Render updates
-        //updatePlayerDraw();
-        loadPlayerSprite(playerScreenX, playerScreenY);
-        REG_BG0HOFS = screenOffsetX;
-        REG_BG0VOFS = screenOffsetY;
-        
+            // Render updates
+            //updatePlayerDraw();
+            loadPlayerSprite(playerScreenX, playerScreenY);
+            REG_BG0HOFS = screenOffsetX;
+            REG_BG0VOFS = screenOffsetY;
+            break;
+        case STATE_MENU:
+            tte_init_chr4c_default(1, BG_CBB(0) | BG_SBB(20));
+            tte_set_pos(20, 0);
+            tte_write("Debug Menu");
+            if (KEY_EQ(key_hit, KI_START))
+            {
+                doStateTransition(STATE_GAMEPLAY);
+            }
+            break;
+        }
+
         // Low-power for rest of frame
         VBlankIntrWait();
         frame++;
+    }
+}
+
+void doStateTransition(enum state targetState)
+{
+    switch(targetState)
+    {
+    case STATE_GAMEPLAY:
+        loadGameMap();
+        obj_unhide(&obj_buffer[0], ATTR0_REG);
+        REG_BG0CNT= BG_CBB(0) | BG_SBB(30) | BG_4BPP | BG_REG_64x32;
+        REG_DISPCNT= DCNT_MODE0 | DCNT_BG0 | DCNT_OBJ | DCNT_OBJ_1D;
+        gameState = STATE_GAMEPLAY;
+        break;
+    case STATE_MENU:
+        obj_hide(&obj_buffer[0]);
+        REG_BG0CNT= BG_CBB(0) | BG_SBB(30) | BG_4BPP | BG_REG_32x32;
+        REG_DISPCNT= DCNT_MODE0 | DCNT_BG1 | DCNT_OBJ | DCNT_OBJ_1D;
+        gameState = STATE_MENU;
+        break;
     }
 }
 
@@ -121,14 +149,19 @@ void doPlayerInput()
                 playerScreenY++;
         }
     }
-    if (KEY_EQ(key_hit, KI_START))
+    if (KEY_EQ(key_hit, KI_SELECT))
     {
-        playerX = 7;
-        playerY = 5;
+        playerFacing = FACING_LEFT;
+        playerX = 10;
+        playerY = 8;
         playerScreenX = 7;
         playerScreenY = 5;
-        screenOffsetX = 0;
-        screenOffsetY = 0;
+        screenOffsetX = 48;
+        screenOffsetY = 48;
+    }
+    if (KEY_EQ(key_hit, KI_START))
+    {
+        doStateTransition(STATE_MENU);
     }
 }
 

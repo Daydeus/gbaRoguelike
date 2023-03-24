@@ -7,7 +7,7 @@
 
 #define SCREEN_BLOCK_WIDTH 32
 
-// Tileset Indexes
+// Tileset Indices
 #define TRANSPARENT_ALL 0x06000000
 #define FLOOR_BLANK_ALL 0x06000001
 #define FLOOR_FOUR_TL   0x06000002
@@ -27,13 +27,19 @@
 #define WALL_FRONT_BL   0x06000010
 #define WALL_FRONT_BR   0x06000011
 
-// Player Sprite Indexs
+// Player Sprite Indices
 #define PLAYER_FACING_LEFT_FR1  0
 #define PLAYER_FACING_LEFT_FR2  4
 #define PLAYER_FACING_UP_FR1    8
 #define PLAYER_FACING_UP_FR2   12
 #define PLAYER_FACING_DOWN_FR1 16
 #define PLAYER_FACING_DOWN_FR2 20
+
+enum state
+{
+    STATE_GAMEPLAY,
+    STATE_MENU
+};
 
 enum
 {
