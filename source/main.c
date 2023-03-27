@@ -10,6 +10,7 @@ void doStateTransition(enum state targetState);
 void doPlayerInput();
 void updatePlayerDraw(int playerX, int playerY);
 void loadPlayerSprite(int playerScreenX, int playerScreenY);
+void tte_write_var_int(int varToPrint);
 
 // Global Variables ---------------------------------
 OBJ_ATTR obj_buffer[128];
@@ -85,10 +86,58 @@ void doStateTransition(enum state targetState)
         REG_BG1CNT= BG_CBB(0) | BG_SBB(30) | BG_4BPP | BG_REG_64x32;
         REG_DISPCNT= DCNT_MODE0 | DCNT_BG1 | DCNT_OBJ_1D;
         tte_init_chr4c(1, BG_CBB(1) | BG_SBB(30), 0xF000, 0x0201, CLR_ORANGE<<16|CLR_BLACK, &vwf_default, NULL);
-        tte_set_pos(1, 1);
-        tte_write("Debug Menu");
+        tte_erase_screen();
+        tte_set_pos(0, 0);
+        tte_write("Debug Menu\n");
+        tte_write("Player position (");
+        tte_write_var_int(playerX);
+        tte_write(", ");
+        tte_write_var_int(playerY);
+        tte_write(")");
         gameState = STATE_MENU;
         break;
+    }
+}
+
+void tte_write_var_int(int varToPrint)
+{
+    for (int digitPlace = 10000; digitPlace >= 1; digitPlace = digitPlace / 10)
+    {
+        int numberToPrint = varToPrint / digitPlace % 10;
+
+        switch(numberToPrint)
+        {
+        case 9:
+            tte_write("9");
+            break;
+        case 8:
+            tte_write("8");
+            break;
+        case 7:
+            tte_write("7");
+            break;
+        case 6:
+            tte_write("6");
+            break;
+        case 5:
+            tte_write("5");
+            break;
+        case 4:
+            tte_write("4");
+            break;
+        case 3:
+            tte_write("3");
+            break;
+        case 2:
+            tte_write("2");
+            break;
+        case 1:
+            tte_write("1");
+            break;
+        case 0:
+            if (digitPlace < varToPrint)
+                tte_write("0");
+        }
     }
 }
 
