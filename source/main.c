@@ -81,15 +81,13 @@ void doStateTransition(enum state targetState)
     {
     case STATE_GAMEPLAY:
         loadGameMap();
-        obj_unhide(&obj_buffer[0], ATTR0_REG);
         REG_BG0CNT= BG_CBB(0) | BG_SBB(30) | BG_4BPP | BG_REG_64x32;
         REG_DISPCNT= DCNT_MODE0 | DCNT_BG0 | DCNT_OBJ | DCNT_OBJ_1D;
         gameState = STATE_GAMEPLAY;
         break;
     case STATE_MENU:
-        obj_hide(&obj_buffer[0]);
-        REG_BG0CNT= BG_CBB(0) | BG_SBB(30) | BG_4BPP | BG_REG_32x32;
-        REG_DISPCNT= DCNT_MODE0 | DCNT_BG1 | DCNT_OBJ | DCNT_OBJ_1D;
+        REG_BG0CNT= BG_CBB(0) | BG_SBB(30) | BG_4BPP | BG_REG_64x32;
+        REG_DISPCNT= DCNT_MODE0 | DCNT_BG1 | DCNT_OBJ_1D;
         gameState = STATE_MENU;
         break;
     }
