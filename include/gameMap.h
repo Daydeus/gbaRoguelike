@@ -8,12 +8,14 @@ struct Tile
     uint8_t positionX;
     uint8_t positionY;
     uint8_t tileId;
+    uint8_t sightStatus;
 };
 extern struct Tile gameMap[MAP_HEIGHT][MAP_WIDTH];
 
-extern void initGameMap();
-extern void loadGameMap();
-extern uint8_t getDynamicTileId(struct Tile tile);
-extern int* getTilesetIndex(struct Tile tile, uint8_t screenEntryCorner);
-extern bool isSolid(uint8_t positionX, uint8_t positionY);
+void initGameMap();
+void loadGameMap();
+uint8_t getDynamicTileId(struct Tile tile);
+int* getTilesetIndex(struct Tile tile, uint8_t screenEntryCorner);
+bool isSolid(uint8_t positionX, uint8_t positionY);
+
 #endif // GAME_MAP_H

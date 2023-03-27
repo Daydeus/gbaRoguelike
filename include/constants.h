@@ -12,7 +12,7 @@
 
 
 // Tileset Indices
-#define TRANSPARENT_ALL 0x06000000
+#define BLANK_BLACK     0x06000000
 #define FLOOR_BLANK_ALL 0x06000001
 #define FLOOR_FOUR_TL   0x06000002
 #define FLOOR_FOUR_TR   0x06000003
@@ -53,6 +53,14 @@ enum
     ID_FLOOR_BIG,       // Just for visual variation
     ID_WALL,
     ID_WALL_FRONT       // Just for visual variation
+};
+
+enum
+{
+    TILE_NEVER_SEEN = 0,
+    TILE_NOT_IN_SIGHT,
+    TILE_SEEN_NOT_LIT,
+    TILE_LIT
 };
 
 enum

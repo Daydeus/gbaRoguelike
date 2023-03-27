@@ -189,7 +189,7 @@ int* getTilesetIndex(struct Tile tile, uint8_t screenEntryCorner)
         }
         break;
     default:
-        tilesetIndex = (int*)TRANSPARENT_ALL;
+        tilesetIndex = (int*)BLANK_BLACK;
         break;
     }
 
