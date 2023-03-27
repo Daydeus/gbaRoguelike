@@ -7,6 +7,10 @@
 
 #define SCREEN_BLOCK_WIDTH 32
 
+#define GAME_MAP_SB1 28     // First Screen Block for gameMap
+#define GAME_MAP_SB2 29     // Second Screen Block for gameMap
+
+
 // Tileset Indices
 #define TRANSPARENT_ALL 0x06000000
 #define FLOOR_BLANK_ALL 0x06000001

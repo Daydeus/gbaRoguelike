@@ -28,7 +28,7 @@ void initGameMap()
 
 void loadGameMap()
 {
-    int screenBlock = 30;
+    int screenBlock = GAME_MAP_SB1;
     int screenEntryTL = 0;  // screenEntryTopLeft
     int screenEntryTR = 0;  // screenEntryTopRight
     int screenEntryBL = 0;  // screenEntryBottomLeft
@@ -48,7 +48,7 @@ void loadGameMap()
         {
             if (x > 15)
             {
-                screenBlock = 31;
+                screenBlock = GAME_MAP_SB2;
                 screenEntryTL = y * SCREEN_BLOCK_WIDTH * 2 + x * 2 - SCREEN_BLOCK_WIDTH;
                 screenEntryTR = screenEntryTL + 1;
                 screenEntryBL = screenEntryTL + SCREEN_BLOCK_WIDTH;
@@ -56,7 +56,7 @@ void loadGameMap()
             }
             else
             {
-                screenBlock = 30;
+                screenBlock = GAME_MAP_SB1;
                 screenEntryTL = y * SCREEN_BLOCK_WIDTH * 2 + x * 2;
                 screenEntryTR = screenEntryTL + 1;
                 screenEntryBL = screenEntryTL + SCREEN_BLOCK_WIDTH;

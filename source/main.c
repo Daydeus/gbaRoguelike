@@ -37,7 +37,7 @@ int main(void)
     // set up BG0 for a 4bpp 64x32t map,
     //   using charblock 0 and screenblock 31
     oam_init(obj_buffer, 128);
-    REG_BG0CNT= BG_CBB(0) | BG_SBB(30) | BG_4BPP | BG_REG_64x32;
+    REG_BG0CNT= BG_CBB(0) | BG_SBB(GAME_MAP_SB1) | BG_4BPP | BG_REG_64x32;
     REG_DISPCNT= DCNT_MODE0 | DCNT_BG0 | DCNT_OBJ | DCNT_OBJ_1D;
 
     while (1)
@@ -59,9 +59,6 @@ int main(void)
             REG_BG0VOFS = screenOffsetY;
             break;
         case STATE_MENU:
-            tte_init_chr4c_default(1, BG_CBB(0) | BG_SBB(20));
-            tte_set_pos(20, 0);
-            tte_write("Debug Menu");
             if (KEY_EQ(key_hit, KI_START))
             {
                 doStateTransition(STATE_GAMEPLAY);
@@ -80,14 +77,16 @@ void doStateTransition(enum state targetState)
     switch(targetState)
     {
     case STATE_GAMEPLAY:
-        loadGameMap();
-        REG_BG0CNT= BG_CBB(0) | BG_SBB(30) | BG_4BPP | BG_REG_64x32;
+        REG_BG0CNT= BG_CBB(0) | BG_SBB(GAME_MAP_SB1) | BG_4BPP | BG_REG_64x32;
         REG_DISPCNT= DCNT_MODE0 | DCNT_BG0 | DCNT_OBJ | DCNT_OBJ_1D;
         gameState = STATE_GAMEPLAY;
         break;
     case STATE_MENU:
-        REG_BG0CNT= BG_CBB(0) | BG_SBB(30) | BG_4BPP | BG_REG_64x32;
+        REG_BG1CNT= BG_CBB(0) | BG_SBB(30) | BG_4BPP | BG_REG_64x32;
         REG_DISPCNT= DCNT_MODE0 | DCNT_BG1 | DCNT_OBJ_1D;
+        tte_init_chr4c(1, BG_CBB(1) | BG_SBB(30), 0xF000, 0x0201, CLR_ORANGE<<16|CLR_BLACK, &vwf_default, NULL);
+        tte_set_pos(1, 1);
+        tte_write("Debug Menu");
         gameState = STATE_MENU;
         break;
     }
