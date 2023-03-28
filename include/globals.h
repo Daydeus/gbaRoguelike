@@ -7,6 +7,7 @@ extern int playerX, playerY;             // Player position on gameMap[][]
 extern int playerScreenX, playerScreenY; // Position of player sprite drawn on screen
 extern int screenOffsetX, screenOffsetY; // Screen offset from TopLeft corner of gameMap[][]
 extern enum facing playerFacing;
+extern bool debugCollisionIsOff;
 extern u32 eva, evb;                     // eva and evb are .4 fixeds
 
 #endif // GLOBALS_H

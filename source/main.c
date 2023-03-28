@@ -22,6 +22,7 @@ int playerX = 10, playerY = 8;              // Player position on gameMap[][]
 int playerScreenX = 7, playerScreenY = 5;   // Position of player sprite drawn on screen
 int screenOffsetX = 48, screenOffsetY = 48; // Screen offset from TopLeft corner of gameMap[][]
 enum facing playerFacing = FACING_LEFT;
+bool debugCollisionIsOff = false;
 u32 eva = 0x80, evb = 0;                    // eva and evb are .4 fixeds
 
 

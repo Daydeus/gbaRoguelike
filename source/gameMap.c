@@ -1,5 +1,7 @@
 #include <tonc.h>
 #include <string.h>
+#include "constants.h"
+#include "globals.h"
 #include "gameMap.h"
 #include "tileset_stone.h"
 #include "tilemap_stone.h"
@@ -199,6 +201,8 @@ int* getTilesetIndex(struct Tile tile, uint8_t screenEntryCorner)
 bool isSolid(uint8_t positionX, uint8_t positionY)
 {
     if(gameMap[positionY][positionX].tileId == ID_FLOOR)
+        return false;
+    else if (debugCollisionIsOff == true)
         return false;
     else
         return true;

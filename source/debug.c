@@ -7,6 +7,16 @@
 
 bool doDebugMenuInput()
 {
+    if (KEY_EQ(key_hit, KI_A))
+    {
+        debugCollisionIsOff = true;;
+        return true;
+    }
+    if (KEY_EQ(key_hit, KI_B))
+    {
+        debugCollisionIsOff = false;
+        return true;
+    }
     if (KEY_EQ(key_hit, KI_LEFT))
     {
         eva -= 20;
@@ -51,6 +61,8 @@ void drawDebugMenu()
     tte_write_var_int(eva);
     tte_write("\nevb: ");
     tte_write_var_int(evb);
+    tte_write("\nCollision: ");
+    (debugCollisionIsOff == true) ? tte_write("OFF") : tte_write("ON");
     tte_write("\nTile Status: ");
     getTileStatusDebug(playerX, playerY);
 }
