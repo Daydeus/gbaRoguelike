@@ -6,26 +6,175 @@
 #include "globals.h"
 #include "playerSprite.h"
 
+/******************************************************************/
+/* Data Structures                                                */
+/******************************************************************/
 struct Tile gameMap[MAP_HEIGHT][MAP_WIDTH];
+
+/******************************************************************/
+/* Global Variables                                               */
+/******************************************************************/
+OBJ_ATTR obj_buffer[128];
+OBJ_AFFINE *obj_aff_buffer = (OBJ_AFFINE*)obj_buffer;
+unsigned int frame = 0;
+enum state gameState = STATE_GAMEPLAY;
+int playerX = 10, playerY = 8;
+int playerScreenX = 7, playerScreenY = 5;
+int screenOffsetX = 48, screenOffsetY = 48;
+enum facing playerFacing = FACING_LEFT;
+bool debugCollisionIsOff = false;
+u32 eva = 0x80, evb = 0;
+
+/******************************************************************/
+/* Function Prototypes                                            */
+/******************************************************************/
 void doStateTransition(enum state targetState);
 void doPlayerInput();
 void updatePlayerDraw(int playerX, int playerY);
 void loadPlayerSprite(int playerScreenX, int playerScreenY);
 
+/******************************************************************/
+/* Function: doPlayerInput                                        */
+/*                                                                */
+/* Updates the player character based on info read from key_poll()*/
+/* TODO: Create seperate function for out-of-bounds check and test*/
+/* at the same time as isSolid()                                  */
+/******************************************************************/
+void doPlayerInput()
+{
+    if (KEY_EQ(key_hit, KI_LEFT))                        // Left Key
+    {
+        playerFacing = FACING_LEFT;
+        if(isSolid(playerX - 1, playerY) ==  false
+            && isOutOfBounds(playerX - 1, playerY) == false)
+        {
+            playerX--;
 
-// Global Variables ---------------------------------
-OBJ_ATTR obj_buffer[128];
-OBJ_AFFINE *obj_aff_buffer = (OBJ_AFFINE*)obj_buffer;
-unsigned int frame = 0;
-enum state gameState = STATE_GAMEPLAY;
-int playerX = 10, playerY = 8;              // Player position on gameMap[][]
-int playerScreenX = 7, playerScreenY = 5;   // Position of player sprite drawn on screen
-int screenOffsetX = 48, screenOffsetY = 48; // Screen offset from TopLeft corner of gameMap[][]
-enum facing playerFacing = FACING_LEFT;
-bool debugCollisionIsOff = false;
-u32 eva = 0x80, evb = 0;                    // eva and evb are .4 fixeds
+            if (6 < playerX && playerX < MAP_WIDTH - 8)
+                screenOffsetX -= TILE_SIZE;
+            else
+                playerScreenX--;
+        }
+    }
+    if (KEY_EQ(key_hit, KI_RIGHT))                      // Right Key
+    {
+        playerFacing = FACING_RIGHT;
+        if(isSolid(playerX + 1, playerY) ==  false
+            && isOutOfBounds(playerX + 1, playerY) == false)
+        {
+            playerX++;
 
+            if (7 < playerX && playerX < MAP_WIDTH - 7)
+                screenOffsetX += TILE_SIZE;
+            else
+                playerScreenX++;
+        }
+    }
+    if (KEY_EQ(key_hit, KI_UP))                            // Up Key
+    {
+        playerFacing = FACING_UP;
+        if(isSolid(playerX, playerY - 1) ==  false
+            && isOutOfBounds(playerX, playerY - 1) == false)
+        {
+            playerY--;
 
+            if (4 < playerY && playerY < MAP_HEIGHT - 5)
+                screenOffsetY -= TILE_SIZE;
+            else
+                playerScreenY--;
+        }
+    }
+    if (KEY_EQ(key_hit, KI_DOWN))                        // Down Key
+    {
+        playerFacing = FACING_DOWN;
+        if(isSolid(playerX, playerY + 1) ==  false
+            && isOutOfBounds(playerX, playerY + 1) == false)
+        {
+            playerY++;
+
+            if (5 < playerY && playerY < MAP_HEIGHT - 4)
+                screenOffsetY += TILE_SIZE;
+            else
+                playerScreenY++;
+        }
+    }
+    if (KEY_EQ(key_hit, KI_SELECT))
+    {
+    }
+    if (KEY_EQ(key_hit, KI_START))
+    {
+        doStateTransition(STATE_MENU);
+    }
+}
+
+/******************************************************************/
+/* Function: updatePlayerDraw()                                   */
+/*                                                                */
+/*                                                                */
+/******************************************************************/
+void updatePlayerDraw(int playerX, int playerY)
+{
+    
+}
+
+/******************************************************************/
+/* Function: loadPlayerSprite                                     */
+/*                                                                */
+/* Loads the correct index of the player sprite based on frame    */
+/* count and on facing direction. TODO: break into smaller funcs. */
+/******************************************************************/
+void loadPlayerSprite(int playerScreenX, int playerScreenY)
+{
+    unsigned int startingIndex = 0, paletteBank = 0;
+    OBJ_ATTR *player = &obj_buffer[0];
+
+    obj_set_attr(player,
+        ATTR0_SQUARE | ATTR0_BLEND,                  // Square, regular sprite
+        ATTR1_SIZE_16,                               // 16x16 pixels,
+        ATTR2_PALBANK(paletteBank) | startingIndex); // palette index 0, tile index 0
+
+    // Update sprite based on status
+    switch(playerFacing)
+    {
+    case FACING_LEFT:
+        if (frame % 20 > 9)
+            startingIndex = PLAYER_FACING_LEFT_FR1;
+        else
+            startingIndex = PLAYER_FACING_LEFT_FR2;
+        break;
+    case FACING_RIGHT:
+        player->attr1 ^= ATTR1_HFLIP;
+        if (frame % 20 > 9)
+            startingIndex = PLAYER_FACING_LEFT_FR1;
+        else
+            startingIndex = PLAYER_FACING_LEFT_FR2;
+        break;
+    case FACING_UP:
+        if (frame % 20 > 9)
+            startingIndex = PLAYER_FACING_UP_FR1;
+        else
+            startingIndex = PLAYER_FACING_UP_FR2;
+        break;
+    case FACING_DOWN:
+        if (frame % 20 > 9)
+            startingIndex = PLAYER_FACING_DOWN_FR1;
+        else
+            startingIndex = PLAYER_FACING_DOWN_FR2;
+        break;
+    }
+    // Finalize sprite changes
+    player->attr2 = ATTR2_BUILD(startingIndex, paletteBank, 0);
+    obj_set_pos(player, playerScreenX * TILE_SIZE, playerScreenY * TILE_SIZE);
+
+    // Update first OAM object
+    oam_copy(oam_mem, obj_buffer, 1);
+}
+
+/******************************************************************/
+/* Function: main                                                 */
+/*                                                                */
+/* Entry point for the program                                    */
+/******************************************************************/
 int main(void)
 {
     irq_init(NULL);
@@ -79,119 +228,4 @@ int main(void)
         VBlankIntrWait();
         frame++;
     }
-}
-
-void doPlayerInput()
-{
-    if (KEY_EQ(key_hit, KI_LEFT) && (playerX > 0))     // Left Key
-    {
-        playerFacing = FACING_LEFT;
-        if(isSolid(playerX - 1, playerY) ==  false)
-        {
-            playerX--;
-
-            if (6 < playerX && playerX < MAP_WIDTH - 8)
-                screenOffsetX -= TILE_SIZE;
-            else
-                playerScreenX--;
-        }
-    }
-    if (KEY_EQ(key_hit, KI_RIGHT) && (playerX < MAP_WIDTH - 1))     // Right Key
-    {
-        playerFacing = FACING_RIGHT;
-        if(isSolid(playerX + 1, playerY) ==  false)
-        {
-            playerX++;
-
-            if (7 < playerX && playerX < MAP_WIDTH - 7)
-                screenOffsetX += TILE_SIZE;
-            else
-                playerScreenX++;
-        }
-    }
-    if (KEY_EQ(key_hit, KI_UP) && (playerY > 0))     // Up Key
-    {
-        playerFacing = FACING_UP;
-        if(isSolid(playerX, playerY - 1) ==  false)
-        {
-            playerY--;
-
-            if (4 < playerY && playerY < MAP_HEIGHT - 5)
-                screenOffsetY -= TILE_SIZE;
-            else
-                playerScreenY--;
-        }
-    }
-    if (KEY_EQ(key_hit, KI_DOWN) && (playerY < MAP_HEIGHT - 1))     // Down Key
-    {
-        playerFacing = FACING_DOWN;
-        if(isSolid(playerX, playerY + 1) ==  false)
-        {
-            playerY++;
-
-            if (5 < playerY && playerY < MAP_HEIGHT - 4)
-                screenOffsetY += TILE_SIZE;
-            else
-                playerScreenY++;
-        }
-    }
-    if (KEY_EQ(key_hit, KI_SELECT))
-    {
-    }
-    if (KEY_EQ(key_hit, KI_START))
-    {
-        doStateTransition(STATE_MENU);
-    }
-}
-
-void updatePlayerDraw(int playerX, int playerY)
-{
-    
-}
-
-void loadPlayerSprite(int playerScreenX, int playerScreenY)
-{
-    unsigned int startingIndex = 0, paletteBank = 0;
-    OBJ_ATTR *player = &obj_buffer[0];
-
-    obj_set_attr(player,
-        ATTR0_SQUARE | ATTR0_BLEND,                  // Square, regular sprite
-        ATTR1_SIZE_16,                               // 16x16 pixels,
-        ATTR2_PALBANK(paletteBank) | startingIndex); // palette index 0, tile index 0
-
-    // Update sprite based on status
-    switch(playerFacing)
-    {
-    case FACING_LEFT:
-        if (frame % 20 > 9)
-            startingIndex = PLAYER_FACING_LEFT_FR1;
-        else
-            startingIndex = PLAYER_FACING_LEFT_FR2;
-        break;
-    case FACING_RIGHT:
-        player->attr1 ^= ATTR1_HFLIP;
-        if (frame % 20 > 9)
-            startingIndex = PLAYER_FACING_LEFT_FR1;
-        else
-            startingIndex = PLAYER_FACING_LEFT_FR2;
-        break;
-    case FACING_UP:
-        if (frame % 20 > 9)
-            startingIndex = PLAYER_FACING_UP_FR1;
-        else
-            startingIndex = PLAYER_FACING_UP_FR2;
-        break;
-    case FACING_DOWN:
-        if (frame % 20 > 9)
-            startingIndex = PLAYER_FACING_DOWN_FR1;
-        else
-            startingIndex = PLAYER_FACING_DOWN_FR2;
-        break;
-    }
-    // Finalize sprite changes
-    player->attr2 = ATTR2_BUILD(startingIndex, paletteBank, 0);
-    obj_set_pos(player, playerScreenX * TILE_SIZE, playerScreenY * TILE_SIZE);
-
-    // Update first OAM object
-    oam_copy(oam_mem, obj_buffer, 1);
 }

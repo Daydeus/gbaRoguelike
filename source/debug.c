@@ -5,6 +5,18 @@
 #include "gameMap.h"
 #include "globals.h"
 
+/******************************************************************/
+/* Function Prototypes                                            */
+/******************************************************************/
+void tte_write_var_int(int varToPrint);
+void getTileStatusDebug(int positionX, int positionY);
+
+/******************************************************************/
+/* Function: doDebugMenuInput                                     */
+/*                                                                */
+/* Changes variable values by reading keys pressed with key_poll()*/
+/* Only used while in STATE_MENU                                  */
+/******************************************************************/
 bool doDebugMenuInput()
 {
     if (KEY_EQ(key_hit, KI_A))
@@ -47,6 +59,12 @@ bool doDebugMenuInput()
     return false;
 }
 
+/******************************************************************/
+/* Function: drawDebugMenu                                        */
+/*                                                                */
+/* Prints the menu's text as 8x8 graphical tiles into the menu's  */
+/* screen entries                                                 */
+/******************************************************************/
 void drawDebugMenu()
 {
     tte_erase_screen();
@@ -67,6 +85,12 @@ void drawDebugMenu()
     getTileStatusDebug(playerX, playerY);
 }
 
+/******************************************************************/
+/* Function: doStateTransition                                    */
+/*                                                                */
+/* Sets the correct graphics mode for the new gameState and any   */
+/* necessary variable values.                                     */
+/******************************************************************/
 void doStateTransition(enum state targetState)
 {
     switch(targetState)
@@ -86,6 +110,13 @@ void doStateTransition(enum state targetState)
     }
 }
 
+/******************************************************************/
+/* Function: getTileStatusDebug                                   */
+/*                                                                */
+/* At the given position, prints a message corresponding to the   */
+/* tile's seen/lit status.                                        */
+/* TODO: Implement tile seen/lit status.                          */
+/******************************************************************/
 void getTileStatusDebug(int positionX, int positionY)
 {
     switch(gameMap[positionY][positionX].sightStatus)
@@ -105,6 +136,13 @@ void getTileStatusDebug(int positionX, int positionY)
     }
 }
 
+/******************************************************************/
+/* Function: tte_write_var_int                                    */
+/*                                                                */
+/* Tonc's Text Engine: write variable integers                    */
+/* Prints as 8x8 graphical tiles each digit of the given number.  */
+/* Used in the debug menu to print variable integers.             */
+/******************************************************************/
 void tte_write_var_int(int varToPrint)
 {
     for (int digitPlace = 1000000000; digitPlace >= 1; digitPlace = digitPlace / 10)
