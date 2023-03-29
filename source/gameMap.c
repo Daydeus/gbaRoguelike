@@ -34,7 +34,7 @@ uint8_t getDynamicTileId(struct Tile tile)
     {
     case ID_WALL:
         if(gameMap[positionY + 1][positionX].tileId != ID_WALL
-            || positionY + 1 > MAP_HEIGHT -1)
+        || positionY + 1 > MAP_HEIGHT -1)
             tileId = ID_WALL_FRONT;
         break;
     case ID_FLOOR:
@@ -167,7 +167,7 @@ void initGameMap()
 
             // Map boundaries should always be a solid tile(wall)
             if (x == 0 || x == MAP_WIDTH - 1 || y == 0 
-                || y == MAP_HEIGHT - 1) 
+            || y == MAP_HEIGHT - 1) 
             {
                 gameMap[y][x].tileId = ID_WALL;
             }
@@ -269,7 +269,7 @@ bool isSolid(uint8_t positionX, uint8_t positionY)
 bool isOutOfBounds(uint8_t positionX, uint8_t positionY)
 {
     if (positionX <= 0 || positionX >= MAP_WIDTH - 1
-        || positionY <= 0 || positionY >= MAP_HEIGHT - 1)
+    || positionY <= 0 || positionY >= MAP_HEIGHT - 1)
         return true;
     else
         return false;

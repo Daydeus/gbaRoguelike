@@ -45,7 +45,7 @@ void doPlayerInput()
     {
         playerFacing = FACING_LEFT;
         if(isSolid(playerX - 1, playerY) ==  false
-            && isOutOfBounds(playerX - 1, playerY) == false)
+        && isOutOfBounds(playerX - 1, playerY) == false)
         {
             playerX--;
 
@@ -59,7 +59,7 @@ void doPlayerInput()
     {
         playerFacing = FACING_RIGHT;
         if(isSolid(playerX + 1, playerY) ==  false
-            && isOutOfBounds(playerX + 1, playerY) == false)
+        && isOutOfBounds(playerX + 1, playerY) == false)
         {
             playerX++;
 
@@ -73,7 +73,7 @@ void doPlayerInput()
     {
         playerFacing = FACING_UP;
         if(isSolid(playerX, playerY - 1) ==  false
-            && isOutOfBounds(playerX, playerY - 1) == false)
+        && isOutOfBounds(playerX, playerY - 1) == false)
         {
             playerY--;
 
@@ -87,7 +87,7 @@ void doPlayerInput()
     {
         playerFacing = FACING_DOWN;
         if(isSolid(playerX, playerY + 1) ==  false
-            && isOutOfBounds(playerX, playerY + 1) == false)
+        && isOutOfBounds(playerX, playerY + 1) == false)
         {
             playerY++;
 
