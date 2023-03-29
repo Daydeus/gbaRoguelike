@@ -28,7 +28,6 @@ u32 eva = 0x80, evb = 0;
 /******************************************************************/
 /* Function Prototypes                                            */
 /******************************************************************/
-void doStateTransition(enum state targetState);
 void doPlayerInput();
 void updatePlayerDraw(int playerX, int playerY);
 void loadPlayerSprite(int playerScreenX, int playerScreenY);
