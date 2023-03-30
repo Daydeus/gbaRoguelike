@@ -22,6 +22,7 @@ int playerX = 10, playerY = 8;
 int playerScreenX = 7, playerScreenY = 5;
 int screenOffsetX = 48, screenOffsetY = 48;
 enum facing playerFacing = FACING_LEFT;
+enum facing playerMovedDir = FACING_NULL;
 bool debugCollisionIsOff = false;
 u32 eva = 0x80, evb = 0;
 
@@ -29,7 +30,7 @@ u32 eva = 0x80, evb = 0;
 /* Function Prototypes                                            */
 /******************************************************************/
 void doPlayerInput();
-void updatePlayerDraw(int playerX, int playerY);
+void updateGraphics();
 void loadPlayerSprite(int playerScreenX, int playerScreenY);
 
 /******************************************************************/
@@ -48,11 +49,8 @@ void doPlayerInput()
         && isOutOfBounds(playerX - 1, playerY) == false)
         {
             playerX--;
+            playerMovedDir = FACING_LEFT;
 
-            if (6 < playerX && playerX < MAP_WIDTH - 8)
-                screenOffsetX -= TILE_SIZE;
-            else
-                playerScreenX--;
         }
     }
     if (KEY_EQ(key_hit, KI_RIGHT))                      // Right Key
@@ -62,11 +60,8 @@ void doPlayerInput()
         && isOutOfBounds(playerX + 1, playerY) == false)
         {
             playerX++;
+            playerMovedDir = FACING_RIGHT;
 
-            if (7 < playerX && playerX < MAP_WIDTH - 7)
-                screenOffsetX += TILE_SIZE;
-            else
-                playerScreenX++;
         }
     }
     if (KEY_EQ(key_hit, KI_UP))                            // Up Key
@@ -76,11 +71,8 @@ void doPlayerInput()
         && isOutOfBounds(playerX, playerY - 1) == false)
         {
             playerY--;
+            playerMovedDir = FACING_UP;
 
-            if (4 < playerY && playerY < MAP_HEIGHT - 5)
-                screenOffsetY -= TILE_SIZE;
-            else
-                playerScreenY--;
         }
     }
     if (KEY_EQ(key_hit, KI_DOWN))                        // Down Key
@@ -90,11 +82,8 @@ void doPlayerInput()
         && isOutOfBounds(playerX, playerY + 1) == false)
         {
             playerY++;
+            playerMovedDir = FACING_DOWN;
 
-            if (5 < playerY && playerY < MAP_HEIGHT - 4)
-                screenOffsetY += TILE_SIZE;
-            else
-                playerScreenY++;
         }
     }
     if (KEY_EQ(key_hit, KI_SELECT))
@@ -107,13 +96,47 @@ void doPlayerInput()
 }
 
 /******************************************************************/
-/* Function: updatePlayerDraw()                                   */
+/* Function: updateGraphics                                       */
 /*                                                                */
-/*                                                                */
+/* Updates player sprite position and screen map offset based on  */
+/* player input                                                   */
 /******************************************************************/
-void updatePlayerDraw(int playerX, int playerY)
+void updateGraphics()
 {
-    
+    switch (playerMovedDir)
+    {
+    case FACING_LEFT:
+        if (6 < playerX && playerX < MAP_WIDTH - 8)
+            screenOffsetX -= TILE_SIZE;
+        else
+            playerScreenX--;
+        break;
+    case FACING_RIGHT:
+        if (7 < playerX && playerX < MAP_WIDTH - 7)
+            screenOffsetX += TILE_SIZE;
+        else
+            playerScreenX++;
+        break;
+    case FACING_UP:
+        if (4 < playerY && playerY < MAP_HEIGHT - 5)
+            screenOffsetY -= TILE_SIZE;
+        else
+            playerScreenY--;
+        break;
+    case FACING_DOWN:
+        if (5 < playerY && playerY < MAP_HEIGHT - 4)
+            screenOffsetY += TILE_SIZE;
+        else
+            playerScreenY++;
+        break;
+    default:
+        break;
+    }
+    playerMovedDir = FACING_NULL;
+    REG_BG0HOFS = screenOffsetX;
+    REG_BG0VOFS = screenOffsetY;
+    loadPlayerSprite(playerScreenX, playerScreenY);
+    REG_BLDALPHA= BLDA_BUILD(eva/8, evb/8);
 }
 
 /******************************************************************/
@@ -133,7 +156,7 @@ void loadPlayerSprite(int playerScreenX, int playerScreenY)
         ATTR2_PALBANK(paletteBank) | startingIndex); // palette index 0, tile index 0
 
     // Update sprite based on status
-    switch(playerFacing)
+    switch (playerFacing)
     {
     case FACING_LEFT:
         if (frame % 20 > 9)
@@ -159,6 +182,12 @@ void loadPlayerSprite(int playerScreenX, int playerScreenY)
             startingIndex = PLAYER_FACING_DOWN_FR1;
         else
             startingIndex = PLAYER_FACING_DOWN_FR2;
+        break;
+    default:
+        if (frame % 20 > 9)
+            startingIndex = PLAYER_FACING_LEFT_FR1;
+        else
+            startingIndex = PLAYER_FACING_LEFT_FR2;
         break;
     }
     // Finalize sprite changes
@@ -207,15 +236,8 @@ int main(void)
         switch(gameState)
         {
         case STATE_GAMEPLAY:
-            // Update position, AI, etc.
             doPlayerInput();
-
-            // Render updates
-            //updatePlayerDraw();
-            loadPlayerSprite(playerScreenX, playerScreenY);
-            REG_BLDALPHA= BLDA_BUILD(eva/8, evb/8);
-            REG_BG0HOFS = screenOffsetX;
-            REG_BG0VOFS = screenOffsetY;
+            updateGraphics();
             break;
         case STATE_MENU:
             if(doDebugMenuInput(eva, evb) == true)

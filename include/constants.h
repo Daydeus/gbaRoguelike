@@ -72,6 +72,7 @@ enum
 
 enum facing
 {
+    FACING_NULL,
     FACING_LEFT,
     FACING_RIGHT,
     FACING_UP,
