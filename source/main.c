@@ -25,11 +25,14 @@ enum facing playerFacing = FACING_LEFT;
 enum facing playerMovedDir = FACING_NULL;
 bool debugCollisionIsOff = false;
 u32 eva = 0x80, evb = 0;
+int8_t dirX[5] = {0, -1, 1, 0, 0};
+int8_t dirY[5] = {0, 0, 0, -1, 1};
 
 /******************************************************************/
 /* Function Prototypes                                            */
 /******************************************************************/
 void doPlayerInput();
+void movePlayer(int8_t direction);
 void updateGraphics();
 void loadPlayerSprite(int playerScreenX, int playerScreenY);
 
@@ -48,7 +51,7 @@ void doPlayerInput()
         if(isSolid(playerX - 1, playerY) ==  false
         && isOutOfBounds(playerX - 1, playerY) == false)
         {
-            playerX--;
+            movePlayer(playerFacing);
             playerMovedDir = FACING_LEFT;
 
         }
@@ -59,7 +62,7 @@ void doPlayerInput()
         if(isSolid(playerX + 1, playerY) ==  false
         && isOutOfBounds(playerX + 1, playerY) == false)
         {
-            playerX++;
+            movePlayer(playerFacing);
             playerMovedDir = FACING_RIGHT;
 
         }
@@ -70,7 +73,7 @@ void doPlayerInput()
         if(isSolid(playerX, playerY - 1) ==  false
         && isOutOfBounds(playerX, playerY - 1) == false)
         {
-            playerY--;
+            movePlayer(playerFacing);
             playerMovedDir = FACING_UP;
 
         }
@@ -81,7 +84,7 @@ void doPlayerInput()
         if(isSolid(playerX, playerY + 1) ==  false
         && isOutOfBounds(playerX, playerY + 1) == false)
         {
-            playerY++;
+            movePlayer(playerFacing);
             playerMovedDir = FACING_DOWN;
 
         }
@@ -93,6 +96,17 @@ void doPlayerInput()
     {
         doStateTransition(STATE_MENU);
     }
+}
+
+/******************************************************************/
+/* Function: movePlayer                                           */
+/*                                                                */
+/* Move the player in the given direction                         */
+/******************************************************************/
+void movePlayer(int8_t direction)
+{
+    playerX += dirX[direction];
+    playerY += dirY[direction];
 }
 
 /******************************************************************/
