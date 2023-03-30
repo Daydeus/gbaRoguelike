@@ -19,7 +19,7 @@ OBJ_AFFINE *obj_aff_buffer = (OBJ_AFFINE*)obj_buffer;
 unsigned int frame = 0;
 enum state gameState = STATE_GAMEPLAY;
 int playerX = 10, playerY = 8;
-int playerScreenX = 7, playerScreenY = 5;
+int playerScreenX = 112, playerScreenY = 80;
 int screenOffsetX = 48, screenOffsetY = 48;
 enum facing playerFacing = FACING_LEFT;
 enum facing playerMovedDir = FACING_NULL;
@@ -27,6 +27,7 @@ bool debugCollisionIsOff = false;
 u32 eva = 0x80, evb = 0;
 int8_t dirX[5] = {0, -1, 1, 0, 0};
 int8_t dirY[5] = {0, 0, 0, -1, 1};
+int8_t offsetX = 0, offsetY = 0;
 
 /******************************************************************/
 /* Function Prototypes                                            */
@@ -117,39 +118,65 @@ void movePlayer(int8_t direction)
 /******************************************************************/
 void updateGraphics()
 {
-    switch (playerMovedDir)
+    if (offsetX != 0 || offsetY != 0)
     {
-    case FACING_LEFT:
-        if (6 < playerX && playerX < MAP_WIDTH - 8)
-            screenOffsetX -= TILE_SIZE;
-        else
-            playerScreenX--;
-        break;
-    case FACING_RIGHT:
-        if (7 < playerX && playerX < MAP_WIDTH - 7)
-            screenOffsetX += TILE_SIZE;
-        else
-            playerScreenX++;
-        break;
-    case FACING_UP:
-        if (4 < playerY && playerY < MAP_HEIGHT - 5)
-            screenOffsetY -= TILE_SIZE;
-        else
-            playerScreenY--;
-        break;
-    case FACING_DOWN:
-        if (5 < playerY && playerY < MAP_HEIGHT - 4)
-            screenOffsetY += TILE_SIZE;
-        else
-            playerScreenY++;
-        break;
-    default:
-        break;
+        if (offsetX > 0)
+            offsetX--;
+        else if (offsetX < 0)
+            offsetX++;
+        if (offsetY > 0)
+            offsetY--;
+        else if (offsetY < 0)
+            offsetY++;
     }
-    playerMovedDir = FACING_NULL;
+    else
+    {
+        switch (playerMovedDir)
+        {
+        case FACING_LEFT:
+            if (6 < playerX && playerX < MAP_WIDTH - 8)
+                screenOffsetX -= TILE_SIZE;
+            else
+            {
+                playerScreenX -= TILE_SIZE;
+                offsetX += dirX[playerMovedDir] * TILE_SIZE;
+            }
+            break;
+        case FACING_RIGHT:
+            if (7 < playerX && playerX < MAP_WIDTH - 7)
+                screenOffsetX += TILE_SIZE;
+            else
+            {
+                playerScreenX += TILE_SIZE;
+                offsetX += dirX[playerMovedDir] * TILE_SIZE;
+            }
+            break;
+        case FACING_UP:
+            if (4 < playerY && playerY < MAP_HEIGHT - 5)
+                screenOffsetY -= TILE_SIZE;
+            else
+            {
+                playerScreenY -= TILE_SIZE;
+                offsetY += dirY[playerMovedDir] * TILE_SIZE;
+            }
+            break;
+        case FACING_DOWN:
+            if (5 < playerY && playerY < MAP_HEIGHT - 4)
+                screenOffsetY += TILE_SIZE;
+            else
+            {
+                playerScreenY += TILE_SIZE;
+                offsetY += dirY[playerMovedDir] * TILE_SIZE;
+            }
+            break;
+        default:
+            break;
+        }
+    }
     REG_BG0HOFS = screenOffsetX;
     REG_BG0VOFS = screenOffsetY;
-    loadPlayerSprite(playerScreenX, playerScreenY);
+    playerMovedDir = FACING_NULL;
+    loadPlayerSprite(playerScreenX - offsetX, playerScreenY - offsetY);
     REG_BLDALPHA= BLDA_BUILD(eva/8, evb/8);
 }
 
@@ -206,7 +233,7 @@ void loadPlayerSprite(int playerScreenX, int playerScreenY)
     }
     // Finalize sprite changes
     player->attr2 = ATTR2_BUILD(startingIndex, paletteBank, 0);
-    obj_set_pos(player, playerScreenX * TILE_SIZE, playerScreenY * TILE_SIZE);
+    obj_set_pos(player, playerScreenX, playerScreenY);
 
     // Update first OAM object
     oam_copy(oam_mem, obj_buffer, 1);
