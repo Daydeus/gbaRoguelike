@@ -245,7 +245,7 @@ uint8_t getPlayerScreenCoord(uint8_t playerPos, int8_t offset, int8_t dimension)
 /*                                                                */
 /* Calc screen offset using player position and given dimension   */
 /******************************************************************/
-uint16_t getScreenOffset(uint8_t dimension)
+uint16_t getScreenOffset(uint8_t dimension, int8_t offset)
 {
     if (dimension == DIM_WIDTH)
     {
@@ -254,7 +254,7 @@ uint16_t getScreenOffset(uint8_t dimension)
         else if (isNearScreenEdge(playerX, dimension) == DIR_RIGHT)
             return (MAP_WIDTH_TILES - SCREEN_WIDTH_TILES) * TILE_SIZE;
         else
-            return (playerX - SCREEN_WIDTH_TILES / 2) * TILE_SIZE;
+            return (playerX - SCREEN_WIDTH_TILES / 2) * TILE_SIZE - offset;
     }
     else if (dimension == DIM_HEIGHT)
     {
@@ -263,7 +263,7 @@ uint16_t getScreenOffset(uint8_t dimension)
         else if (isNearScreenEdge(playerY, dimension) == DIR_DOWN)
             return (MAP_HEIGHT_TILES - SCREEN_HEIGHT_TILES) * TILE_SIZE;
         else
-            return (playerY - SCREEN_HEIGHT_TILES / 2) * TILE_SIZE;
+            return (playerY - SCREEN_HEIGHT_TILES / 2) * TILE_SIZE - offset;
     }
     return 0;
 }
@@ -280,14 +280,17 @@ void updateGraphics()
 
     if (offsetX != 0 || offsetY != 0)
     {
-        if (offsetX > 0)
-            offsetX -= 2;
-        else if (offsetX < 0)
-            offsetX += 2;
-        if (offsetY > 0)
-            offsetY -= 2;
-        else if (offsetY < 0)
-            offsetY += 2;
+        //if (frame % 10 == 1)
+        {
+            if (offsetX > 0)
+                offsetX -= 2;
+            else if (offsetX < 0)
+                offsetX += 2;
+            if (offsetY > 0)
+                offsetY -= 2;
+            else if (offsetY < 0)
+                offsetY += 2;
+        }
     }
     else
     {
@@ -311,8 +314,8 @@ void updateGraphics()
     }
     playerScreenX = getPlayerScreenCoord(playerX, offsetX, DIM_WIDTH);
     playerScreenY = getPlayerScreenCoord(playerY, offsetY, DIM_HEIGHT);
-    REG_BG1HOFS = getScreenOffset(DIM_WIDTH);
-    REG_BG1VOFS = getScreenOffset(DIM_HEIGHT);
+    REG_BG1HOFS = getScreenOffset(DIM_WIDTH, offsetX);
+    REG_BG1VOFS = getScreenOffset(DIM_HEIGHT, offsetY);
     playerMovedDir = DIR_NULL;
     loadPlayerSprite(playerScreenX, playerScreenY);
     REG_BLDALPHA= BLDA_BUILD(eva/8, evb/8);
@@ -421,6 +424,7 @@ int main(void)
         switch(gameState)
         {
         case STATE_GAMEPLAY:
+            if (offsetX == 0 && offsetY == 0)
             doPlayerInput();
             updateGraphics();
             #ifdef DEBUG
