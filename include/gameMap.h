@@ -13,7 +13,7 @@ struct Tile
     uint8_t tileId;
     uint8_t sightStatus;
 };
-extern struct Tile gameMap[MAP_HEIGHT][MAP_WIDTH];
+extern struct Tile gameMap[MAP_HEIGHT_TILES][MAP_WIDTH_TILES];
 
 /******************************************************************/
 /* Function Prototypes                                            */

@@ -3,9 +3,11 @@
 
 #define DEBUG
 
-#define MAP_WIDTH  32                        // Width in 16x16 tiles
-#define MAP_HEIGHT 16                       // Height in 16x16 tiles
 #define TILE_SIZE  16
+#define MAP_WIDTH_TILES  32
+#define MAP_HEIGHT_TILES 16
+#define SCREEN_WIDTH_TILES SCREEN_WIDTH / TILE_SIZE // 15
+#define SCREEN_HEIGHT_TILES SCREEN_HEIGHT / TILE_SIZE // 10
 
 #define SCREEN_BLOCK_WIDTH 32
 
@@ -31,6 +33,10 @@
 #define WALL_FRONT_TR   0x0600000F
 #define WALL_FRONT_BL   0x06000010
 #define WALL_FRONT_BR   0x06000011
+#define HEART_TL        0x06000012
+#define HEART_TR        0x06000013
+#define HEART_BL        0x06000014
+#define HEART_BR        0x06000015
 
 // Player Sprite Indices
 #define PLAYER_FACING_LEFT_FR1  0

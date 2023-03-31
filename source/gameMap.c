@@ -9,7 +9,7 @@
 /******************************************************************/
 /* Data Structures                                                */
 /******************************************************************/
-extern struct Tile gameMap[MAP_HEIGHT][MAP_WIDTH];
+extern struct Tile gameMap[MAP_HEIGHT_TILES][MAP_WIDTH_TILES];
 
 /******************************************************************/
 /* Function Prototypes                                            */
@@ -34,7 +34,7 @@ uint8_t getDynamicTileId(struct Tile tile)
     {
     case ID_WALL:
         if(gameMap[positionY + 1][positionX].tileId != ID_WALL
-        || positionY + 1 > MAP_HEIGHT -1)
+        || positionY + 1 > MAP_HEIGHT_TILES -1)
             tileId = ID_WALL_FRONT;
         break;
     case ID_FLOOR:
@@ -158,16 +158,16 @@ int* getTilesetIndex(struct Tile tile, uint8_t screenEntryCorner)
 /******************************************************************/
 void initGameMap()
 {
-    for (int y = 0; y <= MAP_HEIGHT - 1; y++)
+    for (int y = 0; y <= MAP_HEIGHT_TILES - 1; y++)
     {
-        for (int x = 0; x <= MAP_WIDTH - 1; x++)
+        for (int x = 0; x <= MAP_WIDTH_TILES - 1; x++)
         {
             gameMap[y][x].positionX = x;
             gameMap[y][x].positionY = y;
 
             // Map boundaries should always be a solid tile(wall)
-            if (x == 0 || x == MAP_WIDTH - 1 || y == 0 
-            || y == MAP_HEIGHT - 1) 
+            if (x == 0 || x == MAP_WIDTH_TILES - 1 || y == 0 
+            || y == MAP_HEIGHT_TILES - 1) 
             {
                 gameMap[y][x].tileId = ID_WALL;
             }
@@ -207,9 +207,9 @@ void loadGameMap()
     // For each gameMap[y][x], there are four screen entries to
     // fill. We need to draw an 8x8 tile from the tileset for each
     // screen entry.
-    for (int y = 0; y <= MAP_HEIGHT - 1; y++)
+    for (int y = 0; y <= MAP_HEIGHT_TILES - 1; y++)
     {
-        for (int x = 0; x <= MAP_WIDTH - 1; x++)
+        for (int x = 0; x <= MAP_WIDTH_TILES - 1; x++)
         {
             if (x > 15)
             {
@@ -268,8 +268,8 @@ bool isSolid(uint8_t positionX, uint8_t positionY)
 /******************************************************************/
 bool isOutOfBounds(uint8_t positionX, uint8_t positionY)
 {
-    if (positionX <= 0 || positionX >= MAP_WIDTH - 1
-    || positionY <= 0 || positionY >= MAP_HEIGHT - 1)
+    if (positionX <= 0 || positionX >= MAP_WIDTH_TILES - 1
+    || positionY <= 0 || positionY >= MAP_HEIGHT_TILES - 1)
         return true;
     else
         return false;
