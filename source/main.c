@@ -4,6 +4,7 @@
 #include "debug.h"
 #include "gameMap.h"
 #include "globals.h"
+#include "mgba.h"
 #include "playerSprite.h"
 
 /******************************************************************/
@@ -19,10 +20,9 @@ OBJ_AFFINE *obj_aff_buffer = (OBJ_AFFINE*)obj_buffer;
 unsigned int frame = 0;
 enum state gameState = STATE_GAMEPLAY;
 int playerX = 10, playerY = 8;
-int playerScreenX = 112, playerScreenY = 80;
 int screenOffsetX = 48, screenOffsetY = 48;
-enum facing playerFacing = FACING_LEFT;
-enum facing playerMovedDir = FACING_NULL;
+enum direction playerFacing = DIR_LEFT;
+enum direction playerMovedDir = DIR_NULL;
 bool debugCollisionIsOff = false;
 u32 eva = 0x80, evb = 0;
 int8_t dirX[5] = {0, -1, 1, 0, 0};
@@ -33,6 +33,8 @@ int8_t offsetX = 0, offsetY = 0;
 /* Function Prototypes                                            */
 /******************************************************************/
 void doPlayerInput();
+uint8_t getPlayerScreenCoord(uint8_t playerPos, int8_t offset, int8_t dimension);
+void approach(int8_t *varToIncrement, int8_t incrementTarget);
 void movePlayer(int8_t direction);
 void updateGraphics();
 void loadPlayerSprite(int playerScreenX, int playerScreenY);
@@ -48,55 +50,87 @@ void doPlayerInput()
 {
     if (KEY_EQ(key_hit, KI_LEFT))                        // Left Key
     {
-        playerFacing = FACING_LEFT;
+        playerFacing = DIR_LEFT;
         if(isSolid(playerX - 1, playerY) ==  false
         && isOutOfBounds(playerX - 1, playerY) == false)
         {
             movePlayer(playerFacing);
-            playerMovedDir = FACING_LEFT;
+            playerMovedDir = DIR_LEFT;
 
         }
+        #ifdef DEBUG
+            mgba_printf(MGBA_LOG_INFO, "moved LEFT, position: %d, %d", playerX, playerY);
+        #endif
     }
     if (KEY_EQ(key_hit, KI_RIGHT))                      // Right Key
     {
-        playerFacing = FACING_RIGHT;
+        playerFacing = DIR_RIGHT;
         if(isSolid(playerX + 1, playerY) ==  false
         && isOutOfBounds(playerX + 1, playerY) == false)
         {
             movePlayer(playerFacing);
-            playerMovedDir = FACING_RIGHT;
+            playerMovedDir = DIR_RIGHT;
 
         }
+        #ifdef DEBUG
+            mgba_printf(MGBA_LOG_INFO, "pressed RIGHT, position: %d, %d", playerX, playerY);
+        #endif
     }
     if (KEY_EQ(key_hit, KI_UP))                            // Up Key
     {
-        playerFacing = FACING_UP;
+        playerFacing = DIR_UP;
         if(isSolid(playerX, playerY - 1) ==  false
         && isOutOfBounds(playerX, playerY - 1) == false)
         {
             movePlayer(playerFacing);
-            playerMovedDir = FACING_UP;
+            playerMovedDir = DIR_UP;
 
         }
+        #ifdef DEBUG
+            mgba_printf(MGBA_LOG_INFO, "pressed UP, position: %d, %d", playerX, playerY);
+        #endif
     }
     if (KEY_EQ(key_hit, KI_DOWN))                        // Down Key
     {
-        playerFacing = FACING_DOWN;
+        playerFacing = DIR_DOWN;
         if(isSolid(playerX, playerY + 1) ==  false
         && isOutOfBounds(playerX, playerY + 1) == false)
         {
             movePlayer(playerFacing);
-            playerMovedDir = FACING_DOWN;
+            playerMovedDir = DIR_DOWN;
 
         }
+        #ifdef DEBUG
+            mgba_printf(MGBA_LOG_INFO, "pressed DOWN, position: %d, %d", playerX, playerY);
+        #endif
     }
     if (KEY_EQ(key_hit, KI_SELECT))
     {
+        #ifdef DEBUG
+            mgba_printf(MGBA_LOG_INFO, "pressed SELECT");
+        #endif
     }
     if (KEY_EQ(key_hit, KI_START))
     {
+        #ifdef DEBUG
+            mgba_printf(MGBA_LOG_INFO, "pressed START");
+        #endif
         doStateTransition(STATE_MENU);
     }
+}
+
+/******************************************************************/
+/* Function: approach                                             */
+/*                                                                */
+/* Increment the passed variable to the target goal               */
+/******************************************************************/
+void approach(int8_t *varToIncrement, int8_t incrementTarget)
+{
+    if ((int8_t)varToIncrement < incrementTarget)
+        varToIncrement += 1;
+    else if ((int8_t)varToIncrement > incrementTarget)
+        varToIncrement -= 1;
+    
 }
 
 /******************************************************************/
@@ -111,6 +145,40 @@ void movePlayer(int8_t direction)
 }
 
 /******************************************************************/
+/* Function: getPlayerScreenCoord                                 */
+/*                                                                */
+/* Get the coords for drawing player sprite based on map position */
+/******************************************************************/
+uint8_t getPlayerScreenCoord(uint8_t playerPos, int8_t offset, int8_t dimension)
+{
+    uint8_t lowerBound = 0, upperBound = 0;
+    uint8_t screenCoord = 0;
+    lowerBound = (dimension == DIM_WIDTH) ? 6 : 5;
+    upperBound = (dimension == DIM_WIDTH) ? MAP_WIDTH - 8 : MAP_HEIGHT - 4;
+
+    if (dimension == DIM_WIDTH)
+    {
+        if (lowerBound >= playerPos)
+            screenCoord = playerPos * TILE_SIZE - offset;
+        else if (upperBound <= playerPos)
+            screenCoord = SCREEN_WIDTH - (MAP_WIDTH - playerPos) * TILE_SIZE - offset;
+        else
+            screenCoord = SCREEN_WIDTH / 2 - TILE_SIZE / 2;
+    }
+    else
+    {
+        if (lowerBound >= playerPos)
+            screenCoord = playerPos * TILE_SIZE - offset;
+        else if (upperBound <= playerPos)
+            screenCoord = SCREEN_HEIGHT - (MAP_HEIGHT - playerPos) * TILE_SIZE - offset;
+        else
+            screenCoord = SCREEN_HEIGHT / 2;
+    }
+
+    return screenCoord;
+}
+
+/******************************************************************/
 /* Function: updateGraphics                                       */
 /*                                                                */
 /* Updates player sprite position and screen map offset based on  */
@@ -118,65 +186,54 @@ void movePlayer(int8_t direction)
 /******************************************************************/
 void updateGraphics()
 {
+    int playerScreenX = 0, playerScreenY = 0;
+
     if (offsetX != 0 || offsetY != 0)
     {
         if (offsetX > 0)
-            offsetX--;
+            offsetX -= 2;
         else if (offsetX < 0)
-            offsetX++;
+            offsetX += 2;
         if (offsetY > 0)
-            offsetY--;
+            offsetY -= 2;
         else if (offsetY < 0)
-            offsetY++;
+            offsetY += 2;
     }
     else
     {
         switch (playerMovedDir)
         {
-        case FACING_LEFT:
-            if (6 < playerX && playerX < MAP_WIDTH - 8)
+        case DIR_LEFT:
+                offsetX += dirX[playerMovedDir] * TILE_SIZE;
+            if (7 <= playerX && playerX < MAP_WIDTH - 8
+            && offsetX != 0)
                 screenOffsetX -= TILE_SIZE;
-            else
-            {
-                playerScreenX -= TILE_SIZE;
-                offsetX += dirX[playerMovedDir] * TILE_SIZE;
-            }
             break;
-        case FACING_RIGHT:
-            if (7 < playerX && playerX < MAP_WIDTH - 7)
+        case DIR_RIGHT:
+                offsetX += dirX[playerMovedDir] * TILE_SIZE;
+            if (7 <= playerX && playerX < MAP_WIDTH - 8)
                 screenOffsetX += TILE_SIZE;
-            else
-            {
-                playerScreenX += TILE_SIZE;
-                offsetX += dirX[playerMovedDir] * TILE_SIZE;
-            }
             break;
-        case FACING_UP:
-            if (4 < playerY && playerY < MAP_HEIGHT - 5)
-                screenOffsetY -= TILE_SIZE;
-            else
-            {
-                playerScreenY -= TILE_SIZE;
+        case DIR_UP:
                 offsetY += dirY[playerMovedDir] * TILE_SIZE;
-            }
+            if (4 <= playerY && playerY < MAP_HEIGHT - 5)
+                screenOffsetY -= TILE_SIZE;
             break;
-        case FACING_DOWN:
+        case DIR_DOWN:
+                offsetY += dirY[playerMovedDir] * TILE_SIZE;
             if (5 < playerY && playerY < MAP_HEIGHT - 4)
                 screenOffsetY += TILE_SIZE;
-            else
-            {
-                playerScreenY += TILE_SIZE;
-                offsetY += dirY[playerMovedDir] * TILE_SIZE;
-            }
             break;
         default:
             break;
         }
     }
+    playerScreenX = getPlayerScreenCoord(playerX, offsetX, DIM_WIDTH);
+    playerScreenY = getPlayerScreenCoord(playerY, offsetY, DIM_HEIGHT);
     REG_BG0HOFS = screenOffsetX;
     REG_BG0VOFS = screenOffsetY;
-    playerMovedDir = FACING_NULL;
-    loadPlayerSprite(playerScreenX - offsetX, playerScreenY - offsetY);
+    playerMovedDir = DIR_NULL;
+    loadPlayerSprite(playerScreenX, playerScreenY);
     REG_BLDALPHA= BLDA_BUILD(eva/8, evb/8);
 }
 
@@ -199,26 +256,26 @@ void loadPlayerSprite(int playerScreenX, int playerScreenY)
     // Update sprite based on status
     switch (playerFacing)
     {
-    case FACING_LEFT:
+    case DIR_LEFT:
         if (frame % 20 > 9)
             startingIndex = PLAYER_FACING_LEFT_FR1;
         else
             startingIndex = PLAYER_FACING_LEFT_FR2;
         break;
-    case FACING_RIGHT:
+    case DIR_RIGHT:
         player->attr1 ^= ATTR1_HFLIP;
         if (frame % 20 > 9)
             startingIndex = PLAYER_FACING_LEFT_FR1;
         else
             startingIndex = PLAYER_FACING_LEFT_FR2;
         break;
-    case FACING_UP:
+    case DIR_UP:
         if (frame % 20 > 9)
             startingIndex = PLAYER_FACING_UP_FR1;
         else
             startingIndex = PLAYER_FACING_UP_FR2;
         break;
-    case FACING_DOWN:
+    case DIR_DOWN:
         if (frame % 20 > 9)
             startingIndex = PLAYER_FACING_DOWN_FR1;
         else
@@ -246,6 +303,10 @@ void loadPlayerSprite(int playerScreenX, int playerScreenY)
 /******************************************************************/
 int main(void)
 {
+    #ifdef DEBUG
+        mgba_console_open();
+    #endif
+
     irq_init(NULL);
     irq_enable(II_VBLANK);
 

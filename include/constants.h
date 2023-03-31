@@ -1,6 +1,8 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
+#define DEBUG
+
 #define MAP_WIDTH  32                        // Width in 16x16 tiles
 #define MAP_HEIGHT 16                       // Height in 16x16 tiles
 #define TILE_SIZE  16
@@ -70,13 +72,19 @@ enum
     SCREEN_ENTRY_BR
 };
 
-enum facing
+enum direction
 {
-    FACING_NULL,
-    FACING_LEFT,
-    FACING_RIGHT,
-    FACING_UP,
-    FACING_DOWN
+    DIR_NULL,
+    DIR_LEFT,
+    DIR_RIGHT,
+    DIR_UP,
+    DIR_DOWN
+};
+
+enum
+{
+    DIM_HEIGHT,
+    DIM_WIDTH
 };
 
 #endif // CONSTANTS_H

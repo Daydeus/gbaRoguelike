@@ -13,7 +13,7 @@ extern int playerScreenX, playerScreenY;
 // Screen offset from TopLeft corner of gameMap[][]
 extern int screenOffsetX, screenOffsetY; 
 
-extern enum facing playerFacing;
+extern enum direction playerFacing;
 extern bool debugCollisionIsOff;
 
 // eva and evb are .4 fixeds
