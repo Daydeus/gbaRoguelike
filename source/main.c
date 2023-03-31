@@ -7,6 +7,8 @@
 #include "pauseMenu.h"
 #include "playerSprite.h"
 
+//#define DEBUG
+
 /******************************************************************/
 /* Data Structures                                                */
 /******************************************************************/
@@ -215,24 +217,42 @@ uint8_t getPlayerScreenCoord(uint8_t playerPos, int8_t offset, int8_t dimension)
 {
     uint8_t lowerBound = 0, upperBound = 0;
     uint8_t screenCoord = 0;
-    lowerBound = (dimension == DIM_WIDTH) ? 7 : 3;
-    upperBound = (dimension == DIM_WIDTH) ? MAP_WIDTH_TILES - 8 : MAP_HEIGHT_TILES - 4;
+    lowerBound = (dimension == DIM_WIDTH) ? 7 : 4;
+    upperBound = (dimension == DIM_WIDTH) ? MAP_WIDTH_TILES - 8 : MAP_HEIGHT_TILES - 5;
 
     if (dimension == DIM_WIDTH)
     {
         if (lowerBound >= playerPos)
-            screenCoord = playerPos * TILE_SIZE - offset;
+        {
+            if (7 == playerPos && 0 > offset) // Edge case
+                screenCoord = playerPos * TILE_SIZE;
+            else
+                screenCoord = playerPos * TILE_SIZE - offset;
+        }
         else if (upperBound <= playerPos)
-            screenCoord = SCREEN_WIDTH - (MAP_WIDTH_TILES - playerPos) * TILE_SIZE - offset;
+            if (MAP_WIDTH_TILES - 8 == playerPos && 0 < offset) // Edge case
+                screenCoord = SCREEN_WIDTH - (MAP_WIDTH_TILES - playerPos) * TILE_SIZE;
+            else
+                screenCoord = SCREEN_WIDTH - (MAP_WIDTH_TILES - playerPos) * TILE_SIZE - offset;
         else
             screenCoord = SCREEN_WIDTH / 2 - TILE_SIZE / 2;
     }
     else if (dimension == DIM_HEIGHT)
     {
         if (lowerBound >= playerPos)
-            screenCoord = (playerPos + 1) * TILE_SIZE - offset;
+        {
+            if (4 == playerPos && 0 > offset) // Edge case
+                screenCoord = (playerPos + 1) * TILE_SIZE;
+            else
+                screenCoord = (playerPos + 1) * TILE_SIZE - offset;
+        }
         else if (upperBound <= playerPos)
-            screenCoord = SCREEN_HEIGHT - (MAP_HEIGHT_TILES - playerPos) * TILE_SIZE - offset;
+        {
+            if (11 == playerPos && 0 < offset) // Edge case
+                screenCoord = SCREEN_HEIGHT - (MAP_HEIGHT_TILES - playerPos) * TILE_SIZE;
+            else
+                screenCoord = SCREEN_HEIGHT - (MAP_HEIGHT_TILES - playerPos) * TILE_SIZE - offset;
+        }
         else
             screenCoord = SCREEN_HEIGHT / 2;
     }
@@ -250,18 +270,38 @@ uint16_t getScreenOffset(uint8_t dimension, int8_t offset)
     if (dimension == DIM_WIDTH)
     {
         if (isNearScreenEdge(playerX, dimension) == DIR_LEFT)
-            return 0;
+        {
+            if (7 == playerX && 0 > offset) // Edge case
+                return offset * -1;
+            else
+                return 0;
+        }
         else if (isNearScreenEdge(playerX, dimension) == DIR_RIGHT)
-            return (MAP_WIDTH_TILES - SCREEN_WIDTH_TILES) * TILE_SIZE;
+        {
+            if (24 == playerX && 0 < offset) // Edge case
+                return (MAP_WIDTH_TILES - SCREEN_WIDTH_TILES) * TILE_SIZE - offset;
+            else
+                return (MAP_WIDTH_TILES - SCREEN_WIDTH_TILES) * TILE_SIZE;
+        }
         else
             return (playerX - SCREEN_WIDTH_TILES / 2) * TILE_SIZE - offset;
     }
     else if (dimension == DIM_HEIGHT)
     {
         if (isNearScreenEdge(playerY, dimension) == DIR_UP)
-            return (MAP_HEIGHT_TILES - 1) * TILE_SIZE;        // 240
+        {
+            if (4 == playerY && 0 > offset) // Edge case
+                return (MAP_HEIGHT_TILES - 1) * TILE_SIZE - offset;        // 240
+            else
+                return (MAP_HEIGHT_TILES - 1) * TILE_SIZE;        // 240
+        }
         else if (isNearScreenEdge(playerY, dimension) == DIR_DOWN)
-            return (MAP_HEIGHT_TILES - SCREEN_HEIGHT_TILES) * TILE_SIZE;
+        {
+            if (11 == playerY && 0 < offset) // Edge case
+                return (MAP_HEIGHT_TILES - SCREEN_HEIGHT_TILES) * TILE_SIZE - offset;
+            else
+                return (MAP_HEIGHT_TILES - SCREEN_HEIGHT_TILES) * TILE_SIZE;
+        }
         else
             return (playerY - SCREEN_HEIGHT_TILES / 2) * TILE_SIZE - offset;
     }
@@ -280,17 +320,14 @@ void updateGraphics()
 
     if (offsetX != 0 || offsetY != 0)
     {
-        //if (frame % 10 == 1)
-        {
-            if (offsetX > 0)
-                offsetX -= 2;
-            else if (offsetX < 0)
-                offsetX += 2;
-            if (offsetY > 0)
-                offsetY -= 2;
-            else if (offsetY < 0)
-                offsetY += 2;
-        }
+        if (offsetX > 0)
+            offsetX -= 2;
+        else if (offsetX < 0)
+            offsetX += 2;
+        if (offsetY > 0)
+            offsetY -= 2;
+        else if (offsetY < 0)
+            offsetY += 2;
     }
     else
     {

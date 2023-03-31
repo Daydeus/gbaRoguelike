@@ -1,8 +1,6 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
-#define DEBUG
-
 #define TILE_SIZE  16
 #define MAP_WIDTH_TILES  32
 #define MAP_HEIGHT_TILES 16
