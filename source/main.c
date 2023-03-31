@@ -254,16 +254,16 @@ uint16_t getScreenOffset(uint8_t dimension)
         else if (isNearScreenEdge(playerX, dimension) == DIR_RIGHT)
             return (MAP_WIDTH_TILES - SCREEN_WIDTH_TILES) * TILE_SIZE;
         else
-            return (playerX - 7) * TILE_SIZE;
+            return (playerX - SCREEN_WIDTH_TILES / 2) * TILE_SIZE;
     }
     else if (dimension == DIM_HEIGHT)
     {
         if (isNearScreenEdge(playerY, dimension) == DIR_UP)
-            return 240;
+            return (MAP_HEIGHT_TILES - 1) * TILE_SIZE;        // 240
         else if (isNearScreenEdge(playerY, dimension) == DIR_DOWN)
             return (MAP_HEIGHT_TILES - SCREEN_HEIGHT_TILES) * TILE_SIZE;
         else
-            return (playerY - 5) * TILE_SIZE;
+            return (playerY - SCREEN_HEIGHT_TILES / 2) * TILE_SIZE;
     }
     return 0;
 }
