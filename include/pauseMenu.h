@@ -1,11 +1,11 @@
-#ifndef DEBUG_H
-#define DEBUG_H
+#ifndef PAUSEMENU_H
+#define PAUSEMENU_H
 
 /******************************************************************/
 /* Function Prototypes                                            */
 /******************************************************************/
-bool doDebugMenuInput();
-void drawDebugMenu();
+bool doPauseMenuInput();
+void drawPauseMenu();
 void doStateTransition(enum state targetState);
 
-#endif // DEBUG_H
+#endif // PAUSEMENU_H

@@ -1,9 +1,9 @@
 #include <tonc.h>
 #include <string.h>
 #include "constants.h"
-#include "debug.h"
 #include "gameMap.h"
 #include "globals.h"
+#include "pauseMenu.h"
 
 /******************************************************************/
 /* Function Prototypes                                            */
@@ -12,12 +12,12 @@ void tte_write_var_int(int varToPrint);
 void getTileStatusDebug(int positionX, int positionY);
 
 /******************************************************************/
-/* Function: doDebugMenuInput                                     */
+/* Function: doPauseMenuInput                                     */
 /*                                                                */
 /* Changes variable values by reading keys pressed with key_poll()*/
 /* Only used while in STATE_MENU                                  */
 /******************************************************************/
-bool doDebugMenuInput()
+bool doPauseMenuInput()
 {
     if (KEY_EQ(key_hit, KI_A))
     {
@@ -60,16 +60,16 @@ bool doDebugMenuInput()
 }
 
 /******************************************************************/
-/* Function: drawDebugMenu                                        */
+/* Function: drawPauseMenu                                        */
 /*                                                                */
 /* Prints the menu's text as 8x8 graphical tiles into the menu's  */
 /* screen entries                                                 */
 /******************************************************************/
-void drawDebugMenu()
+void drawPauseMenu()
 {
     tte_erase_screen();
     tte_set_pos(0, 0);
-    tte_write("Debug Menu\n");
+    tte_write("Pause Menu\n");
     tte_write("Player position (");
     tte_write_var_int(playerX);
     tte_write(", ");
@@ -104,7 +104,7 @@ void doStateTransition(enum state targetState)
         REG_BG1CNT= BG_CBB(0) | BG_SBB(30) | BG_4BPP | BG_REG_64x32;
         REG_DISPCNT= DCNT_MODE0 | DCNT_BG2 | DCNT_OBJ_1D;
         tte_init_chr4c(2, BG_CBB(1) | BG_SBB(30), 0xF000, 0x0201, CLR_ORANGE<<16|CLR_BLACK, &vwf_default, NULL);
-        drawDebugMenu(eva, evb);
+        drawPauseMenu(eva, evb);
         gameState = STATE_MENU;
         break;
     }

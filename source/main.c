@@ -1,10 +1,10 @@
 #include <tonc.h>
 #include <string.h>
 #include "constants.h"
-#include "debug.h"
 #include "gameMap.h"
 #include "globals.h"
 #include "mgba.h"
+#include "pauseMenu.h"
 #include "playerSprite.h"
 
 /******************************************************************/
@@ -342,8 +342,8 @@ int main(void)
             updateGraphics();
             break;
         case STATE_MENU:
-            if(doDebugMenuInput(eva, evb) == true)
-                drawDebugMenu();
+            if(doPauseMenuInput(eva, evb) == true)
+                drawPauseMenu();
             break;
         }
 
