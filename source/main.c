@@ -39,8 +39,7 @@ void doPlayerInput();
 int8_t approachValue(int8_t currentValue, int8_t targetValue, int8_t increment);
 void movePlayer(int8_t direction);
 void drawHUD();
-uint8_t isNearScreenEdge(int position, uint8_t dimension);
-uint8_t getPlayerScreenCoord(uint8_t playerPos, int8_t offset, int8_t dimension);
+uint8_t getPlayerScreenCoord(uint8_t dimension, int playerPos, uint8_t mapSector);
 void updateGraphics();
 void loadPlayerSprite(int playerScreenX, int playerScreenY);
 
@@ -225,79 +224,50 @@ uint8_t getMapSector(int positionX, int positionY)
 }
 
 /******************************************************************/
-/* Function: isNearScreenEdge                                     */
-/*                                                                */
-/* Check if position is within half screen length of horizontal   */
-/* or vertical map edge                                           */
-/******************************************************************/
-uint8_t isNearScreenEdge(int position, uint8_t dimension)
-{
-    if (dimension == DIM_WIDTH)
-    {
-        if (7 >= position)
-            return DIR_LEFT;
-        else if (position >= MAP_WIDTH_TILES - 8)
-            return DIR_RIGHT;
-    }
-    else if (dimension == DIM_HEIGHT)
-    {
-        if (4 >= position)
-            return DIR_UP;
-        else if (position >= MAP_HEIGHT_TILES - 5)
-            return DIR_DOWN;
-    }
-    return DIR_NULL;
-}
-
-/******************************************************************/
 /* Function: getPlayerScreenCoord                                 */
 /*                                                                */
 /* Get the coords for drawing player sprite based on map position */
 /******************************************************************/
-uint8_t getPlayerScreenCoord(uint8_t playerPos, int8_t offset, int8_t dimension)
+uint8_t getPlayerScreenCoord(uint8_t dimension, int playerPos, uint8_t mapSector)
 {
-    uint8_t lowerBound = 0, upperBound = 0;
     uint8_t screenCoord = 0;
-    lowerBound = (dimension == DIM_WIDTH) ? 7 : 4;
-    upperBound = (dimension == DIM_WIDTH) ? MAP_WIDTH_TILES - 8 : MAP_HEIGHT_TILES - 5;
 
     if (dimension == DIM_WIDTH)
     {
-        if (lowerBound >= playerPos)
+        switch(mapSector)
         {
-            if (7 == playerPos && 0 > offset) // Edge case
-                screenCoord = playerPos * TILE_SIZE;
-            else
-                screenCoord = playerPos * TILE_SIZE - offset;
-        }
-        else if (upperBound <= playerPos)
-            if (MAP_WIDTH_TILES - 8 == playerPos && 0 < offset) // Edge case
-                screenCoord = SCREEN_WIDTH - (MAP_WIDTH_TILES - playerPos) * TILE_SIZE;
-            else
-                screenCoord = SCREEN_WIDTH - (MAP_WIDTH_TILES - playerPos) * TILE_SIZE - offset;
-        else
+        case SECTOR_TOP_LEFT:
+        case SECTOR_MID_LEFT:
+        case SECTOR_BOT_LEFT:
+            screenCoord = playerPos * TILE_SIZE;
+            break;
+        case SECTOR_TOP_RIGHT:
+        case SECTOR_MID_RIGHT:
+        case SECTOR_BOT_RIGHT:
+            screenCoord = SCREEN_WIDTH - (MAP_WIDTH_TILES - playerPos) * TILE_SIZE;
+            break;
+        default:
             screenCoord = SCREEN_WIDTH / 2 - TILE_SIZE / 2;
+        }
     }
     else if (dimension == DIM_HEIGHT)
     {
-        if (lowerBound >= playerPos)
+        switch(mapSector)
         {
-            if (4 == playerPos && 0 > offset) // Edge case
-                screenCoord = (playerPos + 1) * TILE_SIZE;
-            else
-                screenCoord = (playerPos + 1) * TILE_SIZE - offset;
-        }
-        else if (upperBound <= playerPos)
-        {
-            if (11 == playerPos && 0 < offset) // Edge case
-                screenCoord = SCREEN_HEIGHT - (MAP_HEIGHT_TILES - playerPos) * TILE_SIZE;
-            else
-                screenCoord = SCREEN_HEIGHT - (MAP_HEIGHT_TILES - playerPos) * TILE_SIZE - offset;
-        }
-        else
+        case SECTOR_TOP_LEFT:
+        case SECTOR_TOP_MID:
+        case SECTOR_TOP_RIGHT:
+            screenCoord = (playerPos + 1) * TILE_SIZE;
+            break;
+        case SECTOR_BOT_LEFT:
+        case SECTOR_BOT_MID:
+        case SECTOR_BOT_RIGHT:
+            screenCoord = SCREEN_HEIGHT - (MAP_HEIGHT_TILES - playerPos) * TILE_SIZE;
+            break;
+        default:
             screenCoord = SCREEN_HEIGHT / 2;
+        }
     }
-
     return screenCoord;
 }
 
@@ -306,44 +276,47 @@ uint8_t getPlayerScreenCoord(uint8_t playerPos, int8_t offset, int8_t dimension)
 /*                                                                */
 /* Calc screen offset using player position and given dimension   */
 /******************************************************************/
-uint16_t getBgOffset(uint8_t dimension, int8_t offset)
+uint16_t getBgOffset(uint8_t dimension, uint8_t mapSector)
 {
+    uint16_t offsetBg = 0;
+
     if (dimension == DIM_WIDTH)
     {
-        if (isNearScreenEdge(playerX, dimension) == DIR_LEFT)
+        switch(mapSector)
         {
-            return 0;
+        case SECTOR_TOP_LEFT:
+        case SECTOR_MID_LEFT:
+        case SECTOR_BOT_LEFT:
+            offsetBg = 0;
+            break;
+        case SECTOR_TOP_RIGHT:
+        case SECTOR_MID_RIGHT:
+        case SECTOR_BOT_RIGHT:
+            offsetBg = (MAP_WIDTH_TILES - SCREEN_WIDTH_TILES) * TILE_SIZE;
+            break;
+        default:
+            offsetBg = (playerX - SCREEN_WIDTH_TILES / 2) * TILE_SIZE;
         }
-        else if (isNearScreenEdge(playerX, dimension) == DIR_RIGHT)
-        {
-            if (24 == playerX && 0 < offset) // Edge case
-               return (MAP_WIDTH_TILES - SCREEN_WIDTH_TILES) * TILE_SIZE - offset;
-            else
-                return (MAP_WIDTH_TILES - SCREEN_WIDTH_TILES) * TILE_SIZE;
-        }
-        else
-            return (playerX - SCREEN_WIDTH_TILES / 2) * TILE_SIZE - offset;
     }
     else if (dimension == DIM_HEIGHT)
     {
-        if (isNearScreenEdge(playerY, dimension) == DIR_UP)
+        switch(mapSector)
         {
-            if (4 == playerY && 0 > offset) // Edge case
-                return (MAP_HEIGHT_TILES - 1) * TILE_SIZE - offset;        // 240
-            else
-                return (MAP_HEIGHT_TILES - 1) * TILE_SIZE;        // 240
+        case SECTOR_TOP_LEFT:
+        case SECTOR_TOP_MID:
+        case SECTOR_TOP_RIGHT:
+            offsetBg = (MAP_HEIGHT_TILES - 1) * TILE_SIZE;
+            break;
+        case SECTOR_BOT_LEFT:
+        case SECTOR_BOT_MID:
+        case SECTOR_BOT_RIGHT:
+            offsetBg = (MAP_HEIGHT_TILES - SCREEN_HEIGHT_TILES) * TILE_SIZE;
+            break;
+        default:
+            offsetBg = (playerY - SCREEN_HEIGHT_TILES / 2) * TILE_SIZE;
         }
-        else if (isNearScreenEdge(playerY, dimension) == DIR_DOWN)
-        {
-            if (11 == playerY && 0 < offset) // Edge case
-                return (MAP_HEIGHT_TILES - SCREEN_HEIGHT_TILES) * TILE_SIZE - offset;
-            else
-                return (MAP_HEIGHT_TILES - SCREEN_HEIGHT_TILES) * TILE_SIZE;
-        }
-        else
-            return (playerY - SCREEN_HEIGHT_TILES / 2) * TILE_SIZE - offset;
     }
-    return 0;
+    return offsetBg;
 }
 
 /******************************************************************/
@@ -354,7 +327,7 @@ uint16_t getBgOffset(uint8_t dimension, int8_t offset)
 /******************************************************************/
 void updateGraphics()
 {
-    int8_t quadrantV = 0, quadrantH = 0;
+    uint8_t mapSector = getMapSector(playerX, playerY);
     int playerScreenX = 0, playerScreenY = 0;
 
     if (offsetX != 0)
@@ -369,65 +342,52 @@ void updateGraphics()
     {
         if (playerMovedDir != DIR_NULL)
         {
-            quadrantH = isNearScreenEdge(playerX, DIM_WIDTH);
-            quadrantV = isNearScreenEdge(playerY, DIM_HEIGHT);
-            #ifdef DEBUG
-                mgba_printf(MGBA_LOG_DEBUG, "Quadrants: %d, %d", quadrantH, quadrantV);
-            #endif
-            if(quadrantV == DIR_UP && quadrantH == DIR_LEFT)
+            switch(mapSector)
             {
+            case SECTOR_TOP_LEFT:
                 offsetY += dirY[playerMovedDir] * TILE_SIZE;
                 offsetX += dirX[playerMovedDir] * TILE_SIZE;
-            }
-            if(quadrantV == DIR_UP && quadrantH == DIR_NULL)
-            {
-                offsetY += dirY[playerMovedDir] * TILE_SIZE;
-                if (7 == playerX && playerMovedDir == DIR_LEFT)
-                    screenOffsetX += dirX[playerMovedDir] * TILE_SIZE;
-                screenOffsetX += dirX[playerMovedDir] * TILE_SIZE;
-            }
-            if(quadrantV == DIR_UP && quadrantH == DIR_RIGHT)
-            {
-                offsetY += dirY[playerMovedDir] * TILE_SIZE;
-                offsetX += dirX[playerMovedDir] * TILE_SIZE;
-            }
-            if(quadrantV == DIR_NULL && quadrantH == DIR_LEFT)
-            {
-                screenOffsetY += dirY[playerMovedDir] * TILE_SIZE;
-                offsetX += dirX[playerMovedDir] * TILE_SIZE;
-            }
-            if(quadrantV == DIR_NULL && quadrantH == DIR_NULL)
-            {
-                screenOffsetY += dirY[playerMovedDir] * TILE_SIZE;
-                screenOffsetX += dirX[playerMovedDir] * TILE_SIZE;
-            }
-            if(quadrantV == DIR_NULL && quadrantH == DIR_RIGHT)
-            {
+                break;
+            case SECTOR_TOP_MID:
                 offsetY += dirY[playerMovedDir] * TILE_SIZE;
                 screenOffsetX += dirX[playerMovedDir] * TILE_SIZE;
-            }
-            if(quadrantV == DIR_DOWN && quadrantH == DIR_LEFT)
-            {
+                break;
+            case SECTOR_TOP_RIGHT:
                 offsetY += dirY[playerMovedDir] * TILE_SIZE;
                 offsetX += dirX[playerMovedDir] * TILE_SIZE;
-            }
-            if(quadrantV == DIR_DOWN && quadrantH == DIR_NULL)
-            {
+                break;
+            case SECTOR_MID_LEFT:
                 screenOffsetY += dirY[playerMovedDir] * TILE_SIZE;
                 offsetX += dirX[playerMovedDir] * TILE_SIZE;
-            }
-            if(quadrantV == DIR_DOWN && quadrantH == DIR_RIGHT)
-            {
+                break;
+            case SECTOR_MID_MID:
+                screenOffsetY += dirY[playerMovedDir] * TILE_SIZE;
+                screenOffsetX += dirX[playerMovedDir] * TILE_SIZE;
+                break;
+            case SECTOR_MID_RIGHT:
+                screenOffsetY += dirY[playerMovedDir] * TILE_SIZE;
+                offsetX += dirX[playerMovedDir] * TILE_SIZE;
+                break;
+            case SECTOR_BOT_LEFT:
                 offsetY += dirY[playerMovedDir] * TILE_SIZE;
                 offsetX += dirX[playerMovedDir] * TILE_SIZE;
+                break;
+            case SECTOR_BOT_MID:
+                offsetY += dirY[playerMovedDir] * TILE_SIZE;
+                screenOffsetX += dirX[playerMovedDir] * TILE_SIZE;
+                break;
+            case SECTOR_BOT_RIGHT:
+                offsetY += dirY[playerMovedDir] * TILE_SIZE;
+                offsetX += dirX[playerMovedDir] * TILE_SIZE;
+                break;
             }
         }
     }
 
-    playerScreenX = getPlayerScreenCoord(playerX, offsetX, DIM_WIDTH);
-    playerScreenY = getPlayerScreenCoord(playerY, offsetY, DIM_HEIGHT);
-    REG_BG1HOFS = getBgOffset(DIM_WIDTH, screenOffsetX);
-    REG_BG1VOFS = getBgOffset(DIM_HEIGHT, screenOffsetY);
+    playerScreenX = getPlayerScreenCoord(DIM_WIDTH, playerX, mapSector) - offsetX;
+    playerScreenY = getPlayerScreenCoord(DIM_HEIGHT, playerY, mapSector) - offsetY;
+    REG_BG1HOFS = getBgOffset(DIM_WIDTH, mapSector) - screenOffsetX ;
+    REG_BG1VOFS = getBgOffset(DIM_HEIGHT, mapSector) - screenOffsetY;
     playerMovedDir = DIR_NULL;
     loadPlayerSprite(playerScreenX, playerScreenY);
     REG_BLDALPHA= BLDA_BUILD(eva/8, evb/8);
