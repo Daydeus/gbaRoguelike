@@ -91,4 +91,18 @@ enum
     DIM_WIDTH
 };
 
+enum mapSector
+{
+    SECTOR_ERROR,
+    SECTOR_TOP_LEFT,
+    SECTOR_TOP_MID,
+    SECTOR_TOP_RIGHT,
+    SECTOR_MID_LEFT,
+    SECTOR_MID_MID,
+    SECTOR_MID_RIGHT,
+    SECTOR_BOT_LEFT,
+    SECTOR_BOT_MID,
+    SECTOR_BOT_RIGHT
+};
+
 #endif // CONSTANTS_H
