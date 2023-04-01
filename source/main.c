@@ -7,7 +7,7 @@
 #include "pauseMenu.h"
 #include "playerSprite.h"
 
-//#define DEBUG
+#define DEBUG
 
 /******************************************************************/
 /* Data Structures                                                */
@@ -25,6 +25,7 @@ int playerX = 1, playerY = 1;
 int screenOffsetX = 0, screenOffsetY = 240;
 enum direction playerFacing = DIR_LEFT;
 enum direction playerMovedDir = DIR_NULL;
+enum direction playerBumpedDir = DIR_NULL;
 bool debugCollisionIsOff = false;
 u32 eva = 0x80, evb = 0;
 int8_t dirX[5] = {0, -1, 1, 0, 0};
@@ -35,7 +36,7 @@ int8_t offsetX = 0, offsetY = 0;
 /* Function Prototypes                                            */
 /******************************************************************/
 void doPlayerInput();
-void approach(int8_t *varToIncrement, int8_t incrementTarget);
+int8_t approachValue(int8_t currentValue, int8_t targetValue, int8_t increment);
 void movePlayer(int8_t direction);
 void drawHUD();
 uint8_t isNearScreenEdge(int position, uint8_t dimension);
@@ -63,7 +64,7 @@ void doPlayerInput()
 
         }
         #ifdef DEBUG
-            mgba_printf(MGBA_LOG_INFO, "moved LEFT, position: %d, %d", playerX, playerY);
+            mgba_printf(MGBA_LOG_INFO, "pressed LEFT, position: %d, %d", playerX, playerY);
         #endif
     }
     if (KEY_EQ(key_hit, KI_RIGHT))                      // Right Key
@@ -124,17 +125,18 @@ void doPlayerInput()
 }
 
 /******************************************************************/
-/* Function: approach                                             */
+/* Function: approachValue                                        */
 /*                                                                */
 /* Increment the passed variable to the target goal               */
 /******************************************************************/
-void approach(int8_t *varToIncrement, int8_t incrementTarget)
+int8_t approachValue(int8_t currentValue, int8_t targetValue, int8_t increment)
 {
-    if ((int8_t)varToIncrement < incrementTarget)
-        varToIncrement += 1;
-    else if ((int8_t)varToIncrement > incrementTarget)
-        varToIncrement -= 1;
-    
+    if (currentValue < targetValue)
+        currentValue += increment;
+    else if (currentValue > targetValue)
+        currentValue -= increment;
+
+    return currentValue;
 }
 
 /******************************************************************/
@@ -271,15 +273,12 @@ uint16_t getScreenOffset(uint8_t dimension, int8_t offset)
     {
         if (isNearScreenEdge(playerX, dimension) == DIR_LEFT)
         {
-            if (7 == playerX && 0 > offset) // Edge case
-                return offset * -1;
-            else
-                return 0;
+            return 0;
         }
         else if (isNearScreenEdge(playerX, dimension) == DIR_RIGHT)
         {
             if (24 == playerX && 0 < offset) // Edge case
-                return (MAP_WIDTH_TILES - SCREEN_WIDTH_TILES) * TILE_SIZE - offset;
+               return (MAP_WIDTH_TILES - SCREEN_WIDTH_TILES) * TILE_SIZE - offset;
             else
                 return (MAP_WIDTH_TILES - SCREEN_WIDTH_TILES) * TILE_SIZE;
         }
@@ -316,46 +315,89 @@ uint16_t getScreenOffset(uint8_t dimension, int8_t offset)
 /******************************************************************/
 void updateGraphics()
 {
+    int8_t quadrantV = 0, quadrantH = 0;
     int playerScreenX = 0, playerScreenY = 0;
 
-    if (offsetX != 0 || offsetY != 0)
-    {
-        if (offsetX > 0)
-            offsetX -= 2;
-        else if (offsetX < 0)
-            offsetX += 2;
-        if (offsetY > 0)
-            offsetY -= 2;
-        else if (offsetY < 0)
-            offsetY += 2;
-    }
+    if (offsetX != 0)
+        offsetX = approachValue(offsetX, 0, 2);
+    else if (offsetY != 0)
+        offsetY = approachValue(offsetY, 0, 2);
+    else if (screenOffsetX != 0)
+        screenOffsetX = approachValue(screenOffsetX, 0, 2);
+    else if (screenOffsetY != 0)
+        screenOffsetY = approachValue(screenOffsetY, 0, 2);
     else
     {
-        switch (playerMovedDir) // Falls to default if player hasn't moved position
+        if (playerMovedDir != DIR_NULL)
         {
-        case DIR_LEFT:
-            offsetX += dirX[playerMovedDir] * TILE_SIZE;
-            break;
-        case DIR_RIGHT:
-            offsetX += dirX[playerMovedDir] * TILE_SIZE;
-            break;
-        case DIR_UP:
-            offsetY += dirY[playerMovedDir] * TILE_SIZE;
-            break;
-        case DIR_DOWN:
-            offsetY += dirY[playerMovedDir] * TILE_SIZE;
-            break;
-        default:
-            break;
+            quadrantH = isNearScreenEdge(playerX, DIM_WIDTH);
+            quadrantV = isNearScreenEdge(playerY, DIM_HEIGHT);
+            #ifdef DEBUG
+                mgba_printf(MGBA_LOG_DEBUG, "Quadrants: %d, %d", quadrantH, quadrantV);
+            #endif
+            if(quadrantV == DIR_UP && quadrantH == DIR_LEFT)
+            {
+                offsetY += dirY[playerMovedDir] * TILE_SIZE;
+                offsetX += dirX[playerMovedDir] * TILE_SIZE;
+            }
+            if(quadrantV == DIR_UP && quadrantH == DIR_NULL)
+            {
+                offsetY += dirY[playerMovedDir] * TILE_SIZE;
+                if (7 == playerX && playerMovedDir == DIR_LEFT)
+                    screenOffsetX += dirX[playerMovedDir] * TILE_SIZE;
+                screenOffsetX += dirX[playerMovedDir] * TILE_SIZE;
+            }
+            if(quadrantV == DIR_UP && quadrantH == DIR_RIGHT)
+            {
+                offsetY += dirY[playerMovedDir] * TILE_SIZE;
+                offsetX += dirX[playerMovedDir] * TILE_SIZE;
+            }
+            if(quadrantV == DIR_NULL && quadrantH == DIR_LEFT)
+            {
+                screenOffsetY += dirY[playerMovedDir] * TILE_SIZE;
+                offsetX += dirX[playerMovedDir] * TILE_SIZE;
+            }
+            if(quadrantV == DIR_NULL && quadrantH == DIR_NULL)
+            {
+                screenOffsetY += dirY[playerMovedDir] * TILE_SIZE;
+                screenOffsetX += dirX[playerMovedDir] * TILE_SIZE;
+            }
+            if(quadrantV == DIR_NULL && quadrantH == DIR_RIGHT)
+            {
+                offsetY += dirY[playerMovedDir] * TILE_SIZE;
+                screenOffsetX += dirX[playerMovedDir] * TILE_SIZE;
+            }
+            if(quadrantV == DIR_DOWN && quadrantH == DIR_LEFT)
+            {
+                offsetY += dirY[playerMovedDir] * TILE_SIZE;
+                offsetX += dirX[playerMovedDir] * TILE_SIZE;
+            }
+            if(quadrantV == DIR_DOWN && quadrantH == DIR_NULL)
+            {
+                screenOffsetY += dirY[playerMovedDir] * TILE_SIZE;
+                offsetX += dirX[playerMovedDir] * TILE_SIZE;
+            }
+            if(quadrantV == DIR_DOWN && quadrantH == DIR_RIGHT)
+            {
+                offsetY += dirY[playerMovedDir] * TILE_SIZE;
+                offsetX += dirX[playerMovedDir] * TILE_SIZE;
+            }
         }
     }
+
     playerScreenX = getPlayerScreenCoord(playerX, offsetX, DIM_WIDTH);
     playerScreenY = getPlayerScreenCoord(playerY, offsetY, DIM_HEIGHT);
-    REG_BG1HOFS = getScreenOffset(DIM_WIDTH, offsetX);
-    REG_BG1VOFS = getScreenOffset(DIM_HEIGHT, offsetY);
+    REG_BG1HOFS = getScreenOffset(DIM_WIDTH, screenOffsetX);
+    REG_BG1VOFS = getScreenOffset(DIM_HEIGHT, screenOffsetY);
     playerMovedDir = DIR_NULL;
     loadPlayerSprite(playerScreenX, playerScreenY);
     REG_BLDALPHA= BLDA_BUILD(eva/8, evb/8);
+    #ifdef DEBUG
+        if (offsetX != 0 || offsetY != 0)
+            mgba_printf(MGBA_LOG_DEBUG, "offsetX: %d, offsetY: %d", offsetX, offsetY);
+        if (screenOffsetX != 0 || screenOffsetY != 0)
+        mgba_printf(MGBA_LOG_DEBUG, "screenOffsetX: %d, screenOffsetY: %d", screenOffsetX, screenOffsetY);
+    #endif
 }
 
 /******************************************************************/
@@ -464,10 +506,6 @@ int main(void)
             if (offsetX == 0 && offsetY == 0)
             doPlayerInput();
             updateGraphics();
-            #ifdef DEBUG
-                if (offsetX != 0 || offsetY != 0)
-                    mgba_printf(MGBA_LOG_DEBUG, "offsetX %d, offseY %d", offsetX, offsetY);
-            #endif
             break;
         case STATE_MENU:
             if(doPauseMenuInput(eva, evb) == true)
