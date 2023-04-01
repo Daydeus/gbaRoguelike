@@ -1,6 +1,11 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
+#define SCREEN_BG_0 0
+#define SCREEN_BG_1 1
+#define SCREEN_BG_2 2
+#define SCREEN_BG_3 3
+
 #define TILE_SIZE  16
 #define MAP_WIDTH_TILES  32
 #define MAP_HEIGHT_TILES 16
@@ -9,8 +14,10 @@
 
 #define SCREEN_BLOCK_WIDTH 32
 
-#define GAME_MAP_SB1 28            // First Screen Block for gameMap
-#define GAME_MAP_SB2 29           // Second Screen Block for gameMap
+#define GAME_HUD_SB   27
+#define GAME_MAP_SB1  28           // First Screen Block for gameMap
+#define GAME_MAP_SB2  29          // Second Screen Block for gameMap
+#define PAUSE_MENU_SB 20
 
 // Tileset Indices
 #define BLANK_BLACK     0x06000000

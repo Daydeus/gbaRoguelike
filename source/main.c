@@ -171,16 +171,16 @@ void drawHUD()
         
             // Get and copy the 8x8 tile into map memory
             tileToDraw = (int*)HEART_TL;
-            memcpy(&se_mem[31][screenEntryTL], &tileToDraw, 2);
+            memcpy(&se_mem[GAME_HUD_SB][screenEntryTL], &tileToDraw, 2);
 
             tileToDraw = (int*)HEART_TR;
-            memcpy(&se_mem[31][screenEntryTR], &tileToDraw, 2);
+            memcpy(&se_mem[GAME_HUD_SB][screenEntryTR], &tileToDraw, 2);
 
             tileToDraw = (int*)HEART_BL;
-            memcpy(&se_mem[31][screenEntryBL], &tileToDraw, 2);
+            memcpy(&se_mem[GAME_HUD_SB][screenEntryBL], &tileToDraw, 2);
 
             tileToDraw = (int*)HEART_BR;
-            memcpy(&se_mem[31][screenEntryBR], &tileToDraw, 2);
+            memcpy(&se_mem[GAME_HUD_SB][screenEntryBR], &tileToDraw, 2);
     }
 }
 
@@ -422,8 +422,8 @@ void updateGraphics()
 
     playerScreenX = getPlayerScreenCoord(DIM_WIDTH, playerX, mapSector) - offsetX;
     playerScreenY = getPlayerScreenCoord(DIM_HEIGHT, playerY, mapSector) - offsetY;
-    REG_BG1HOFS = getBgOffset(DIM_WIDTH, mapSector) - screenOffsetX ;
-    REG_BG1VOFS = getBgOffset(DIM_HEIGHT, mapSector) - screenOffsetY;
+    REG_BG2HOFS = getBgOffset(DIM_WIDTH, mapSector) - screenOffsetX ;
+    REG_BG2VOFS = getBgOffset(DIM_HEIGHT, mapSector) - screenOffsetY;
     playerMovedDir = DIR_NULL;
     loadPlayerSprite(playerScreenX, playerScreenY);
     REG_BLDALPHA= BLDA_BUILD(eva/8, evb/8);
@@ -517,16 +517,15 @@ int main(void)
     memcpy32(&tile_mem[4][0], playerSpriteTiles, playerSpriteTilesLen / 4);
     memcpy32(pal_obj_mem, playerSpritePal, playerSpritePalLen / 4);
 
-    // set up BG0 for a 4bpp 64x32t map,
-    //   using charblock 0 and screenblock 31
+    // set up BG0 for a 4bpp 64x32t map
     oam_init(obj_buffer, 128);
-    REG_BG0CNT= BG_CBB(0) | BG_SBB(31) | BG_4BPP | BG_REG_32x32;
-    REG_BG1CNT= BG_CBB(0) | BG_SBB(GAME_MAP_SB1) | BG_4BPP | BG_REG_64x32;
-    REG_DISPCNT= DCNT_MODE0 | DCNT_BG0 | DCNT_BG1 | DCNT_OBJ | DCNT_OBJ_1D;
+    REG_BG0CNT= BG_CBB(0) | BG_SBB(GAME_HUD_SB) | BG_4BPP | BG_REG_32x32;
+    REG_BG2CNT= BG_CBB(0) | BG_SBB(GAME_MAP_SB1) | BG_4BPP | BG_REG_64x32;
+    REG_DISPCNT= DCNT_MODE0 | DCNT_BG0 | DCNT_BG2 | DCNT_OBJ | DCNT_OBJ_1D;
 
     REG_BLDCNT= BLD_BUILD(
         BLD_OBJ,     // Top layers
-        BLD_BG0,     // Bottom layers
+        BLD_BG2,     // Bottom layers
         DCNT_MODE0); // Mode
 
     while (1)
