@@ -345,20 +345,38 @@ void updateGraphics()
             switch(mapSector)
             {
             case SECTOR_TOP_LEFT:
-                offsetY += dirY[playerMovedDir] * TILE_SIZE;
-                offsetX += dirX[playerMovedDir] * TILE_SIZE;
+                if (4 == playerY && playerMovedDir == DIR_UP)
+                    screenOffsetY += dirY[playerMovedDir] * TILE_SIZE;
+                else
+                    offsetY += dirY[playerMovedDir] * TILE_SIZE;
+                if (7 == playerX && playerMovedDir == DIR_LEFT)
+                    screenOffsetX += dirX[playerMovedDir] * TILE_SIZE;
+                else
+                    offsetX += dirX[playerMovedDir] * TILE_SIZE;
                 break;
             case SECTOR_TOP_MID:
-                offsetY += dirY[playerMovedDir] * TILE_SIZE;
+                if (4 == playerY && playerMovedDir == DIR_UP)
+                    screenOffsetY += dirY[playerMovedDir] * TILE_SIZE;
+                else
+                    offsetY += dirY[playerMovedDir] * TILE_SIZE;
                 screenOffsetX += dirX[playerMovedDir] * TILE_SIZE;
                 break;
             case SECTOR_TOP_RIGHT:
-                offsetY += dirY[playerMovedDir] * TILE_SIZE;
-                offsetX += dirX[playerMovedDir] * TILE_SIZE;
+                if (4 == playerY && playerMovedDir == DIR_UP)
+                    screenOffsetY += dirY[playerMovedDir] * TILE_SIZE;
+                else
+                    offsetY += dirY[playerMovedDir] * TILE_SIZE;
+                if (24 == playerX && playerMovedDir == DIR_RIGHT)
+                    screenOffsetX += dirX[playerMovedDir] * TILE_SIZE;
+                else
+                    offsetX += dirX[playerMovedDir] * TILE_SIZE;
                 break;
             case SECTOR_MID_LEFT:
                 screenOffsetY += dirY[playerMovedDir] * TILE_SIZE;
-                offsetX += dirX[playerMovedDir] * TILE_SIZE;
+                if (7 == playerX && playerMovedDir == DIR_LEFT)
+                    screenOffsetX += dirX[playerMovedDir] * TILE_SIZE;
+                else
+                    offsetX += dirX[playerMovedDir] * TILE_SIZE;
                 break;
             case SECTOR_MID_MID:
                 screenOffsetY += dirY[playerMovedDir] * TILE_SIZE;
@@ -366,19 +384,37 @@ void updateGraphics()
                 break;
             case SECTOR_MID_RIGHT:
                 screenOffsetY += dirY[playerMovedDir] * TILE_SIZE;
-                offsetX += dirX[playerMovedDir] * TILE_SIZE;
+                if (24 == playerX && playerMovedDir == DIR_RIGHT)
+                    screenOffsetX += dirX[playerMovedDir] * TILE_SIZE;
+                else
+                    offsetX += dirX[playerMovedDir] * TILE_SIZE;
                 break;
             case SECTOR_BOT_LEFT:
-                offsetY += dirY[playerMovedDir] * TILE_SIZE;
-                offsetX += dirX[playerMovedDir] * TILE_SIZE;
+                if (11 == playerY && playerMovedDir == DIR_DOWN)
+                    screenOffsetY += dirY[playerMovedDir] * TILE_SIZE;
+                else
+                    offsetY += dirY[playerMovedDir] * TILE_SIZE;
+                if (7 == playerX && playerMovedDir == DIR_LEFT)
+                    screenOffsetX += dirX[playerMovedDir] * TILE_SIZE;
+                else
+                    offsetX += dirX[playerMovedDir] * TILE_SIZE;
                 break;
             case SECTOR_BOT_MID:
-                offsetY += dirY[playerMovedDir] * TILE_SIZE;
+                if (11 == playerY && playerMovedDir == DIR_DOWN)
+                    screenOffsetY += dirY[playerMovedDir] * TILE_SIZE;
+                else
+                    offsetY += dirY[playerMovedDir] * TILE_SIZE;
                 screenOffsetX += dirX[playerMovedDir] * TILE_SIZE;
                 break;
             case SECTOR_BOT_RIGHT:
-                offsetY += dirY[playerMovedDir] * TILE_SIZE;
-                offsetX += dirX[playerMovedDir] * TILE_SIZE;
+                if (11 == playerY && playerMovedDir == DIR_DOWN)
+                    screenOffsetY += dirY[playerMovedDir] * TILE_SIZE;
+                else
+                    offsetY += dirY[playerMovedDir] * TILE_SIZE;
+                if (24 == playerX && playerMovedDir == DIR_RIGHT)
+                    screenOffsetX += dirX[playerMovedDir] * TILE_SIZE;
+                else
+                    offsetX += dirX[playerMovedDir] * TILE_SIZE;
                 break;
             }
         }
