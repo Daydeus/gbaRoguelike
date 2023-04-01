@@ -22,7 +22,6 @@ OBJ_AFFINE *obj_aff_buffer = (OBJ_AFFINE*)obj_buffer;
 unsigned int frame = 0;
 enum state gameState = STATE_GAMEPLAY;
 int playerX = 1, playerY = 1;
-int screenOffsetX = 0, screenOffsetY = 240;
 enum direction playerFacing = DIR_LEFT;
 enum direction playerMovedDir = DIR_NULL;
 enum direction playerBumpedDir = DIR_NULL;
@@ -31,6 +30,7 @@ u32 eva = 0x80, evb = 0;
 int8_t dirX[5] = {0, -1, 1, 0, 0};
 int8_t dirY[5] = {0, 0, 0, -1, 1};
 int8_t offsetX = 0, offsetY = 0;
+int16_t screenOffsetX = 0, screenOffsetY = 0;
 
 /******************************************************************/
 /* Function Prototypes                                            */

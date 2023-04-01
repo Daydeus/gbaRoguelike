@@ -11,7 +11,7 @@ extern int playerX, playerY;
 extern int playerScreenX, playerScreenY;
 
 // Screen offset from TopLeft corner of gameMap[][]
-extern int screenOffsetX, screenOffsetY; 
+extern int16_t screenOffsetX, screenOffsetY; 
 
 extern enum direction playerFacing;
 extern bool debugCollisionIsOff;
