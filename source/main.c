@@ -24,7 +24,6 @@ enum state gameState = STATE_GAMEPLAY;
 int playerX = 1, playerY = 1;
 enum direction playerFacing = DIR_LEFT;
 enum direction playerMovedDir = DIR_NULL;
-enum direction playerBumpedDir = DIR_NULL;
 bool debugCollisionIsOff = false;
 u32 eva = 0x80, evb = 0;
 int8_t dirX[5] = {0, -1, 1, 0, 0};
@@ -52,7 +51,7 @@ void loadPlayerSprite(int playerScreenX, int playerScreenY);
 /******************************************************************/
 void doPlayerInput()
 {
-    if (KEY_EQ(key_hit, KI_LEFT))                        // Left Key
+    if (KEY_EQ(key_hit, KI_LEFT) || KEY_EQ(key_held, KI_LEFT)) // Left Key
     {
         playerFacing = DIR_LEFT;
         if(isSolid(playerX - 1, playerY) ==  false
@@ -66,7 +65,7 @@ void doPlayerInput()
             mgba_printf(MGBA_LOG_INFO, "pressed LEFT, position: %d, %d", playerX, playerY);
         #endif
     }
-    if (KEY_EQ(key_hit, KI_RIGHT))                      // Right Key
+    else if (KEY_EQ(key_hit, KI_RIGHT) || KEY_EQ(key_held, KI_RIGHT)) // Right Key
     {
         playerFacing = DIR_RIGHT;
         if(isSolid(playerX + 1, playerY) ==  false
@@ -80,7 +79,7 @@ void doPlayerInput()
             mgba_printf(MGBA_LOG_INFO, "pressed RIGHT, position: %d, %d", playerX, playerY);
         #endif
     }
-    if (KEY_EQ(key_hit, KI_UP))                            // Up Key
+    else if (KEY_EQ(key_hit, KI_UP) || KEY_EQ(key_held, KI_UP)) // Up Key
     {
         playerFacing = DIR_UP;
         if(isSolid(playerX, playerY - 1) ==  false
@@ -94,7 +93,7 @@ void doPlayerInput()
             mgba_printf(MGBA_LOG_INFO, "pressed UP, position: %d, %d", playerX, playerY);
         #endif
     }
-    if (KEY_EQ(key_hit, KI_DOWN))                        // Down Key
+    else if (KEY_EQ(key_hit, KI_DOWN) || KEY_EQ(key_held, KI_DOWN)) // Down Key
     {
         playerFacing = DIR_DOWN;
         if(isSolid(playerX, playerY + 1) ==  false
@@ -108,6 +107,7 @@ void doPlayerInput()
             mgba_printf(MGBA_LOG_INFO, "pressed DOWN, position: %d, %d", playerX, playerY);
         #endif
     }
+
     if (KEY_EQ(key_hit, KI_SELECT))
     {
         #ifdef DEBUG
@@ -331,13 +331,13 @@ void updateGraphics()
     int playerScreenX = 0, playerScreenY = 0;
 
     if (offsetX != 0)
-        offsetX = approachValue(offsetX, 0, 2);
+        offsetX = approachValue(offsetX, 0, 1);
     else if (offsetY != 0)
-        offsetY = approachValue(offsetY, 0, 2);
+        offsetY = approachValue(offsetY, 0, 1);
     else if (screenOffsetX != 0)
-        screenOffsetX = approachValue(screenOffsetX, 0, 2);
+        screenOffsetX = approachValue(screenOffsetX, 0, 1);
     else if (screenOffsetY != 0)
-        screenOffsetY = approachValue(screenOffsetY, 0, 2);
+        screenOffsetY = approachValue(screenOffsetY, 0, 1);
     else
     {
         if (playerMovedDir != DIR_NULL)
@@ -537,8 +537,9 @@ int main(void)
         switch(gameState)
         {
         case STATE_GAMEPLAY:
-            if (offsetX == 0 && offsetY == 0)
-            doPlayerInput();
+            if (offsetX == 0 && offsetY == 0 && screenOffsetX == 0
+            && screenOffsetY == 0)
+                doPlayerInput();
             updateGraphics();
             break;
         case STATE_MENU:
