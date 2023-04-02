@@ -14,13 +14,15 @@
 
 #define SCREEN_BLOCK_WIDTH 32
 
-#define GAME_HUD_SB   27
+#define GAME_HUD_SB   25
+#define WAR_FOG_SB1   26        // First Screen Block for Fog of War
+#define WAR_FOG_SB2   27       // Second Screen Block for Fog of War
 #define GAME_MAP_SB1  28           // First Screen Block for gameMap
 #define GAME_MAP_SB2  29          // Second Screen Block for gameMap
 #define PAUSE_MENU_SB 20
 
 // Tileset Indices
-#define BLANK_BLACK     0x06000000
+#define TRANSPARENT     0x06000000
 #define FLOOR_BLANK_ALL 0x06000001
 #define FLOOR_FOUR_TL   0x06000002
 #define FLOOR_FOUR_TR   0x06000003
@@ -42,6 +44,8 @@
 #define HEART_TR        0x06000013
 #define HEART_BL        0x06000014
 #define HEART_BR        0x06000015
+#define BLANK_BLACK     0x06000016
+#define DITHER_PATTERN  0x06000017
 
 // Player Sprite Indices
 #define PLAYER_FACING_LEFT_FR1  0
@@ -71,7 +75,7 @@ enum
 {
     TILE_NEVER_SEEN = 0,
     TILE_NOT_IN_SIGHT,
-    TILE_SEEN_NOT_LIT,
+    TILE_NOT_LIT,
     TILE_LIT
 };
 

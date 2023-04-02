@@ -81,8 +81,6 @@ void drawPauseMenu()
     tte_write_var_int(evb);
     tte_write("\nCollision: ");
     (debugCollisionIsOff == true) ? tte_write("OFF") : tte_write("ON");
-    tte_write("\nTile Status: ");
-    getTileStatusDebug(playerX, playerY);
 }
 
 /******************************************************************/
@@ -97,8 +95,9 @@ void doStateTransition(enum state targetState)
     {
     case STATE_GAMEPLAY:
         REG_BG0CNT= BG_CBB(0) | BG_SBB(GAME_HUD_SB) | BG_4BPP | BG_REG_32x32;
+        REG_BG1CNT= BG_CBB(0) | BG_SBB(WAR_FOG_SB1) | BG_4BPP | BG_REG_64x32;
         REG_BG2CNT= BG_CBB(0) | BG_SBB(GAME_MAP_SB1) | BG_4BPP | BG_REG_64x32;
-        REG_DISPCNT= DCNT_MODE0 | DCNT_BG0 | DCNT_BG2 | DCNT_OBJ | DCNT_OBJ_1D;
+        REG_DISPCNT= DCNT_MODE0 | DCNT_BG0 | DCNT_BG1 | DCNT_BG2 | DCNT_OBJ | DCNT_OBJ_1D;
         gameState = STATE_GAMEPLAY;
         break;
     case STATE_MENU:
@@ -107,32 +106,6 @@ void doStateTransition(enum state targetState)
         tte_init_chr4c(SCREEN_BG_1, BG_CBB(1) | BG_SBB(PAUSE_MENU_SB), 0xF000, 0x0201, CLR_ORANGE<<16|CLR_BLACK, &vwf_default, NULL);
         drawPauseMenu(eva, evb);
         gameState = STATE_MENU;
-        break;
-    }
-}
-
-/******************************************************************/
-/* Function: getTileStatusDebug                                   */
-/*                                                                */
-/* At the given position, prints a message corresponding to the   */
-/* tile's seen/lit status.                                        */
-/* TODO: Implement tile seen/lit status.                          */
-/******************************************************************/
-void getTileStatusDebug(int positionX, int positionY)
-{
-    switch(gameMap[positionY][positionX].sightStatus)
-    {
-    case TILE_NEVER_SEEN:
-        tte_write("NEVER SEEN\n");
-        break;
-    case TILE_NOT_IN_SIGHT:
-        tte_write("NOT IN SIGHT\n");
-        break;
-    case TILE_SEEN_NOT_LIT:
-        tte_write("SEEN NOT LIT\n");
-        break;
-    case TILE_LIT:
-        tte_write("LIT\n");
         break;
     }
 }

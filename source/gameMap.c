@@ -143,7 +143,7 @@ int* getTilesetIndex(struct Tile tile, uint8_t screenEntryCorner)
         }
         break;
     default:
-        tilesetIndex = (int*)BLANK_BLACK;          // ID_BLANK_BLACK
+        tilesetIndex = (int*)TRANSPARENT;             // TRANSPARENT
         break;
     }
 
@@ -164,6 +164,7 @@ void initGameMap()
         {
             gameMap[y][x].positionX = x;
             gameMap[y][x].positionY = y;
+            gameMap[y][x].sightStatus = TILE_NEVER_SEEN;
 
             // Map boundaries should always be a solid tile(wall)
             if (x == 0 || x == MAP_WIDTH_TILES - 1 || y == 0 
@@ -242,6 +243,84 @@ void loadGameMap()
             memcpy(&se_mem[screenBlock][screenEntryBR], &tileToDraw, 2);
         }
     }
+}
+
+/******************************************************************/
+/* Function: loadWarFog                                           */
+/*                                                                */
+/* Fill all the screen entries for the fog of war screen blocks   */
+/* with the correct 8x8 graphic tiles for the gameMap's tiles.    */
+/******************************************************************/
+void loadWarFog()
+{
+    int screenBlock = WAR_FOG_SB1;
+    int screenEntryTL = 0;                     // screenEntryTopLeft
+    int screenEntryTR = 0;                    // screenEntryTopRight
+    int screenEntryBL = 0;                  // screenEntryBottomLeft
+    int screenEntryBR = 0;                 // screenEntryBottomRight
+    int *tileToDraw = NULL;
+    
+    // Load palette
+    memcpy(pal_bg_mem, tileset_stonePal, tileset_stonePalLen);
+    // Load tiles into CBB 0
+    memcpy(&tile_mem[0][0], tileset_stoneTiles, tileset_stoneTilesLen);
+
+    // For each gameMap[y][x], there are four screen entries to
+    // fill. We need to draw an 8x8 tile from the tileset for each
+    // screen entry.
+    for (int y = 0; y <= MAP_HEIGHT_TILES - 1; y++)
+    {
+        for (int x = 0; x <= MAP_WIDTH_TILES - 1; x++)
+        {
+            if (x > 15)
+            {
+                screenBlock = WAR_FOG_SB2;
+                screenEntryTL = y * SCREEN_BLOCK_WIDTH * 2 + x * 2 - SCREEN_BLOCK_WIDTH;
+                screenEntryTR = screenEntryTL + 1;
+                screenEntryBL = screenEntryTL + SCREEN_BLOCK_WIDTH;
+                screenEntryBR = screenEntryBL + 1;
+            }
+            else
+            {
+                screenBlock = WAR_FOG_SB1;
+                screenEntryTL = y * SCREEN_BLOCK_WIDTH * 2 + x * 2;
+                screenEntryTR = screenEntryTL + 1;
+                screenEntryBL = screenEntryTL + SCREEN_BLOCK_WIDTH;
+                screenEntryBR = screenEntryBL + 1;
+            }
+
+            switch (gameMap[y][x].sightStatus)
+            {
+            case TILE_LIT:
+            case TILE_NOT_LIT:
+                tileToDraw = (int*)TRANSPARENT;
+                break;
+            case TILE_NOT_IN_SIGHT:
+                tileToDraw = (int*)DITHER_PATTERN;
+                break;
+            case TILE_NEVER_SEEN:
+            default:
+                tileToDraw = (int*)BLANK_BLACK;
+            }
+
+            // Get and copy the 8x8 tile into map memory
+            memcpy(&se_mem[screenBlock][screenEntryTL], &tileToDraw, 2);
+            memcpy(&se_mem[screenBlock][screenEntryTR], &tileToDraw, 2);
+            memcpy(&se_mem[screenBlock][screenEntryBL], &tileToDraw, 2);
+            memcpy(&se_mem[screenBlock][screenEntryBR], &tileToDraw, 2);
+        }
+    }
+}
+
+/******************************************************************/
+/* Function: setTileSeenStatus                                    */
+/*                                                                */
+/* Sets the seenStatus of the tile at the given position to the   */
+/* given status.                                                  */
+/******************************************************************/
+void setTileSeenStatus(uint8_t positionX, uint8_t positionY, uint8_t sightStatus)
+{
+    gameMap[positionY][positionX].sightStatus = sightStatus;
 }
 
 /******************************************************************/

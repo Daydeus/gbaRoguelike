@@ -25,7 +25,7 @@ int playerX = 1, playerY = 1;
 enum direction playerFacing = DIR_LEFT;
 enum direction playerMovedDir = DIR_NULL;
 bool debugCollisionIsOff = false;
-u32 eva = 0x80, evb = 0;
+u32 eva = 0x80, evb = 0x14;
 int8_t dirX[5] = {0, -1, 1, 0, 0};
 int8_t dirY[5] = {0, 0, 0, -1, 1};
 int8_t offsetX = 0, offsetY = 0;
@@ -33,7 +33,7 @@ int16_t screenOffsetX = 0, screenOffsetY = 0;
 
 /******************************************************************/
 /* Function Prototypes                                            */
-/******************************************************************/
+/*****************************************************************/
 void doPlayerInput();
 int8_t approachValue(int8_t currentValue, int8_t targetValue, int8_t increment);
 void movePlayer(int8_t direction);
@@ -422,17 +422,13 @@ void updateGraphics()
 
     playerScreenX = getPlayerScreenCoord(DIM_WIDTH, playerX, mapSector) - offsetX;
     playerScreenY = getPlayerScreenCoord(DIM_HEIGHT, playerY, mapSector) - offsetY;
-    REG_BG2HOFS = getBgOffset(DIM_WIDTH, mapSector) - screenOffsetX ;
+    REG_BG1HOFS = getBgOffset(DIM_WIDTH, mapSector) - screenOffsetX;
+    REG_BG1VOFS = getBgOffset(DIM_HEIGHT, mapSector) - screenOffsetY;
+    REG_BG2HOFS = getBgOffset(DIM_WIDTH, mapSector) - screenOffsetX;
     REG_BG2VOFS = getBgOffset(DIM_HEIGHT, mapSector) - screenOffsetY;
     playerMovedDir = DIR_NULL;
     loadPlayerSprite(playerScreenX, playerScreenY);
     REG_BLDALPHA= BLDA_BUILD(eva/8, evb/8);
-    #ifdef DEBUG
-        if (offsetX != 0 || offsetY != 0)
-            mgba_printf(MGBA_LOG_DEBUG, "offsetX: %d, offsetY: %d", offsetX, offsetY);
-        if (screenOffsetX != 0 || screenOffsetY != 0)
-        mgba_printf(MGBA_LOG_DEBUG, "screenOffsetX: %d, screenOffsetY: %d", screenOffsetX, screenOffsetY);
-    #endif
 }
 
 /******************************************************************/
@@ -510,6 +506,7 @@ int main(void)
 
     initGameMap();
     loadGameMap();
+    loadWarFog();
     drawHUD();
 
 
@@ -520,13 +517,14 @@ int main(void)
     // set up BG0 for a 4bpp 64x32t map
     oam_init(obj_buffer, 128);
     REG_BG0CNT= BG_CBB(0) | BG_SBB(GAME_HUD_SB) | BG_4BPP | BG_REG_32x32;
+    REG_BG1CNT= BG_CBB(0) | BG_SBB(WAR_FOG_SB1) | BG_4BPP | BG_REG_64x32;
     REG_BG2CNT= BG_CBB(0) | BG_SBB(GAME_MAP_SB1) | BG_4BPP | BG_REG_64x32;
-    REG_DISPCNT= DCNT_MODE0 | DCNT_BG0 | DCNT_BG2 | DCNT_OBJ | DCNT_OBJ_1D;
+    REG_DISPCNT= DCNT_MODE0 | DCNT_BG0 | DCNT_BG1 | DCNT_BG2 | DCNT_OBJ | DCNT_OBJ_1D;
 
     REG_BLDCNT= BLD_BUILD(
-        BLD_OBJ,     // Top layers
+        BLD_BG1,     // Top layers
         BLD_BG2,     // Bottom layers
-        DCNT_MODE0); // Mode
+        1); // Mode
 
     while (1)
     {
@@ -540,6 +538,17 @@ int main(void)
             if (offsetX == 0 && offsetY == 0 && screenOffsetX == 0
             && screenOffsetY == 0)
                 doPlayerInput();
+            setTileSeenStatus(playerX - 1, playerY - 1, TILE_NOT_LIT);
+            setTileSeenStatus(playerX - 1, playerY, TILE_NOT_LIT);
+            setTileSeenStatus(playerX - 1, playerY + 1, TILE_NOT_LIT);
+            setTileSeenStatus(playerX, playerY - 1, TILE_NOT_LIT);
+            setTileSeenStatus(playerX, playerY, TILE_NOT_LIT);
+            setTileSeenStatus(playerX, playerY + 1, TILE_NOT_LIT);
+            setTileSeenStatus(playerX + 1, playerY - 1, TILE_NOT_LIT);
+            setTileSeenStatus(playerX + 1, playerY, TILE_NOT_LIT);
+            setTileSeenStatus(playerX + 1, playerY + 1, TILE_NOT_LIT);
+            if (playerMovedDir != DIR_NULL)
+                loadWarFog();
             updateGraphics();
             break;
         case STATE_MENU:
