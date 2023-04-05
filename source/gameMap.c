@@ -258,18 +258,18 @@ void loadGameMap()
 // Perform a line-of-sight check on every bounding tile at the edge
 // of the player's sight range.
 //------------------------------------------------------------------
-void doFOV(int positionX, int positionY)
+void doFOV(int positionX, int positionY, int sightRange)
 {
     clearFOV(positionX, positionY);
 
-    for (int x = positionX - MAX_SIGHT_RADIUS; x <= positionX + MAX_SIGHT_RADIUS; x++)
-        checkLOS(positionX, positionY, x, positionY - MAX_SIGHT_RADIUS);
-    for (int x = positionX - MAX_SIGHT_RADIUS; x <= positionX + MAX_SIGHT_RADIUS; x++)
-        checkLOS(positionX, positionY, x, positionY + MAX_SIGHT_RADIUS);
-    for (int y = positionY - MAX_SIGHT_RADIUS; y <= positionY + MAX_SIGHT_RADIUS; y++)
-        checkLOS(positionX, positionY, positionX - MAX_SIGHT_RADIUS, y);
-    for (int y = positionY - MAX_SIGHT_RADIUS; y <= positionY + MAX_SIGHT_RADIUS; y++)
-        checkLOS(positionX, positionY, positionX + MAX_SIGHT_RADIUS, y);
+    for (int x = positionX - sightRange; x <= positionX + sightRange; x++)
+        checkLOS(positionX, positionY, x, positionY - sightRange);
+    for (int x = positionX - sightRange; x <= positionX + sightRange; x++)
+        checkLOS(positionX, positionY, x, positionY + sightRange);
+    for (int y = positionY - sightRange; y <= positionY + sightRange; y++)
+        checkLOS(positionX, positionY, positionX - sightRange, y);
+    for (int y = positionY - sightRange; y <= positionY + sightRange; y++)
+        checkLOS(positionX, positionY, positionX + sightRange, y);
 
     drawFOV(positionX, positionY);
 }

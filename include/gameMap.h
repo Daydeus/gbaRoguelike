@@ -20,7 +20,7 @@ extern struct Tile gameMap[MAP_HEIGHT_TILES][MAP_WIDTH_TILES];
 //------------------------------------------------------------------
 void initGameMap();
 void loadGameMap();
-void doFOV(int positionX, int positionY);
+void doFOV(int positionX, int positionY, int sightRange);
 void setTileSeenStatus(uint8_t positionX, uint8_t positionY, uint8_t sightStatus);
 bool isSolid(uint8_t positionX, uint8_t positionY);
 bool isOutOfBounds(uint8_t positionX, uint8_t positionY);

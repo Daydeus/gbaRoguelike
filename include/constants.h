@@ -56,8 +56,6 @@
 #define PLAYER_FACING_DOWN_FR1 16
 #define PLAYER_FACING_DOWN_FR2 20
 
-#define MAX_SIGHT_RADIUS 4
-
 enum state
 {
     STATE_GAMEPLAY,
@@ -117,6 +115,12 @@ enum mapSector
     SECTOR_BOT_LEFT,
     SECTOR_BOT_MID,
     SECTOR_BOT_RIGHT
+};
+
+enum
+{
+    SIGHT_RANGE_MIN = 1,
+    SIGHT_RANGE_MAX = 4
 };
 
 #endif // CONSTANTS_H

@@ -512,7 +512,7 @@ int main(void)
                 doPlayerInput();
             if (playerMovedDir != DIR_NULL)
             {
-                doFOV(playerX, playerY);
+                doFOV(playerX, playerY, SIGHT_RANGE_MIN);
                 REG_BLDALPHA= BLDA_BUILD(eva/8, evb/8);
             }
             updateGraphics();
