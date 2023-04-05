@@ -7,8 +7,6 @@
 #include "pauseMenu.h"
 #include "playerSprite.h"
 
-#define DEBUG
-
 /******************************************************************/
 /* Data Structures                                                */
 /******************************************************************/
@@ -25,7 +23,7 @@ int playerX = 1, playerY = 1;
 enum direction playerFacing = DIR_LEFT;
 enum direction playerMovedDir = DIR_NULL;
 bool debugCollisionIsOff = false;
-u32 eva = 0x80, evb = 0x14;
+u32 eva = 0x80, evb = 0x20;
 int8_t dirX[5] = {0, -1, 1, 0, 0};
 int8_t dirY[5] = {0, 0, 0, -1, 1};
 int8_t offsetX = 0, offsetY = 0;
@@ -53,6 +51,10 @@ void doPlayerInput()
 {
     if (KEY_EQ(key_hit, KI_LEFT) || KEY_EQ(key_held, KI_LEFT)) // Left Key
     {
+        #ifdef DEBUG
+            mgba_printf(MGBA_LOG_INFO, "pressed LEFT");
+        #endif
+
         playerFacing = DIR_LEFT;
         if(isSolid(playerX - 1, playerY) ==  false
         && isOutOfBounds(playerX - 1, playerY) == false)
@@ -61,12 +63,13 @@ void doPlayerInput()
             playerMovedDir = DIR_LEFT;
 
         }
-        #ifdef DEBUG
-            mgba_printf(MGBA_LOG_INFO, "pressed LEFT, position: %d, %d", playerX, playerY);
-        #endif
     }
     else if (KEY_EQ(key_hit, KI_RIGHT) || KEY_EQ(key_held, KI_RIGHT)) // Right Key
     {
+        #ifdef DEBUG
+            mgba_printf(MGBA_LOG_INFO, "pressed RIGHT");
+        #endif
+
         playerFacing = DIR_RIGHT;
         if(isSolid(playerX + 1, playerY) ==  false
         && isOutOfBounds(playerX + 1, playerY) == false)
@@ -75,12 +78,13 @@ void doPlayerInput()
             playerMovedDir = DIR_RIGHT;
 
         }
-        #ifdef DEBUG
-            mgba_printf(MGBA_LOG_INFO, "pressed RIGHT, position: %d, %d", playerX, playerY);
-        #endif
     }
     else if (KEY_EQ(key_hit, KI_UP) || KEY_EQ(key_held, KI_UP)) // Up Key
     {
+        #ifdef DEBUG
+            mgba_printf(MGBA_LOG_INFO, "pressed UP");
+        #endif
+
         playerFacing = DIR_UP;
         if(isSolid(playerX, playerY - 1) ==  false
         && isOutOfBounds(playerX, playerY - 1) == false)
@@ -89,12 +93,13 @@ void doPlayerInput()
             playerMovedDir = DIR_UP;
 
         }
-        #ifdef DEBUG
-            mgba_printf(MGBA_LOG_INFO, "pressed UP, position: %d, %d", playerX, playerY);
-        #endif
     }
     else if (KEY_EQ(key_hit, KI_DOWN) || KEY_EQ(key_held, KI_DOWN)) // Down Key
     {
+        #ifdef DEBUG
+            mgba_printf(MGBA_LOG_INFO, "pressed DOWN");
+        #endif
+
         playerFacing = DIR_DOWN;
         if(isSolid(playerX, playerY + 1) ==  false
         && isOutOfBounds(playerX, playerY + 1) == false)
@@ -103,11 +108,15 @@ void doPlayerInput()
             playerMovedDir = DIR_DOWN;
 
         }
-        #ifdef DEBUG
-            mgba_printf(MGBA_LOG_INFO, "pressed DOWN, position: %d, %d", playerX, playerY);
-        #endif
     }
 
+    if (KEY_EQ(key_hit, KI_A))
+    {
+        loadGameMap();
+        #ifdef DEBUG
+            mgba_printf(MGBA_LOG_INFO, "pressed A");
+        #endif
+    }
     if (KEY_EQ(key_hit, KI_SELECT))
     {
         #ifdef DEBUG
@@ -147,6 +156,11 @@ void movePlayer(int8_t direction)
 {
     playerX += dirX[direction];
     playerY += dirY[direction];
+
+    #ifdef DEBUG
+        mgba_printf(MGBA_LOG_INFO, "Player moved to: %d, %d", playerX, playerY);
+        mgba_printf(MGBA_LOG_DEBUG, "Player in map sector: %d", getMapSector(playerX, playerY));
+    #endif
 }
 
 /******************************************************************/
@@ -166,7 +180,7 @@ void drawHUD()
     {
         screenEntryTL = x * 2;
         screenEntryTR = screenEntryTL + 1;
-        screenEntryBL = screenEntryTL + SCREEN_BLOCK_WIDTH;
+        screenEntryBL = screenEntryTL + SCREEN_BLOCK_SIZE;
         screenEntryBR = screenEntryBL + 1;
         
             // Get and copy the 8x8 tile into map memory
@@ -182,45 +196,6 @@ void drawHUD()
             tileToDraw = (int*)HEART_BR;
             memcpy(&se_mem[GAME_HUD_SB][screenEntryBR], &tileToDraw, 2);
     }
-}
-
-/******************************************************************/
-/* Function: getMapSector                                         */
-/*                                                                */
-/* Check which mapSector the player is in for determining whether */
-/* to offset the background scroll or player sprite               */
-/******************************************************************/
-uint8_t getMapSector(int positionX, int positionY)
-{
-    if (4 >= positionY)
-    {
-        if (7 >= positionX)
-            return SECTOR_TOP_LEFT;
-        else if (MAP_WIDTH_TILES - 8 <= positionX)
-            return SECTOR_TOP_RIGHT;
-        else
-            return SECTOR_TOP_MID;
-    }
-    else if (MAP_HEIGHT_TILES - 5 <= positionY)
-    {
-        if (7 >= positionX)
-            return SECTOR_BOT_LEFT;
-        else if (MAP_WIDTH_TILES - 8 <= positionX)
-            return SECTOR_BOT_RIGHT;
-        else
-            return SECTOR_BOT_MID;
-    }
-    else
-    {
-        if (7 >= positionX)
-            return SECTOR_MID_LEFT;
-        else if (MAP_WIDTH_TILES - 8 <= positionX)
-            return SECTOR_MID_RIGHT;
-        else
-            return SECTOR_MID_MID;
-    }
-
-    return SECTOR_ERROR;
 }
 
 /******************************************************************/
@@ -422,13 +397,12 @@ void updateGraphics()
 
     playerScreenX = getPlayerScreenCoord(DIM_WIDTH, playerX, mapSector) - offsetX;
     playerScreenY = getPlayerScreenCoord(DIM_HEIGHT, playerY, mapSector) - offsetY;
-    REG_BG1HOFS = getBgOffset(DIM_WIDTH, mapSector) - screenOffsetX;
-    REG_BG1VOFS = getBgOffset(DIM_HEIGHT, mapSector) - screenOffsetY;
+    REG_BG1HOFS = screenOffsetX * -1;
+    REG_BG1VOFS = screenOffsetY * -1;
     REG_BG2HOFS = getBgOffset(DIM_WIDTH, mapSector) - screenOffsetX;
     REG_BG2VOFS = getBgOffset(DIM_HEIGHT, mapSector) - screenOffsetY;
     playerMovedDir = DIR_NULL;
     loadPlayerSprite(playerScreenX, playerScreenY);
-    REG_BLDALPHA= BLDA_BUILD(eva/8, evb/8);
 }
 
 /******************************************************************/
@@ -504,27 +478,25 @@ int main(void)
     irq_init(NULL);
     irq_enable(II_VBLANK);
 
-    initGameMap();
-    loadGameMap();
-    loadWarFog();
-    drawHUD();
-
-
     // Load tiles and palette of sprite into video and palete RAM
     memcpy32(&tile_mem[4][0], playerSpriteTiles, playerSpriteTilesLen / 4);
     memcpy32(pal_obj_mem, playerSpritePal, playerSpritePalLen / 4);
 
-    // set up BG0 for a 4bpp 64x32t map
+    initGameMap();
+    loadGameMap();
+    initFOV();
+    drawHUD();
+
     oam_init(obj_buffer, 128);
     REG_BG0CNT= BG_CBB(0) | BG_SBB(GAME_HUD_SB) | BG_4BPP | BG_REG_32x32;
-    REG_BG1CNT= BG_CBB(0) | BG_SBB(WAR_FOG_SB1) | BG_4BPP | BG_REG_64x32;
+    REG_BG1CNT= BG_CBB(0) | BG_SBB(FOV_SB) | BG_4BPP | BG_REG_32x32;
     REG_BG2CNT= BG_CBB(0) | BG_SBB(GAME_MAP_SB1) | BG_4BPP | BG_REG_64x32;
     REG_DISPCNT= DCNT_MODE0 | DCNT_BG0 | DCNT_BG1 | DCNT_BG2 | DCNT_OBJ | DCNT_OBJ_1D;
 
     REG_BLDCNT= BLD_BUILD(
-        BLD_BG1,     // Top layers
-        BLD_BG2,     // Bottom layers
-        1); // Mode
+        BLD_BG1,        // Top layers
+        BLD_BG2,        // Bottom layers
+        1);             // Mode
 
     while (1)
     {
@@ -538,20 +510,16 @@ int main(void)
             if (offsetX == 0 && offsetY == 0 && screenOffsetX == 0
             && screenOffsetY == 0)
                 doPlayerInput();
-            setTileSeenStatus(playerX - 1, playerY - 1, TILE_NOT_LIT);
-            setTileSeenStatus(playerX - 1, playerY, TILE_NOT_LIT);
-            setTileSeenStatus(playerX - 1, playerY + 1, TILE_NOT_LIT);
-            setTileSeenStatus(playerX, playerY - 1, TILE_NOT_LIT);
-            setTileSeenStatus(playerX, playerY, TILE_NOT_LIT);
-            setTileSeenStatus(playerX, playerY + 1, TILE_NOT_LIT);
-            setTileSeenStatus(playerX + 1, playerY - 1, TILE_NOT_LIT);
-            setTileSeenStatus(playerX + 1, playerY, TILE_NOT_LIT);
-            setTileSeenStatus(playerX + 1, playerY + 1, TILE_NOT_LIT);
             if (playerMovedDir != DIR_NULL)
-                loadWarFog();
+            {
+                doFOV(playerX, playerY);
+                REG_BLDALPHA= BLDA_BUILD(eva/8, evb/8);
+            }
             updateGraphics();
             break;
         case STATE_MENU:
+            REG_BG1HOFS = 0;
+            REG_BG1VOFS = 0;
             if(doPauseMenuInput(eva, evb) == true)
                 drawPauseMenu();
             break;

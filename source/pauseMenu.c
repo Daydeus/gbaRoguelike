@@ -95,7 +95,7 @@ void doStateTransition(enum state targetState)
     {
     case STATE_GAMEPLAY:
         REG_BG0CNT= BG_CBB(0) | BG_SBB(GAME_HUD_SB) | BG_4BPP | BG_REG_32x32;
-        REG_BG1CNT= BG_CBB(0) | BG_SBB(WAR_FOG_SB1) | BG_4BPP | BG_REG_64x32;
+        REG_BG1CNT= BG_CBB(0) | BG_SBB(FOV_SB) | BG_4BPP | BG_REG_32x32;
         REG_BG2CNT= BG_CBB(0) | BG_SBB(GAME_MAP_SB1) | BG_4BPP | BG_REG_64x32;
         REG_DISPCNT= DCNT_MODE0 | DCNT_BG0 | DCNT_BG1 | DCNT_BG2 | DCNT_OBJ | DCNT_OBJ_1D;
         gameState = STATE_GAMEPLAY;

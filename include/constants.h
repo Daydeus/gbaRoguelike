@@ -1,6 +1,8 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
+#define DEBUG
+
 #define SCREEN_BG_0 0
 #define SCREEN_BG_1 1
 #define SCREEN_BG_2 2
@@ -9,14 +11,13 @@
 #define TILE_SIZE  16
 #define MAP_WIDTH_TILES  32
 #define MAP_HEIGHT_TILES 16
-#define SCREEN_WIDTH_TILES SCREEN_WIDTH / TILE_SIZE // 15
-#define SCREEN_HEIGHT_TILES SCREEN_HEIGHT / TILE_SIZE // 10
+#define SCREEN_WIDTH_TILES     SCREEN_WIDTH / TILE_SIZE        // 15
+#define SCREEN_HEIGHT_TILES    SCREEN_HEIGHT / TILE_SIZE       // 10
 
-#define SCREEN_BLOCK_WIDTH 32
+#define SCREEN_BLOCK_SIZE 32
 
 #define GAME_HUD_SB   25
-#define WAR_FOG_SB1   26        // First Screen Block for Fog of War
-#define WAR_FOG_SB2   27       // Second Screen Block for Fog of War
+#define FOV_SB        26        // First Screen Block for Fog of War
 #define GAME_MAP_SB1  28           // First Screen Block for gameMap
 #define GAME_MAP_SB2  29          // Second Screen Block for gameMap
 #define PAUSE_MENU_SB 20
@@ -54,6 +55,8 @@
 #define PLAYER_FACING_UP_FR2   12
 #define PLAYER_FACING_DOWN_FR1 16
 #define PLAYER_FACING_DOWN_FR2 20
+
+#define MAX_SIGHT_RADIUS 4
 
 enum state
 {
