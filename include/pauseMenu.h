@@ -1,9 +1,9 @@
 #ifndef PAUSEMENU_H
 #define PAUSEMENU_H
 
-/******************************************************************/
-/* Function Prototypes                                            */
-/******************************************************************/
+//------------------------------------------------------------------
+// Function Prototypes
+//------------------------------------------------------------------
 bool doPauseMenuInput();
 void drawPauseMenu();
 void doStateTransition(enum state targetState);

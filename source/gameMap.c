@@ -7,24 +7,24 @@
 #include "tileset_stone.h"
 #include "tilemap_stone.h"
 
-/******************************************************************/
-/* Data Structures                                                */
-/******************************************************************/
+//------------------------------------------------------------------
+// Data Structures
+//------------------------------------------------------------------
 extern struct Tile gameMap[MAP_HEIGHT_TILES][MAP_WIDTH_TILES];
 
-/******************************************************************/
-/* Function Prototypes                                            */
-/******************************************************************/
+//------------------------------------------------------------------
+// Function Prototypes
+//------------------------------------------------------------------
 uint8_t getDynamicTileId(struct Tile tile);
 int* getTilesetIndex(struct Tile tile, uint8_t screenEntryCorner);
 
-/******************************************************************/
-/* Function: getDynamicTileId                                     */
-/*                                                                */
-/* Takes a tile as an input and uses its position to get tileIds  */
-/* for the surrounding tiles and uses that plus its own tileId to */
-/* determine which variant of tile to return for being drawn.     */
-/******************************************************************/
+//------------------------------------------------------------------
+// Function: getDynamicTileId
+// 
+// Takes a tile as an input and uses its position to get tileIds
+// for the surrounding tiles and uses that plus its own tileId to
+// determine which variant of tile to return for being drawn.
+//------------------------------------------------------------------
 uint8_t getDynamicTileId(struct Tile tile)
 {
     uint8_t tileId = tile.tileId;
@@ -43,13 +43,13 @@ uint8_t getDynamicTileId(struct Tile tile)
     return tileId;
 }
 
-/******************************************************************/
-/* Function: getTilesetIndex                                      */
-/*                                                                */
-/* Matches a given tile's tileId and screenEntryCorner to pick the*/
-/* index of the correct 8x8 bitmap and returns a pointer to the   */
-/* bitmap so it may be drawn.                                     */
-/******************************************************************/
+//------------------------------------------------------------------
+// Function: getTilesetIndex
+// 
+// Matches a given tile's tileId and screenEntryCorner to pick the
+// index of the correct 8x8 bitmap and returns a pointer to the
+// bitmap so it may be drawn.
+//------------------------------------------------------------------
 int* getTilesetIndex(struct Tile tile, uint8_t screenEntryCorner)
 {
     // Tile corners are arranged sequentially in memory.
@@ -149,12 +149,12 @@ int* getTilesetIndex(struct Tile tile, uint8_t screenEntryCorner)
     return tilesetIndex;
 }
 
-/******************************************************************/
-/* Function: initGameMap                                          */
-/*                                                                */
-/* Initializes the gameMap by assigning the tiles' positions and  */
-/* tileIds.                                                       */
-/******************************************************************/
+//------------------------------------------------------------------
+// Function: initGameMap
+// 
+// Initializes the gameMap by assigning the tiles' positions and
+// tileIds.
+//------------------------------------------------------------------
 void initGameMap()
 {
     for (int y = 0; y <= MAP_HEIGHT_TILES - 1; y++)
@@ -189,12 +189,12 @@ void initGameMap()
     }
 }
 
-/******************************************************************/
-/* Function: loadGameMap                                          */
-/*                                                                */
-/* Fill all the screen entries for the gameplay screen blocks with*/
-/* the correct 8x8 graphic tiles for the gameMap's tileIds.       */
-/******************************************************************/
+//------------------------------------------------------------------
+// Function: loadGameMap
+// 
+// Fill all the screen entries for the gameplay screen blocks with
+// the correct 8x8 graphic tiles for the gameMap's tileIds.
+//------------------------------------------------------------------
 void loadGameMap()
 {
     int screenBlock = GAME_MAP_SB1;
@@ -274,23 +274,23 @@ void doFOV(int positionX, int positionY)
     drawFOV(positionX, positionY);
 }
 
-/******************************************************************/
-/* Function: setTileSeenStatus                                    */
-/*                                                                */
-/* Sets the seenStatus of the tile at the given position to the   */
-/* given status.                                                  */
-/******************************************************************/
+//------------------------------------------------------------------
+// Function: setTileSeenStatus
+// 
+// Sets the seenStatus of the tile at the given position to the
+// given status.
+//------------------------------------------------------------------
 void setTileSeenStatus(uint8_t positionX, uint8_t positionY, uint8_t sightStatus)
 {
     gameMap[positionY][positionX].sightStatus = sightStatus;
 }
 
-/******************************************************************/
-/* Function: isSolid                                              */
-/*                                                                */
-/* Returns whether the tile at the given position is solid or not.*/
-/* Solid tiles block player movement.                             */
-/******************************************************************/
+//------------------------------------------------------------------
+// Function: isSolid
+// 
+// Returns whether the tile at the given position is solid or not.
+// NOTE: Solid tiles should block player movement.
+//------------------------------------------------------------------
 bool isSolid(uint8_t positionX, uint8_t positionY)
 {
     if(gameMap[positionY][positionX].tileId != ID_WALL)
@@ -301,12 +301,12 @@ bool isSolid(uint8_t positionX, uint8_t positionY)
         return true;
 }
 
-/******************************************************************/
-/* Function: isOutOfBounds                                        */
-/*                                                                */
-/* Returns whether the tile at the given position is out of bounds*/
-/* for the player or not.                                         */
-/******************************************************************/
+//------------------------------------------------------------------
+// Function: isOutOfBounds
+// 
+// Returns whether the tile at the given position is out of bounds
+// for the player or not.
+//------------------------------------------------------------------
 bool isOutOfBounds(uint8_t positionX, uint8_t positionY)
 {
     if (positionX < 0 || positionX > MAP_WIDTH_TILES - 1
@@ -317,7 +317,7 @@ bool isOutOfBounds(uint8_t positionX, uint8_t positionY)
 }
 
 //------------------------------------------------------------------
-// Function: initFOV                                        
+// Function: initFOV
 // 
 // Initialize field-of-vision background layer by filling with black
 // 8x8 graphic tiles.
@@ -336,10 +336,9 @@ void initFOV()
 }
 
 //------------------------------------------------------------------
-// Function: clearFOV                                        
+// Function: clearFOV
 // 
-// Sets all tiles within MAX_SIGHT_RADIUS of the given position to 
-// not in sight.
+// Sets all tiles near the given position to TILE_NOT_IN_SIGHT
 //------------------------------------------------------------------
 void clearFOV(int positionX, int positionY)
 {
@@ -475,7 +474,6 @@ void checkLOS(int x1, int y1, int const x2, int const y2)
 
     gameMap[y1][x1].sightStatus = TILE_NOT_LIT;
     drawGameMapScreenEntry(gameMap[y1][x1]);
-    //updateFOVScreenEntry(gameMap[y1][x1], playerX, playerY);
 
     if (delta_x >= delta_y)
     {
@@ -544,7 +542,7 @@ void checkLOS(int x1, int y1, int const x2, int const y2)
 //------------------------------------------------------------------
 // Function: drawGameMapScreenEntry
 // 
-// Update the four screen entries of a given tile for the gameMap
+// Update the four screen entries of a given tile in the gameMap[][]
 //------------------------------------------------------------------
 void drawGameMapScreenEntry(struct Tile tile)
 {
@@ -586,12 +584,12 @@ void drawGameMapScreenEntry(struct Tile tile)
     memcpy(&se_mem[screenBlock][screenEntryBR], &tileToDraw, 2);
 }
 
-/******************************************************************/
-/* Function: getMapSector                                         */
-/*                                                                */
-/* Check which mapSector the position is in for determining       */
-/* whether to offset the background scroll or player sprite       */
-/******************************************************************/
+//------------------------------------------------------------------
+// Function: getMapSector
+// 
+// Check which mapSector the position is in for determining
+// whether to offset the background scroll or player sprite
+//------------------------------------------------------------------
 uint8_t getMapSector(int positionX, int positionY)
 {
     if (4 >= positionY)

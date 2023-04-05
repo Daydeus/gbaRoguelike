@@ -5,18 +5,18 @@
 #include "globals.h"
 #include "pauseMenu.h"
 
-/******************************************************************/
-/* Function Prototypes                                            */
-/******************************************************************/
+//------------------------------------------------------------------
+// Function Prototypes
+//------------------------------------------------------------------
 void tte_write_var_int(int varToPrint);
 void getTileStatusDebug(int positionX, int positionY);
 
-/******************************************************************/
-/* Function: doPauseMenuInput                                     */
-/*                                                                */
-/* Changes variable values by reading keys pressed with key_poll()*/
-/* Only used while in STATE_MENU                                  */
-/******************************************************************/
+//------------------------------------------------------------------
+// Function: doPauseMenuInput
+// 
+// Changes variable values by reading keys pressed with key_poll()
+// Only used while in STATE_MENU
+//------------------------------------------------------------------
 bool doPauseMenuInput()
 {
     if (KEY_EQ(key_hit, KI_A))
@@ -59,12 +59,12 @@ bool doPauseMenuInput()
     return false;
 }
 
-/******************************************************************/
-/* Function: drawPauseMenu                                        */
-/*                                                                */
-/* Prints the menu's text as 8x8 graphical tiles into the menu's  */
-/* screen entries                                                 */
-/******************************************************************/
+//------------------------------------------------------------------
+// Function: drawPauseMenu
+// 
+// Prints the menu's text as 8x8 graphical tiles into the menu's
+// screen entries
+//------------------------------------------------------------------
 void drawPauseMenu()
 {
     tte_erase_screen();
@@ -83,12 +83,12 @@ void drawPauseMenu()
     (debugCollisionIsOff == true) ? tte_write("OFF") : tte_write("ON");
 }
 
-/******************************************************************/
-/* Function: doStateTransition                                    */
-/*                                                                */
-/* Sets the correct graphics mode for the new gameState and any   */
-/* necessary variable values.                                     */
-/******************************************************************/
+//------------------------------------------------------------------
+// Function: doStateTransition
+// 
+// Sets the correct graphics mode for the new gameState and any
+// necessary variable values.
+//------------------------------------------------------------------
 void doStateTransition(enum state targetState)
 {
     switch(targetState)
@@ -110,13 +110,13 @@ void doStateTransition(enum state targetState)
     }
 }
 
-/******************************************************************/
-/* Function: tte_write_var_int                                    */
-/*                                                                */
-/* Tonc's Text Engine: write variable integers                    */
-/* Prints as 8x8 graphical tiles each digit of the given number.  */
-/* Used in the debug menu to print variable integers.             */
-/******************************************************************/
+//------------------------------------------------------------------
+// Function: tte_write_var_int
+// 
+// Tonc's Text Engine: write variable integers
+// Prints as 8x8 graphical tiles each digit of the given number.
+// Used in the debug menu to print variable integers.
+//------------------------------------------------------------------
 void tte_write_var_int(int varToPrint)
 {
     for (int digitPlace = 1000000000; digitPlace >= 1; digitPlace = digitPlace / 10)

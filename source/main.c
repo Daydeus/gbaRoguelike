@@ -7,14 +7,14 @@
 #include "pauseMenu.h"
 #include "playerSprite.h"
 
-/******************************************************************/
-/* Data Structures                                                */
-/******************************************************************/
+//------------------------------------------------------------------
+// Data Structures
+//------------------------------------------------------------------
 struct Tile gameMap[MAP_HEIGHT_TILES][MAP_WIDTH_TILES];
 
-/******************************************************************/
-/* Global Variables                                               */
-/******************************************************************/
+//------------------------------------------------------------------
+// Global Variables
+//------------------------------------------------------------------
 OBJ_ATTR obj_buffer[128];
 OBJ_AFFINE *obj_aff_buffer = (OBJ_AFFINE*)obj_buffer;
 unsigned int frame = 0;
@@ -29,9 +29,9 @@ int8_t dirY[5] = {0, 0, 0, -1, 1};
 int8_t offsetX = 0, offsetY = 0;
 int16_t screenOffsetX = 0, screenOffsetY = 0;
 
-/******************************************************************/
-/* Function Prototypes                                            */
-/*****************************************************************/
+//------------------------------------------------------------------
+// Function Prototypes
+//------------------------------------------------------------------
 void doPlayerInput();
 int8_t approachValue(int8_t currentValue, int8_t targetValue, int8_t increment);
 void movePlayer(int8_t direction);
@@ -40,13 +40,13 @@ uint8_t getPlayerScreenCoord(uint8_t dimension, int playerPos, uint8_t mapSector
 void updateGraphics();
 void loadPlayerSprite(int playerScreenX, int playerScreenY);
 
-/******************************************************************/
-/* Function: doPlayerInput                                        */
-/*                                                                */
-/* Updates the player character based on info read from key_poll()*/
-/* TODO: Create seperate function for out-of-bounds check and test*/
-/* at the same time as isSolid()                                  */
-/******************************************************************/
+//------------------------------------------------------------------
+// Function: doPlayerInput
+// 
+// Updates the player character based on info read from key_poll()
+// TODO: Create seperate function for out-of-bounds check and test
+// at the same time as isSolid()
+//------------------------------------------------------------------
 void doPlayerInput()
 {
     if (KEY_EQ(key_hit, KI_LEFT) || KEY_EQ(key_held, KI_LEFT)) // Left Key
@@ -132,11 +132,11 @@ void doPlayerInput()
     }
 }
 
-/******************************************************************/
-/* Function: approachValue                                        */
-/*                                                                */
-/* Increment the passed variable to the target goal               */
-/******************************************************************/
+//------------------------------------------------------------------
+// Function: approachValue
+//
+// Increment the passed variable to the target goal
+//------------------------------------------------------------------
 int8_t approachValue(int8_t currentValue, int8_t targetValue, int8_t increment)
 {
     if (currentValue < targetValue)
@@ -147,11 +147,11 @@ int8_t approachValue(int8_t currentValue, int8_t targetValue, int8_t increment)
     return currentValue;
 }
 
-/******************************************************************/
-/* Function: movePlayer                                           */
-/*                                                                */
-/* Move the player in the given direction                         */
-/******************************************************************/
+//------------------------------------------------------------------
+// Function: movePlayer
+// 
+// Move the player in the given direction
+//------------------------------------------------------------------
 void movePlayer(int8_t direction)
 {
     playerX += dirX[direction];
@@ -163,11 +163,11 @@ void movePlayer(int8_t direction)
     #endif
 }
 
-/******************************************************************/
-/* Function: drawHUD                                              */
-/*                                                                */
-/* Draw placeholder HUD for player in STATE_GAMEPLAY              */
-/******************************************************************/
+//------------------------------------------------------------------
+// Function: drawHUD
+// 
+// Draw placeholder HUD for player in STATE_GAMEPLAY
+//------------------------------------------------------------------
 void drawHUD()
 {
     int screenEntryTL = 0;                     // screenEntryTopLeft
@@ -198,11 +198,11 @@ void drawHUD()
     }
 }
 
-/******************************************************************/
-/* Function: getPlayerScreenCoord                                 */
-/*                                                                */
-/* Get the coords for drawing player sprite based on map position */
-/******************************************************************/
+//------------------------------------------------------------------
+// Function: getPlayerScreenCoord
+// 
+// Get the coords for drawing player sprite based on map position
+//------------------------------------------------------------------
 uint8_t getPlayerScreenCoord(uint8_t dimension, int playerPos, uint8_t mapSector)
 {
     uint8_t screenCoord = 0;
@@ -246,11 +246,11 @@ uint8_t getPlayerScreenCoord(uint8_t dimension, int playerPos, uint8_t mapSector
     return screenCoord;
 }
 
-/******************************************************************/
-/* Function: getBgOffset                                          */
-/*                                                                */
-/* Calc screen offset using player position and given dimension   */
-/******************************************************************/
+//------------------------------------------------------------------
+// Function: getBgOffset
+// 
+// Calc screen offset using player position and given dimension
+//------------------------------------------------------------------
 uint16_t getBgOffset(uint8_t dimension, uint8_t mapSector)
 {
     uint16_t offsetBg = 0;
@@ -294,12 +294,12 @@ uint16_t getBgOffset(uint8_t dimension, uint8_t mapSector)
     return offsetBg;
 }
 
-/******************************************************************/
-/* Function: updateGraphics                                       */
-/*                                                                */
-/* Updates player sprite position and screen map offset based on  */
-/* player input                                                   */
-/******************************************************************/
+//------------------------------------------------------------------
+// Function: updateGraphics
+// 
+// Updates player sprite position and screen map offset based on
+// player input
+//------------------------------------------------------------------
 void updateGraphics()
 {
     uint8_t mapSector = getMapSector(playerX, playerY);
@@ -405,12 +405,12 @@ void updateGraphics()
     loadPlayerSprite(playerScreenX, playerScreenY);
 }
 
-/******************************************************************/
-/* Function: loadPlayerSprite                                     */
-/*                                                                */
-/* Loads the correct index of the player sprite based on frame    */
-/* count and on facing direction. TODO: break into smaller funcs. */
-/******************************************************************/
+//------------------------------------------------------------------
+// Function: loadPlayerSprite
+// 
+// Loads the correct index of the player sprite based on frame
+// count and on facing direction. TODO: break into smaller funcs.
+//------------------------------------------------------------------
 void loadPlayerSprite(int playerScreenX, int playerScreenY)
 {
     unsigned int startingIndex = 0, paletteBank = 0;
@@ -464,11 +464,11 @@ void loadPlayerSprite(int playerScreenX, int playerScreenY)
     oam_copy(oam_mem, obj_buffer, 1);
 }
 
-/******************************************************************/
-/* Function: main                                                 */
-/*                                                                */
-/* Entry point for the program                                    */
-/******************************************************************/
+//------------------------------------------------------------------
+// Function: main
+// 
+// Entry point for the program
+//------------------------------------------------------------------
 int main(void)
 {
     #ifdef DEBUG
