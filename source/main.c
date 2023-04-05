@@ -19,7 +19,7 @@ OBJ_ATTR obj_buffer[128];
 OBJ_AFFINE *obj_aff_buffer = (OBJ_AFFINE*)obj_buffer;
 unsigned int frame = 0;
 enum state gameState = STATE_GAMEPLAY;
-int playerX = 1, playerY = 1;
+int playerX = 1, playerY = 1, sightRange = SIGHT_RANGE_MIN;
 enum direction playerFacing = DIR_LEFT;
 enum direction playerMovedDir = DIR_NULL;
 bool debugCollisionIsOff = false;
@@ -512,7 +512,7 @@ int main(void)
                 doPlayerInput();
             if (playerMovedDir != DIR_NULL)
             {
-                doFOV(playerX, playerY, SIGHT_RANGE_MIN);
+                doFOV(playerX, playerY, sightRange);
                 REG_BLDALPHA= BLDA_BUILD(eva/8, evb/8);
             }
             updateGraphics();

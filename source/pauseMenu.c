@@ -10,6 +10,7 @@
 //------------------------------------------------------------------
 void tte_write_var_int(int varToPrint);
 void getTileStatusDebug(int positionX, int positionY);
+void toggleValue(int value);
 
 //------------------------------------------------------------------
 // Function: doPauseMenuInput
@@ -21,32 +22,32 @@ bool doPauseMenuInput()
 {
     if (KEY_EQ(key_hit, KI_A))
     {
-        debugCollisionIsOff = true;;
+        debugCollisionIsOff = (debugCollisionIsOff == false) ? true : false;
         return true;
     }
     if (KEY_EQ(key_hit, KI_B))
     {
-        debugCollisionIsOff = false;
+        sightRange = (sightRange == SIGHT_RANGE_MIN) ? SIGHT_RANGE_MAX : SIGHT_RANGE_MIN;
         return true;
     }
     if (KEY_EQ(key_hit, KI_LEFT))
     {
-        eva -= 20;
+        evb -= 20;
         return true;
     }
     if (KEY_EQ(key_hit, KI_RIGHT))
     {
-        eva += 20;
+        evb += 20;
         return true;
     }
     if (KEY_EQ(key_hit, KI_UP))
     {
-        evb += 20;
+        eva += 20;
         return true;
     }
     if (KEY_EQ(key_hit, KI_DOWN))
     {
-        evb -= 20;
+        eva -= 20;
         return true;
     }
     if (KEY_EQ(key_hit, KI_START))
@@ -75,12 +76,14 @@ void drawPauseMenu()
     tte_write(", ");
     tte_write_var_int(playerY);
     tte_write(")\n");
-    tte_write("eva: ");
+    tte_write("UP/DOWN\teva: ");
     tte_write_var_int(eva);
-    tte_write("\nevb: ");
+    tte_write("\nLEFT/RIGHT\tevb: ");
     tte_write_var_int(evb);
-    tte_write("\nCollision: ");
+    tte_write("\nA-BUTTON\tCollision: ");
     (debugCollisionIsOff == true) ? tte_write("OFF") : tte_write("ON");
+    tte_write("\nB-BUTTON\tSight Range: ");
+    (sightRange == SIGHT_RANGE_MIN) ? tte_write("MIN") : tte_write("MAX");
 }
 
 //------------------------------------------------------------------

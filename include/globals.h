@@ -5,7 +5,7 @@ extern unsigned int frame;
 extern enum state gameState;
 
 // Player position on gameMap[][]
-extern int playerX, playerY;
+extern int playerX, playerY, sightRange;
 
 // Position of player sprite drawn on screen
 extern int playerScreenX, playerScreenY;
