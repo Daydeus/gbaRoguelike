@@ -160,25 +160,28 @@ void drawHUD()
     int screenEntryBR = 0;                 // screenEntryBottomRight
     int *tileToDraw = NULL;
 
-    for (int x = 0; x <= 15; x++)
+    for (int y = 0; y < SCREEN_HEIGHT_TILES; y++)
     {
-        screenEntryTL = x * 2;
-        screenEntryTR = screenEntryTL + 1;
-        screenEntryBL = screenEntryTL + SCREEN_BLOCK_SIZE;
-        screenEntryBR = screenEntryBL + 1;
-        
-            // Get and copy the 8x8 tile into map memory
-            tileToDraw = (int*)HEART_TL;
-            memcpy(&se_mem[GAME_HUD_SB][screenEntryTL], &tileToDraw, 2);
+        for (int x = 0; x <= 15; x++)
+        {
+            screenEntryTL = x * 2;
+            screenEntryTR = screenEntryTL + 1;
+            screenEntryBL = screenEntryTL + SCREEN_BLOCK_SIZE;
+            screenEntryBR = screenEntryBL + 1;
+            
+                // Get and copy the 8x8 tile into map memory
+                tileToDraw = (y == 0) ? (int*)TRANSPARENT : (int*)HEART_TL;
+                memcpy(&se_mem[GAME_HUD_SB][screenEntryTL], &tileToDraw, 2);
 
-            tileToDraw = (int*)HEART_TR;
-            memcpy(&se_mem[GAME_HUD_SB][screenEntryTR], &tileToDraw, 2);
+                tileToDraw = (y == 0) ? (int*)TRANSPARENT : (int*)HEART_TR;
+                memcpy(&se_mem[GAME_HUD_SB][screenEntryTR], &tileToDraw, 2);
 
-            tileToDraw = (int*)HEART_BL;
-            memcpy(&se_mem[GAME_HUD_SB][screenEntryBL], &tileToDraw, 2);
+                tileToDraw = (y == 0) ? (int*)TRANSPARENT : (int*)HEART_BL;
+                memcpy(&se_mem[GAME_HUD_SB][screenEntryBL], &tileToDraw, 2);
 
-            tileToDraw = (int*)HEART_BR;
-            memcpy(&se_mem[GAME_HUD_SB][screenEntryBR], &tileToDraw, 2);
+                tileToDraw = (y == 0) ? (int*)TRANSPARENT : (int*)HEART_BR;
+                memcpy(&se_mem[GAME_HUD_SB][screenEntryBR], &tileToDraw, 2);
+        }
     }
 }
 

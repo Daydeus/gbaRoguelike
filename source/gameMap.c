@@ -523,7 +523,7 @@ void checkLOS(int x1, int y1, int const x2, int const y2)
         || isSolid(x1, y1)         // Has encountered solid tile
         // If NOT a horizontal or vertical line and is crossing a
         // diagonal between two solid tiles
-        || (x1 != x2 && y1 != y2) && (isSolid(x1 + sx, y1) && isSolid(x1, y1 +sy)))
+        || ((x1 != x2 && y1 != y2) && (isSolid(x1 + sx, y1) && isSolid(x1, y1 +sy))))
             break;
 
         e2 = 2 * err;
