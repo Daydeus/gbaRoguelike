@@ -25,7 +25,7 @@ int8_t approachValue(int8_t currentValue, int8_t targetValue, int8_t increment);
 //------------------------------------------------------------------
 // Global Variables
 //------------------------------------------------------------------
-extern unsigned int frame;
+extern unsigned int frameCount;
 extern enum state gameState;
 extern struct Tile gameMap[MAP_HEIGHT_TILES][MAP_WIDTH_TILES];
 extern struct Coord player;        // Player position on gameMap[][]

@@ -363,7 +363,7 @@ bool isOutOfBounds(uint8_t positionX, uint8_t positionY)
 //------------------------------------------------------------------
 void initFOV()
 {
-    int *tileToDraw = (int*)BLANK_BLACK;
+    int *tileToDraw = (int*)FOV_TINT_DARK;
 
     for (int y = 0; y < SCREEN_BLOCK_SIZE; y++)
     {
@@ -475,7 +475,7 @@ void drawFOV(int positionX, int positionY)
             case TILE_NOT_IN_SIGHT:
             case TILE_NEVER_SEEN:
             default:
-                tileToDraw = (int*)BLANK_BLACK;
+                tileToDraw = (int*)FOV_TINT_DARK;
             }
 
             // Copy the 8x8 tile into map memory

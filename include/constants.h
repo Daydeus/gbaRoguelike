@@ -51,8 +51,8 @@
 #define HEART_TR          0x60000019
 #define HEART_BL          0x6000001A
 #define HEART_BR          0x6000001B
-#define BUTTER            0x6000001C
-#define DITHER_PATTERN    0x6000001D
+#define FOV_TINT_DARK     0x6000001C
+#define FOV_TINT_LIGHT    0x6000001D
 
 // Player Sprite Indices
 #define PLAYER_FACING_LEFT_FR1  0

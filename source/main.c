@@ -17,7 +17,7 @@ struct Tile gameMap[MAP_HEIGHT_TILES][MAP_WIDTH_TILES];
 //------------------------------------------------------------------
 OBJ_ATTR obj_buffer[128];
 OBJ_AFFINE *obj_aff_buffer = (OBJ_AFFINE*)obj_buffer;
-unsigned int frame = 0;
+unsigned int frameCount = 1;
 enum state gameState = STATE_GAMEPLAY;
 struct Coord player = {1, 1};
 int sightRange = SIGHT_RANGE_MIN;
@@ -409,32 +409,32 @@ void loadPlayerSprite(uint16_t playerScreenX, uint16_t playerScreenY)
     switch (playerFacing)
     {
     case DIR_LEFT:
-        if (frame % 20 > 9)
+        if (frameCount % 20 > 9)
             startingIndex = PLAYER_FACING_LEFT_FR1;
         else
             startingIndex = PLAYER_FACING_LEFT_FR2;
         break;
     case DIR_RIGHT:
         player->attr1 ^= ATTR1_HFLIP;
-        if (frame % 20 > 9)
+        if (frameCount % 20 > 9)
             startingIndex = PLAYER_FACING_LEFT_FR1;
         else
             startingIndex = PLAYER_FACING_LEFT_FR2;
         break;
     case DIR_UP:
-        if (frame % 20 > 9)
+        if (frameCount % 20 > 9)
             startingIndex = PLAYER_FACING_UP_FR1;
         else
             startingIndex = PLAYER_FACING_UP_FR2;
         break;
     case DIR_DOWN:
-        if (frame % 20 > 9)
+        if (frameCount % 20 > 9)
             startingIndex = PLAYER_FACING_DOWN_FR1;
         else
             startingIndex = PLAYER_FACING_DOWN_FR2;
         break;
     default:
-        if (frame % 20 > 9)
+        if (frameCount % 20 > 9)
             startingIndex = PLAYER_FACING_LEFT_FR1;
         else
             startingIndex = PLAYER_FACING_LEFT_FR2;
@@ -485,6 +485,11 @@ int main(void)
 
     while (1)
     {
+        #ifdef DEBUG
+            if (frameCount % 10 == 0)
+                mgba_printf(MGBA_LOG_DEBUG, "Frame count: %d", frameCount);
+        #endif
+
         // Get player input
         key_poll();
 
@@ -512,6 +517,6 @@ int main(void)
 
         // Low-power for rest of frame
         VBlankIntrWait();
-        frame++;
+        frameCount++;
     }
 }
