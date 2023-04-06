@@ -15,12 +15,12 @@ extern struct Tile gameMap[MAP_HEIGHT_TILES][MAP_WIDTH_TILES];
 //------------------------------------------------------------------
 // Function Prototypes
 //------------------------------------------------------------------
-uint8_t getDynamicTileId(struct Tile tile);
-int* getTilesetIndex(struct Tile tile, uint8_t screenEntryCorner);
+uint8_t getDynamicTileId(struct Tile* tile);
+int* getTilesetIndex(struct Tile* tile, uint8_t screenEntryCorner);
 void initFOV();
 void clearFOV(int positionX, int positionY);
 void drawFOV(int positionX, int positionY);
-void drawGameMapScreenEntry(struct Tile tile);
+void drawGameMapScreenEntry(struct Tile* tile);
 void checkLOS(int x1, int y1, int const x2, int const y2);
 
 //------------------------------------------------------------------
@@ -30,16 +30,14 @@ void checkLOS(int x1, int y1, int const x2, int const y2);
 // for the surrounding tiles and uses that plus its own tileId to
 // determine which variant of tile to return for being drawn.
 //------------------------------------------------------------------
-uint8_t getDynamicTileId(struct Tile tile)
+uint8_t getDynamicTileId(struct Tile* tile)
 {
-    uint8_t tileId = tile.tileId;
-    //uint8_t positionX = tile.pos.x;
-    //uint8_t positionY = tile.pos.y;
+    uint8_t tileId = tile->tileId;
 
     switch(tileId)
     {
     case ID_WALL:
-        if(gameMap[tile.pos.y + 1][tile.pos.x].tileId != ID_WALL || tile.pos.y + 1 > MAP_HEIGHT_TILES -1)
+        if(gameMap[tile->pos.y + 1][tile->pos.x].tileId != ID_WALL || tile->pos.y + 1 > MAP_HEIGHT_TILES -1)
             tileId = ID_WALL_FRONT;
         break;
     default:
@@ -54,14 +52,14 @@ uint8_t getDynamicTileId(struct Tile tile)
 // index of the correct 8x8 bitmap and returns a pointer to the
 // bitmap so it may be drawn.
 //------------------------------------------------------------------
-int* getTilesetIndex(struct Tile tile, uint8_t screenEntryCorner)
+int* getTilesetIndex(struct Tile* tile, uint8_t screenEntryCorner)
 {
     // Tile corners are arranged sequentially in memory.
     // Corner Top-Left, Top-Right, Bottom-Left, Bottom-Right
     uint8_t tileSubId = getDynamicTileId(tile);
     int *tilesetIndex = NULL;
 
-    if (tile.sightStatus == TILE_NEVER_SEEN)
+    if (tile->sightStatus == TILE_NEVER_SEEN)
         return (int*)BLANK_BLACK;
 
     switch (tileSubId)
@@ -275,16 +273,16 @@ void loadGameMap()
             }
 
             // Get and copy the 8x8 tile into map memory
-            tileToDraw = getTilesetIndex(gameMap[y][x], SCREEN_ENTRY_TL);
+            tileToDraw = getTilesetIndex(&gameMap[y][x], SCREEN_ENTRY_TL);
             memcpy(&se_mem[screenBlock][screenEntryTL], &tileToDraw, 2);
 
-            tileToDraw = getTilesetIndex(gameMap[y][x], SCREEN_ENTRY_TR);
+            tileToDraw = getTilesetIndex(&gameMap[y][x], SCREEN_ENTRY_TR);
             memcpy(&se_mem[screenBlock][screenEntryTR], &tileToDraw, 2);
 
-            tileToDraw = getTilesetIndex(gameMap[y][x], SCREEN_ENTRY_BL);
+            tileToDraw = getTilesetIndex(&gameMap[y][x], SCREEN_ENTRY_BL);
             memcpy(&se_mem[screenBlock][screenEntryBL], &tileToDraw, 2);
 
-            tileToDraw = getTilesetIndex(gameMap[y][x], SCREEN_ENTRY_BR);
+            tileToDraw = getTilesetIndex(&gameMap[y][x], SCREEN_ENTRY_BR);
             memcpy(&se_mem[screenBlock][screenEntryBR], &tileToDraw, 2);
         }
     }
@@ -514,7 +512,7 @@ void checkLOS(int x1, int y1, int const x2, int const y2)
     delta_y = ABS(delta_y) << 1;
 
     gameMap[y1][x1].sightStatus = TILE_NOT_LIT;
-    drawGameMapScreenEntry(gameMap[y1][x1]);
+    drawGameMapScreenEntry(&gameMap[y1][x1]);
 
     if (delta_x >= delta_y)
     {
@@ -539,7 +537,7 @@ void checkLOS(int x1, int y1, int const x2, int const y2)
                 if (gameMap[y1][x1].sightStatus == TILE_NEVER_SEEN)
                 {
                     gameMap[y1][x1].sightStatus = TILE_NOT_LIT;
-                    drawGameMapScreenEntry(gameMap[y1][x1]);
+                    drawGameMapScreenEntry(&gameMap[y1][x1]);
                 }
                 gameMap[y1][x1].sightStatus = TILE_NOT_LIT;
                 if (isSolid(x1, y1))
@@ -570,7 +568,7 @@ void checkLOS(int x1, int y1, int const x2, int const y2)
                 if (gameMap[y1][x1].sightStatus == TILE_NEVER_SEEN)
                 {
                     gameMap[y1][x1].sightStatus = TILE_NOT_LIT;
-                    drawGameMapScreenEntry(gameMap[y1][x1]);
+                    drawGameMapScreenEntry(&gameMap[y1][x1]);
                 }
                 gameMap[y1][x1].sightStatus = TILE_NOT_LIT;
                 if (isSolid(x1, y1))
@@ -585,7 +583,7 @@ void checkLOS(int x1, int y1, int const x2, int const y2)
 // 
 // Update the four screen entries of a given tile in the gameMap[][]
 //------------------------------------------------------------------
-void drawGameMapScreenEntry(struct Tile tile)
+void drawGameMapScreenEntry(struct Tile* tile)
 {
     int screenBlock = GAME_MAP_SB1;
     int screenEntryTL = 0;                     // screenEntryTopLeft
@@ -594,10 +592,10 @@ void drawGameMapScreenEntry(struct Tile tile)
     int screenEntryBR = 0;                 // screenEntryBottomRight
     int *tileToDraw = NULL;
 
-    if (tile.pos.x > 15)
+    if (tile->pos.x > 15)
     {
         screenBlock = GAME_MAP_SB2;
-        screenEntryTL = tile.pos.y * SCREEN_BLOCK_SIZE * 2 + tile.pos.x * 2 - SCREEN_BLOCK_SIZE;
+        screenEntryTL = tile->pos.y * SCREEN_BLOCK_SIZE * 2 + tile->pos.x * 2 - SCREEN_BLOCK_SIZE;
         screenEntryTR = screenEntryTL + 1;
         screenEntryBL = screenEntryTL + SCREEN_BLOCK_SIZE;
         screenEntryBR = screenEntryBL + 1;
@@ -605,7 +603,7 @@ void drawGameMapScreenEntry(struct Tile tile)
     else
     {
         screenBlock = GAME_MAP_SB1;
-        screenEntryTL = tile.pos.y * SCREEN_BLOCK_SIZE * 2 + tile.pos.x * 2;
+        screenEntryTL = tile->pos.y * SCREEN_BLOCK_SIZE * 2 + tile->pos.x * 2;
         screenEntryTR = screenEntryTL + 1;
         screenEntryBL = screenEntryTL + SCREEN_BLOCK_SIZE;
         screenEntryBR = screenEntryBL + 1;

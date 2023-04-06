@@ -34,7 +34,7 @@ int16_t screenOffsetX = 0, screenOffsetY = 0;
 void doPlayerInput();
 void movePlayer(int8_t direction);
 void drawHUD();
-uint16_t getPlayerScreenCoord(struct Coord playerPosition, uint8_t mapSector, uint8_t dimension);
+uint16_t getPlayerScreenCoord(struct Coord* playerPosition, uint8_t mapSector, uint8_t dimension);
 uint16_t getBgOffset(uint8_t mapSector, uint8_t dimension);
 void updateGraphics();
 void loadPlayerSprite(uint16_t playerScreenX, uint16_t playerScreenY);
@@ -187,7 +187,7 @@ void drawHUD()
 // 
 // Get the coords for drawing player sprite based on map position
 //------------------------------------------------------------------
-uint16_t getPlayerScreenCoord(struct Coord playerPos, uint8_t mapSector, uint8_t dimension)
+uint16_t getPlayerScreenCoord(struct Coord* playerPos, uint8_t mapSector, uint8_t dimension)
 {
     uint8_t screenCoord = 0;
 
@@ -198,12 +198,12 @@ uint16_t getPlayerScreenCoord(struct Coord playerPos, uint8_t mapSector, uint8_t
         case SECTOR_TOP_LEFT:
         case SECTOR_MID_LEFT:
         case SECTOR_BOT_LEFT:
-            screenCoord = playerPos.x * TILE_SIZE;
+            screenCoord = playerPos->x * TILE_SIZE;
             break;
         case SECTOR_TOP_RIGHT:
         case SECTOR_MID_RIGHT:
         case SECTOR_BOT_RIGHT:
-            screenCoord = SCREEN_WIDTH - (MAP_WIDTH_TILES - playerPos.x) * TILE_SIZE;
+            screenCoord = SCREEN_WIDTH - (MAP_WIDTH_TILES - playerPos->x) * TILE_SIZE;
             break;
         default:
             screenCoord = SCREEN_WIDTH / 2 - TILE_SIZE / 2;
@@ -216,12 +216,12 @@ uint16_t getPlayerScreenCoord(struct Coord playerPos, uint8_t mapSector, uint8_t
         case SECTOR_TOP_LEFT:
         case SECTOR_TOP_MID:
         case SECTOR_TOP_RIGHT:
-            screenCoord = (playerPos.y + 1) * TILE_SIZE;
+            screenCoord = (playerPos->y + 1) * TILE_SIZE;
             break;
         case SECTOR_BOT_LEFT:
         case SECTOR_BOT_MID:
         case SECTOR_BOT_RIGHT:
-            screenCoord = SCREEN_HEIGHT - (MAP_HEIGHT_TILES - playerPos.y) * TILE_SIZE;
+            screenCoord = SCREEN_HEIGHT - (MAP_HEIGHT_TILES - playerPos->y) * TILE_SIZE;
             break;
         default:
             screenCoord = SCREEN_HEIGHT / 2;
@@ -379,8 +379,8 @@ void updateGraphics()
         }
     }
 
-    playerScreenX = getPlayerScreenCoord(player, mapSector, DIM_WIDTH) - offsetX;
-    playerScreenY = getPlayerScreenCoord(player, mapSector, DIM_HEIGHT) - offsetY;
+    playerScreenX = getPlayerScreenCoord(&player, mapSector, DIM_WIDTH) - offsetX;
+    playerScreenY = getPlayerScreenCoord(&player, mapSector, DIM_HEIGHT) - offsetY;
     REG_BG1HOFS = screenOffsetX * -1;
     REG_BG1VOFS = screenOffsetY * -1;
     REG_BG2HOFS = getBgOffset(mapSector, DIM_WIDTH) - screenOffsetX;
