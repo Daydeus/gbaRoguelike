@@ -71,9 +71,9 @@ void drawPauseMenu()
     tte_set_pos(0, 0);
     tte_write("Pause Menu\n");
     tte_write("Player position (");
-    tte_write_var_int(playerX);
+    tte_write_var_int(player.x);
     tte_write(", ");
-    tte_write_var_int(playerY);
+    tte_write_var_int(player.y);
     tte_write(")\n");
     tte_write("UP/DOWN\teva: ");
     tte_write_var_int(eva);
@@ -100,7 +100,7 @@ void doStateTransition(enum state targetState)
         REG_BG1CNT= BG_CBB(0) | BG_SBB(FOV_SB) | BG_4BPP | BG_REG_32x32;
         REG_BG2CNT= BG_CBB(0) | BG_SBB(GAME_MAP_SB1) | BG_4BPP | BG_REG_64x32;
         REG_DISPCNT= DCNT_MODE0 | DCNT_BG0 | DCNT_BG1 | DCNT_BG2 | DCNT_OBJ | DCNT_OBJ_1D;
-        doFOV(playerX, playerY, sightRange);
+        doFOV(player.x, player.y, sightRange);
         gameState = STATE_GAMEPLAY;
         break;
     case STATE_MENU:

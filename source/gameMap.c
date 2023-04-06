@@ -33,14 +33,13 @@ void checkLOS(int x1, int y1, int const x2, int const y2);
 uint8_t getDynamicTileId(struct Tile tile)
 {
     uint8_t tileId = tile.tileId;
-    uint8_t positionX = tile.positionX;
-    uint8_t positionY = tile.positionY;
+    //uint8_t positionX = tile.pos.x;
+    //uint8_t positionY = tile.pos.y;
 
     switch(tileId)
     {
     case ID_WALL:
-        if(gameMap[positionY + 1][positionX].tileId != ID_WALL
-        || positionY + 1 > MAP_HEIGHT_TILES -1)
+        if(gameMap[tile.pos.y + 1][tile.pos.x].tileId != ID_WALL || tile.pos.y + 1 > MAP_HEIGHT_TILES -1)
             tileId = ID_WALL_FRONT;
         break;
     default:
@@ -201,8 +200,8 @@ void initGameMap()
     {
         for (int x = 0; x <= MAP_WIDTH_TILES - 1; x++)
         {
-            gameMap[y][x].positionX = x;
-            gameMap[y][x].positionY = y;
+            gameMap[y][x].pos.x = x;
+            gameMap[y][x].pos.y = y;
             gameMap[y][x].sightStatus = TILE_NEVER_SEEN;
 
             // Map boundaries should always be a solid tile(wall)
@@ -595,10 +594,10 @@ void drawGameMapScreenEntry(struct Tile tile)
     int screenEntryBR = 0;                 // screenEntryBottomRight
     int *tileToDraw = NULL;
 
-    if (tile.positionX > 15)
+    if (tile.pos.x > 15)
     {
         screenBlock = GAME_MAP_SB2;
-        screenEntryTL = tile.positionY * SCREEN_BLOCK_SIZE * 2 + tile.positionX * 2 - SCREEN_BLOCK_SIZE;
+        screenEntryTL = tile.pos.y * SCREEN_BLOCK_SIZE * 2 + tile.pos.x * 2 - SCREEN_BLOCK_SIZE;
         screenEntryTR = screenEntryTL + 1;
         screenEntryBL = screenEntryTL + SCREEN_BLOCK_SIZE;
         screenEntryBR = screenEntryBL + 1;
@@ -606,7 +605,7 @@ void drawGameMapScreenEntry(struct Tile tile)
     else
     {
         screenBlock = GAME_MAP_SB1;
-        screenEntryTL = tile.positionY * SCREEN_BLOCK_SIZE * 2 + tile.positionX * 2;
+        screenEntryTL = tile.pos.y * SCREEN_BLOCK_SIZE * 2 + tile.pos.x * 2;
         screenEntryTR = screenEntryTL + 1;
         screenEntryBL = screenEntryTL + SCREEN_BLOCK_SIZE;
         screenEntryBR = screenEntryBL + 1;

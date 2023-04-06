@@ -19,13 +19,12 @@ OBJ_ATTR obj_buffer[128];
 OBJ_AFFINE *obj_aff_buffer = (OBJ_AFFINE*)obj_buffer;
 unsigned int frame = 0;
 enum state gameState = STATE_GAMEPLAY;
-int playerX = 1, playerY = 1, sightRange = SIGHT_RANGE_MIN;
+struct Coord player = {1, 1};
+int sightRange = SIGHT_RANGE_MIN;
 enum direction playerFacing = DIR_LEFT;
 enum direction playerMovedDir = DIR_NULL;
 bool debugCollisionIsOff = false;
 u32 eva = 0x80, evb = 0x40;
-int8_t dirX[5] = {0, -1, 1, 0, 0};
-int8_t dirY[5] = {0, 0, 0, -1, 1};
 int8_t offsetX = 0, offsetY = 0;
 int16_t screenOffsetX = 0, screenOffsetY = 0;
 
@@ -35,9 +34,10 @@ int16_t screenOffsetX = 0, screenOffsetY = 0;
 void doPlayerInput();
 void movePlayer(int8_t direction);
 void drawHUD();
-uint8_t getPlayerScreenCoord(uint8_t dimension, int playerPos, uint8_t mapSector);
+uint16_t getPlayerScreenCoord(struct Coord playerPosition, uint8_t mapSector, uint8_t dimension);
+uint16_t getBgOffset(uint8_t mapSector, uint8_t dimension);
 void updateGraphics();
-void loadPlayerSprite(int playerScreenX, int playerScreenY);
+void loadPlayerSprite(uint16_t playerScreenX, uint16_t playerScreenY);
 
 //------------------------------------------------------------------
 // Function: doPlayerInput
@@ -55,8 +55,8 @@ void doPlayerInput()
         #endif
 
         playerFacing = DIR_LEFT;
-        if(isSolid(playerX - 1, playerY) ==  false
-        && isOutOfBounds(playerX - 1, playerY) == false)
+        if(isSolid(player.x + dirX[playerFacing], player.y + dirY[playerFacing]) ==  false
+        && isOutOfBounds(player.x + dirX[playerFacing], player.y + dirY[playerFacing]) == false)
         {
             movePlayer(playerFacing);
             playerMovedDir = DIR_LEFT;
@@ -70,8 +70,8 @@ void doPlayerInput()
         #endif
 
         playerFacing = DIR_RIGHT;
-        if(isSolid(playerX + 1, playerY) ==  false
-        && isOutOfBounds(playerX + 1, playerY) == false)
+        if(isSolid(player.x + dirX[playerFacing], player.y + dirY[playerFacing]) ==  false
+        && isOutOfBounds(player.x + dirX[playerFacing], player.y + dirY[playerFacing]) == false)
         {
             movePlayer(playerFacing);
             playerMovedDir = DIR_RIGHT;
@@ -85,8 +85,8 @@ void doPlayerInput()
         #endif
 
         playerFacing = DIR_UP;
-        if(isSolid(playerX, playerY - 1) ==  false
-        && isOutOfBounds(playerX, playerY - 1) == false)
+        if(isSolid(player.x + dirX[playerFacing], player.y + dirY[playerFacing]) ==  false
+        && isOutOfBounds(player.x + dirX[playerFacing], player.y + dirY[playerFacing]) == false)
         {
             movePlayer(playerFacing);
             playerMovedDir = DIR_UP;
@@ -100,8 +100,8 @@ void doPlayerInput()
         #endif
 
         playerFacing = DIR_DOWN;
-        if(isSolid(playerX, playerY + 1) ==  false
-        && isOutOfBounds(playerX, playerY + 1) == false)
+        if(isSolid(player.x + dirX[playerFacing], player.y + dirY[playerFacing]) ==  false
+        && isOutOfBounds(player.x + dirX[playerFacing], player.y + dirY[playerFacing]) == false)
         {
             movePlayer(playerFacing);
             playerMovedDir = DIR_DOWN;
@@ -138,12 +138,12 @@ void doPlayerInput()
 //------------------------------------------------------------------
 void movePlayer(int8_t direction)
 {
-    playerX += dirX[direction];
-    playerY += dirY[direction];
+    player.x += dirX[direction];
+    player.y += dirY[direction];
 
     #ifdef DEBUG
-        mgba_printf(MGBA_LOG_INFO, "Player moved to: %d, %d", playerX, playerY);
-        mgba_printf(MGBA_LOG_DEBUG, "Player in map sector: %d", getMapSector(playerX, playerY));
+        mgba_printf(MGBA_LOG_INFO, "Player moved to: %d, %d", player.x, player.y);
+        mgba_printf(MGBA_LOG_DEBUG, "Player in map sector: %d", getMapSector(player.x, player.y));
     #endif
 }
 
@@ -187,7 +187,7 @@ void drawHUD()
 // 
 // Get the coords for drawing player sprite based on map position
 //------------------------------------------------------------------
-uint8_t getPlayerScreenCoord(uint8_t dimension, int playerPos, uint8_t mapSector)
+uint16_t getPlayerScreenCoord(struct Coord playerPos, uint8_t mapSector, uint8_t dimension)
 {
     uint8_t screenCoord = 0;
 
@@ -198,12 +198,12 @@ uint8_t getPlayerScreenCoord(uint8_t dimension, int playerPos, uint8_t mapSector
         case SECTOR_TOP_LEFT:
         case SECTOR_MID_LEFT:
         case SECTOR_BOT_LEFT:
-            screenCoord = playerPos * TILE_SIZE;
+            screenCoord = playerPos.x * TILE_SIZE;
             break;
         case SECTOR_TOP_RIGHT:
         case SECTOR_MID_RIGHT:
         case SECTOR_BOT_RIGHT:
-            screenCoord = SCREEN_WIDTH - (MAP_WIDTH_TILES - playerPos) * TILE_SIZE;
+            screenCoord = SCREEN_WIDTH - (MAP_WIDTH_TILES - playerPos.x) * TILE_SIZE;
             break;
         default:
             screenCoord = SCREEN_WIDTH / 2 - TILE_SIZE / 2;
@@ -216,12 +216,12 @@ uint8_t getPlayerScreenCoord(uint8_t dimension, int playerPos, uint8_t mapSector
         case SECTOR_TOP_LEFT:
         case SECTOR_TOP_MID:
         case SECTOR_TOP_RIGHT:
-            screenCoord = (playerPos + 1) * TILE_SIZE;
+            screenCoord = (playerPos.y + 1) * TILE_SIZE;
             break;
         case SECTOR_BOT_LEFT:
         case SECTOR_BOT_MID:
         case SECTOR_BOT_RIGHT:
-            screenCoord = SCREEN_HEIGHT - (MAP_HEIGHT_TILES - playerPos) * TILE_SIZE;
+            screenCoord = SCREEN_HEIGHT - (MAP_HEIGHT_TILES - playerPos.y) * TILE_SIZE;
             break;
         default:
             screenCoord = SCREEN_HEIGHT / 2;
@@ -235,7 +235,7 @@ uint8_t getPlayerScreenCoord(uint8_t dimension, int playerPos, uint8_t mapSector
 // 
 // Calc screen offset using player position and given dimension
 //------------------------------------------------------------------
-uint16_t getBgOffset(uint8_t dimension, uint8_t mapSector)
+uint16_t getBgOffset( uint8_t mapSector, uint8_t dimension)
 {
     uint16_t offsetBg = 0;
 
@@ -254,7 +254,7 @@ uint16_t getBgOffset(uint8_t dimension, uint8_t mapSector)
             offsetBg = (MAP_WIDTH_TILES - SCREEN_WIDTH_TILES) * TILE_SIZE;
             break;
         default:
-            offsetBg = (playerX - SCREEN_WIDTH_TILES / 2) * TILE_SIZE;
+            offsetBg = (player.x - SCREEN_WIDTH_TILES / 2) * TILE_SIZE;
         }
     }
     else if (dimension == DIM_HEIGHT)
@@ -272,7 +272,7 @@ uint16_t getBgOffset(uint8_t dimension, uint8_t mapSector)
             offsetBg = (MAP_HEIGHT_TILES - SCREEN_HEIGHT_TILES) * TILE_SIZE;
             break;
         default:
-            offsetBg = (playerY - SCREEN_HEIGHT_TILES / 2) * TILE_SIZE;
+            offsetBg = (player.y - SCREEN_HEIGHT_TILES / 2) * TILE_SIZE;
         }
     }
     return offsetBg;
@@ -286,8 +286,8 @@ uint16_t getBgOffset(uint8_t dimension, uint8_t mapSector)
 //------------------------------------------------------------------
 void updateGraphics()
 {
-    uint8_t mapSector = getMapSector(playerX, playerY);
-    int playerScreenX = 0, playerScreenY = 0;
+    uint8_t mapSector = getMapSector(player.x, player.y);
+    uint16_t playerScreenX = 0, playerScreenY = 0;
 
     if (offsetX != 0)
         offsetX = approachValue(offsetX, 0, 1);
@@ -304,35 +304,35 @@ void updateGraphics()
             switch(mapSector)
             {
             case SECTOR_TOP_LEFT:
-                if (4 == playerY && playerMovedDir == DIR_UP)
+                if (4 == player.y && playerMovedDir == DIR_UP)
                     screenOffsetY += dirY[playerMovedDir] * TILE_SIZE;
                 else
                     offsetY += dirY[playerMovedDir] * TILE_SIZE;
-                if (7 == playerX && playerMovedDir == DIR_LEFT)
+                if (7 == player.x && playerMovedDir == DIR_LEFT)
                     screenOffsetX += dirX[playerMovedDir] * TILE_SIZE;
                 else
                     offsetX += dirX[playerMovedDir] * TILE_SIZE;
                 break;
             case SECTOR_TOP_MID:
-                if (4 == playerY && playerMovedDir == DIR_UP)
+                if (4 == player.y && playerMovedDir == DIR_UP)
                     screenOffsetY += dirY[playerMovedDir] * TILE_SIZE;
                 else
                     offsetY += dirY[playerMovedDir] * TILE_SIZE;
                 screenOffsetX += dirX[playerMovedDir] * TILE_SIZE;
                 break;
             case SECTOR_TOP_RIGHT:
-                if (4 == playerY && playerMovedDir == DIR_UP)
+                if (4 == player.y && playerMovedDir == DIR_UP)
                     screenOffsetY += dirY[playerMovedDir] * TILE_SIZE;
                 else
                     offsetY += dirY[playerMovedDir] * TILE_SIZE;
-                if (24 == playerX && playerMovedDir == DIR_RIGHT)
+                if (24 == player.x && playerMovedDir == DIR_RIGHT)
                     screenOffsetX += dirX[playerMovedDir] * TILE_SIZE;
                 else
                     offsetX += dirX[playerMovedDir] * TILE_SIZE;
                 break;
             case SECTOR_MID_LEFT:
                 screenOffsetY += dirY[playerMovedDir] * TILE_SIZE;
-                if (7 == playerX && playerMovedDir == DIR_LEFT)
+                if (7 == player.x && playerMovedDir == DIR_LEFT)
                     screenOffsetX += dirX[playerMovedDir] * TILE_SIZE;
                 else
                     offsetX += dirX[playerMovedDir] * TILE_SIZE;
@@ -343,34 +343,34 @@ void updateGraphics()
                 break;
             case SECTOR_MID_RIGHT:
                 screenOffsetY += dirY[playerMovedDir] * TILE_SIZE;
-                if (24 == playerX && playerMovedDir == DIR_RIGHT)
+                if (24 == player.x && playerMovedDir == DIR_RIGHT)
                     screenOffsetX += dirX[playerMovedDir] * TILE_SIZE;
                 else
                     offsetX += dirX[playerMovedDir] * TILE_SIZE;
                 break;
             case SECTOR_BOT_LEFT:
-                if (11 == playerY && playerMovedDir == DIR_DOWN)
+                if (11 == player.y && playerMovedDir == DIR_DOWN)
                     screenOffsetY += dirY[playerMovedDir] * TILE_SIZE;
                 else
                     offsetY += dirY[playerMovedDir] * TILE_SIZE;
-                if (7 == playerX && playerMovedDir == DIR_LEFT)
+                if (7 == player.x && playerMovedDir == DIR_LEFT)
                     screenOffsetX += dirX[playerMovedDir] * TILE_SIZE;
                 else
                     offsetX += dirX[playerMovedDir] * TILE_SIZE;
                 break;
             case SECTOR_BOT_MID:
-                if (11 == playerY && playerMovedDir == DIR_DOWN)
+                if (11 == player.y && playerMovedDir == DIR_DOWN)
                     screenOffsetY += dirY[playerMovedDir] * TILE_SIZE;
                 else
                     offsetY += dirY[playerMovedDir] * TILE_SIZE;
                 screenOffsetX += dirX[playerMovedDir] * TILE_SIZE;
                 break;
             case SECTOR_BOT_RIGHT:
-                if (11 == playerY && playerMovedDir == DIR_DOWN)
+                if (11 == player.y && playerMovedDir == DIR_DOWN)
                     screenOffsetY += dirY[playerMovedDir] * TILE_SIZE;
                 else
                     offsetY += dirY[playerMovedDir] * TILE_SIZE;
-                if (24 == playerX && playerMovedDir == DIR_RIGHT)
+                if (24 == player.x && playerMovedDir == DIR_RIGHT)
                     screenOffsetX += dirX[playerMovedDir] * TILE_SIZE;
                 else
                     offsetX += dirX[playerMovedDir] * TILE_SIZE;
@@ -379,12 +379,12 @@ void updateGraphics()
         }
     }
 
-    playerScreenX = getPlayerScreenCoord(DIM_WIDTH, playerX, mapSector) - offsetX;
-    playerScreenY = getPlayerScreenCoord(DIM_HEIGHT, playerY, mapSector) - offsetY;
+    playerScreenX = getPlayerScreenCoord(player, mapSector, DIM_WIDTH) - offsetX;
+    playerScreenY = getPlayerScreenCoord(player, mapSector, DIM_HEIGHT) - offsetY;
     REG_BG1HOFS = screenOffsetX * -1;
     REG_BG1VOFS = screenOffsetY * -1;
-    REG_BG2HOFS = getBgOffset(DIM_WIDTH, mapSector) - screenOffsetX;
-    REG_BG2VOFS = getBgOffset(DIM_HEIGHT, mapSector) - screenOffsetY;
+    REG_BG2HOFS = getBgOffset(mapSector, DIM_WIDTH) - screenOffsetX;
+    REG_BG2VOFS = getBgOffset(mapSector, DIM_HEIGHT) - screenOffsetY;
     playerMovedDir = DIR_NULL;
     loadPlayerSprite(playerScreenX, playerScreenY);
 }
@@ -395,7 +395,7 @@ void updateGraphics()
 // Loads the correct index of the player sprite based on frame
 // count and on facing direction. TODO: break into smaller funcs.
 //------------------------------------------------------------------
-void loadPlayerSprite(int playerScreenX, int playerScreenY)
+void loadPlayerSprite(uint16_t playerScreenX, uint16_t playerScreenY)
 {
     unsigned int startingIndex = 0, paletteBank = 0;
     OBJ_ATTR *player = &obj_buffer[0];
@@ -471,7 +471,7 @@ int main(void)
     initFOV();
     drawHUD();
 
-    doFOV(playerX, playerY, sightRange);
+    doFOV(player.x, player.y, sightRange);
     oam_init(obj_buffer, 128);
     REG_BG0CNT= BG_CBB(0) | BG_SBB(GAME_HUD_SB) | BG_4BPP | BG_REG_32x32;
     REG_BG1CNT= BG_CBB(0) | BG_SBB(FOV_SB) | BG_4BPP | BG_REG_32x32;
@@ -497,7 +497,7 @@ int main(void)
                 doPlayerInput();
             if (playerMovedDir != DIR_NULL)
             {
-                doFOV(playerX, playerY, sightRange);
+                doFOV(player.x, player.y, sightRange);
                 REG_BLDALPHA= BLDA_BUILD(eva/8, evb/8);
             }
             updateGraphics();
