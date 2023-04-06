@@ -497,84 +497,46 @@ void drawFOV(int positionX, int positionY)
 //------------------------------------------------------------------
 // Function: checkLOS
 // 
-// Uses Bresenham's algorithm to step through a line.
+// Uses Bresenham's algorithm to step through a line from (x1, y1)
+// to (x2, y2). At each step, it sets the sight status of the tile.
 //------------------------------------------------------------------
 void checkLOS(int x1, int y1, int const x2, int const y2)
 {
-    // If x1 == x2, then it does not matter what we set here
-    int delta_x = x2 - x1;
-    s8 const ix = ((delta_x > 0) - (delta_x < 0));
-    delta_x = ABS(delta_x) << 1;
-
-    // If y1 == y2, then it does not matter what we set here
-    int delta_y = y2 - y1;
-    s8 const iy= ((delta_y > 0) - (delta_y < 0));
-    delta_y = ABS(delta_y) << 1;
-
-    gameMap[y1][x1].sightStatus = TILE_NOT_LIT;
-    drawGameMapScreenEntry(&gameMap[y1][x1]);
-
-    if (delta_x >= delta_y)
-    {
-        // error may go below zero
-        int error = (delta_y - (delta_x >> 1));
+    int dx =  ABS(x2 - x1), sx = x1 < x2 ? 1 : -1;
+    int dy = -ABS(y2 - y1), sy = y1 < y2 ? 1 : -1;
+    int err = dx + dy, e2; /* error value e_xy */
  
-        while (x1 != x2)
+    for (;;)
+    {  /* loop */
+        if (!isOutOfBounds(x1, y1))
         {
-            // Reduce error, while taking into account the corner case of error == 0
-            if ((error > 0) || (!error && (ix > 0)))
+            if (gameMap[y1][x1].sightStatus == TILE_NEVER_SEEN)
             {
-                error -= delta_x;
-                y1 += iy;
-            }
-            // Else do nothing
-
-            error += delta_y;
-            x1 += ix;
-
-            if (!isOutOfBounds(x1, y1))
-            {
-                if (gameMap[y1][x1].sightStatus == TILE_NEVER_SEEN)
-                {
-                    gameMap[y1][x1].sightStatus = TILE_NOT_LIT;
-                    drawGameMapScreenEntry(&gameMap[y1][x1]);
-                }
                 gameMap[y1][x1].sightStatus = TILE_NOT_LIT;
-                if (isSolid(x1, y1))
-                    return;
+                drawGameMapScreenEntry(&gameMap[y1][x1]);
             }
+            gameMap[y1][x1].sightStatus = TILE_NOT_LIT;
         }
-    }
-    else
-    {
-        // error may go below zero
-        int error = (delta_x - (delta_y >> 1));
 
-        while (y1 != y2)
+        if ((x1 == x2 && y1 == y2) // Line has reached point (x2,y2)
+        || isSolid(x1, y1)         // Has encountered solid tile
+        // If NOT a horizontal or vertical line and is crossing a
+        // diagonal between two solid tiles
+        || (x1 != x2 && y1 != y2) && (isSolid(x1 + sx, y1) && isSolid(x1, y1 +sy)))
+            break;
+
+        e2 = 2 * err;
+        if (e2 >= dy)
         {
-            // Reduce error, while taking into account the corner case of error == 0
-            if ((error > 0) || (!error && (iy > 0)))
-            {
-                error -= delta_y;
-                x1 += ix;
-            }
-            // Else do nothing
+            err += dy;
+            x1 += sx;
+        } /* e_xy+e_x > 0 */
 
-            error += delta_x;
-            y1 += iy;
- 
-            if (!isOutOfBounds(x1, y1))
-            {
-                if (gameMap[y1][x1].sightStatus == TILE_NEVER_SEEN)
-                {
-                    gameMap[y1][x1].sightStatus = TILE_NOT_LIT;
-                    drawGameMapScreenEntry(&gameMap[y1][x1]);
-                }
-                gameMap[y1][x1].sightStatus = TILE_NOT_LIT;
-                if (isSolid(x1, y1))
-                    return;
-            }
-        }
+        if (e2 <= dx)
+        {
+            err += dx;
+            y1 += sy;
+        } /* e_xy+e_y < 0 */
     }
 }
 
