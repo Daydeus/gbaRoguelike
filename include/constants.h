@@ -23,30 +23,36 @@
 #define PAUSE_MENU_SB 20
 
 // Tileset Indices
-#define TRANSPARENT     0x06000000
-#define FLOOR_BLANK_ALL 0x06000001
-#define FLOOR_FOUR_TL   0x06000002
-#define FLOOR_FOUR_TR   0x06000003
-#define FLOOR_FOUR_BL   0x06000004
-#define FLOOR_FOUR_BR   0x06000005
-#define FLOOR_BIG_TL    0x06000006
-#define FLOOR_BIG_TR    0x06000007
-#define FLOOR_BIG_BL    0x06000008
-#define FLOOR_BIG_BR    0x06000009
-#define WALL_TOP_TL     0x0600000A
-#define WALL_TOP_TR     0x0600000B
-#define WALL_TOP_BL     0x0600000C
-#define WALL_TOP_BR     0x0600000D
-#define WALL_FRONT_TL   0x0600000E
-#define WALL_FRONT_TR   0x0600000F
-#define WALL_FRONT_BL   0x06000010
-#define WALL_FRONT_BR   0x06000011
-#define HEART_TL        0x06000012
-#define HEART_TR        0x06000013
-#define HEART_BL        0x06000014
-#define HEART_BR        0x06000015
-#define BLANK_BLACK     0x06000016
-#define DITHER_PATTERN  0x06000017
+#define TRANSPARENT       0x06000000
+#define BLANK_BLACK       0x06000001
+#define FLOOR_FOUR_TL     0x06000002
+#define FLOOR_FOUR_TR     0x06000003
+#define FLOOR_FOUR_BL     0x06000004
+#define FLOOR_FOUR_BR     0x06000005
+#define FLOOR_CHIP        0x06000006
+#define FLOOR_V_CHIP      0x06000007
+#define FLOOR_MOSSY       0x06000008
+#define FLOOR_MOSSY_2     0x06000009
+#define FLOOR_MOSS_CHIP   0x0600000A
+#define FLOOR_V_MOSS_CHIP 0x0600000B
+#define FLOOR_BIG_TL      0x0600000C
+#define FLOOR_BIG_TR      0x0600000D
+#define FLOOR_BIG_BL      0x0600000E
+#define FLOOR_BIG_BR      0x0600000F
+#define WALL_TOP_TL       0x06000010
+#define WALL_TOP_TR       0x06000011
+#define WALL_TOP_BL       0x06000012
+#define WALL_TOP_BR       0x06000013
+#define WALL_FRONT_TL     0x06000014
+#define WALL_FRONT_TR     0x06000015
+#define WALL_FRONT_BL     0x60000016
+#define WALL_FRONT_BR     0x60000017
+#define HEART_TL          0x60000018
+#define HEART_TR          0x60000019
+#define HEART_BL          0x6000001A
+#define HEART_BR          0x6000001B
+#define BUTTER            0x6000001C
+#define DITHER_PATTERN    0x6000001D
 
 // Player Sprite Indices
 #define PLAYER_FACING_LEFT_FR1  0
@@ -66,8 +72,9 @@ enum
 {
     ID_TRANSPARENT = 0,
     ID_FLOOR,
-    ID_FLOOR_BLANK,                     // Just for visual variation
     ID_FLOOR_BIG,                       // Just for visual variation
+    ID_FLOOR_MOSSY,                     // Just for visual variation
+    ID_FLOOR_CHIP,                      // Just for visual variation
     ID_WALL,
     ID_WALL_FRONT                       // Just for visual variation
 };

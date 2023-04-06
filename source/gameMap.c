@@ -17,6 +17,11 @@ extern struct Tile gameMap[MAP_HEIGHT_TILES][MAP_WIDTH_TILES];
 //------------------------------------------------------------------
 uint8_t getDynamicTileId(struct Tile tile);
 int* getTilesetIndex(struct Tile tile, uint8_t screenEntryCorner);
+void initFOV();
+void clearFOV(int positionX, int positionY);
+void drawFOV(int positionX, int positionY);
+void drawGameMapScreenEntry(struct Tile tile);
+void checkLOS(int x1, int y1, int const x2, int const y2);
 
 //------------------------------------------------------------------
 // Function: getDynamicTileId
@@ -100,8 +105,43 @@ int* getTilesetIndex(struct Tile tile, uint8_t screenEntryCorner)
             break;
         }
         break;
-    case ID_FLOOR_BLANK:                           // ID_FLOOR_BLANK
-        tilesetIndex = (int*)FLOOR_BLANK_ALL;
+    case ID_FLOOR_MOSSY:                           // ID_FLOOR_MOSSY
+        switch (screenEntryCorner)
+        {
+        case SCREEN_ENTRY_TL:
+            tilesetIndex = (int*)FLOOR_MOSSY;
+            break;
+        case SCREEN_ENTRY_TR:
+            tilesetIndex = (int*)FLOOR_MOSSY_2;
+            break;
+        case SCREEN_ENTRY_BL:
+            tilesetIndex = (int*)FLOOR_MOSS_CHIP;
+            break;
+        case SCREEN_ENTRY_BR:
+            tilesetIndex = (int*)FLOOR_V_MOSS_CHIP;
+            break;
+        default:
+            break;
+        }
+        break;
+    case ID_FLOOR_CHIP:                             // ID_FLOOR_CHIP
+        switch (screenEntryCorner)
+        {
+        case SCREEN_ENTRY_TL:
+            tilesetIndex = (int*)FLOOR_FOUR_TR;
+            break;
+        case SCREEN_ENTRY_TR:
+            tilesetIndex = (int*)FLOOR_CHIP;
+            break;
+        case SCREEN_ENTRY_BL:
+            tilesetIndex = (int*)FLOOR_V_CHIP;
+            break;
+        case SCREEN_ENTRY_BR:
+            tilesetIndex = (int*)FLOOR_FOUR_BR;
+            break;
+        default:
+            break;
+        }
         break;
     case ID_WALL:                                         // ID_WALL
         switch (screenEntryCorner)
@@ -177,12 +217,14 @@ void initGameMap()
             }
             else
             {
-                if (rand() % 5 > 2)
-                    gameMap[y][x].tileId = ID_FLOOR;
-                else if (rand() % 5 == 1)
-                    gameMap[y][x].tileId = ID_FLOOR_BIG;
-                else
-                    gameMap[y][x].tileId = ID_FLOOR_BLANK;
+                switch(rand() % 5)
+                {
+                case 0:
+                case 1: gameMap[y][x].tileId = ID_FLOOR; break;
+                case 2: gameMap[y][x].tileId = ID_FLOOR_BIG; break;
+                case 3: gameMap[y][x].tileId = ID_FLOOR_MOSSY; break;
+                case 4: gameMap[y][x].tileId = ID_FLOOR_CHIP; break;
+                }
             }
 
         }

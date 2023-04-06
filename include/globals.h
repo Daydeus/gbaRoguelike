@@ -7,9 +7,6 @@ extern enum state gameState;
 // Player position on gameMap[][]
 extern int playerX, playerY, sightRange;
 
-// Position of player sprite drawn on screen
-extern int playerScreenX, playerScreenY;
-
 // Screen offset from TopLeft corner of gameMap[][]
 extern int16_t screenOffsetX, screenOffsetY; 
 

@@ -23,7 +23,7 @@ int playerX = 1, playerY = 1, sightRange = SIGHT_RANGE_MIN;
 enum direction playerFacing = DIR_LEFT;
 enum direction playerMovedDir = DIR_NULL;
 bool debugCollisionIsOff = false;
-u32 eva = 0x80, evb = 0x20;
+u32 eva = 0x80, evb = 0x40;
 int8_t dirX[5] = {0, -1, 1, 0, 0};
 int8_t dirY[5] = {0, 0, 0, -1, 1};
 int8_t offsetX = 0, offsetY = 0;
@@ -417,8 +417,8 @@ void loadPlayerSprite(int playerScreenX, int playerScreenY)
     OBJ_ATTR *player = &obj_buffer[0];
 
     obj_set_attr(player,
-        ATTR0_SQUARE | ATTR0_BLEND,                  // Square, regular sprite
-        ATTR1_SIZE_16,                               // 16x16 pixels,
+        ATTR0_SQUARE,                     // Square, regular sprite,
+        ATTR1_SIZE_16,                              // 16x16 pixels,
         ATTR2_PALBANK(paletteBank) | startingIndex); // palette index 0, tile index 0
 
     // Update sprite based on status
@@ -487,6 +487,7 @@ int main(void)
     initFOV();
     drawHUD();
 
+    doFOV(playerX, playerY, sightRange);
     oam_init(obj_buffer, 128);
     REG_BG0CNT= BG_CBB(0) | BG_SBB(GAME_HUD_SB) | BG_4BPP | BG_REG_32x32;
     REG_BG1CNT= BG_CBB(0) | BG_SBB(FOV_SB) | BG_4BPP | BG_REG_32x32;
