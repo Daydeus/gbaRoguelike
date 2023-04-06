@@ -33,7 +33,6 @@ int16_t screenOffsetX = 0, screenOffsetY = 0;
 // Function Prototypes
 //------------------------------------------------------------------
 void doPlayerInput();
-int8_t approachValue(int8_t currentValue, int8_t targetValue, int8_t increment);
 void movePlayer(int8_t direction);
 void drawHUD();
 uint8_t getPlayerScreenCoord(uint8_t dimension, int playerPos, uint8_t mapSector);
@@ -130,21 +129,6 @@ void doPlayerInput()
         #endif
         doStateTransition(STATE_MENU);
     }
-}
-
-//------------------------------------------------------------------
-// Function: approachValue
-//
-// Increment the passed variable to the target goal
-//------------------------------------------------------------------
-int8_t approachValue(int8_t currentValue, int8_t targetValue, int8_t increment)
-{
-    if (currentValue < targetValue)
-        currentValue += increment;
-    else if (currentValue > targetValue)
-        currentValue -= increment;
-
-    return currentValue;
 }
 
 //------------------------------------------------------------------

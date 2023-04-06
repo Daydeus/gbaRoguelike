@@ -9,7 +9,6 @@
 // Function Prototypes
 //------------------------------------------------------------------
 void tte_write_var_int(int varToPrint);
-void getTileStatusDebug(int positionX, int positionY);
 void toggleValue(int value);
 
 //------------------------------------------------------------------
