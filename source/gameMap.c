@@ -515,7 +515,8 @@ void checkLOS(int x1, int y1, int const x2, int const y2)
                 gameMap[y1][x1].sightStatus = TILE_NOT_LIT;
                 drawGameMapScreenEntry(&gameMap[y1][x1]);
             }
-            gameMap[y1][x1].sightStatus = TILE_NOT_LIT;
+            else
+                gameMap[y1][x1].sightStatus = TILE_NOT_LIT;
         }
 
         if ((x1 == x2 && y1 == y2) // Line has reached point (x2,y2)
