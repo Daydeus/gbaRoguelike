@@ -132,4 +132,12 @@ enum
     SIGHT_RANGE_MAX = 4
 };
 
+enum playerAction
+{   PLAYER_NO_ACTION = 0,
+    PLAYER_WALKED_LEFT,
+    PLAYER_WALKED_RIGHT,
+    PLAYER_WALKED_UP,
+    PLAYER_WALKED_DOWN
+};
+
 #endif // CONSTANTS_H

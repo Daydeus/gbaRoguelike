@@ -23,7 +23,7 @@ enum state gameState = STATE_TITLE_SCREEN;
 struct Coord player = {1, 1};
 int sightRange = SIGHT_RANGE_MIN;
 enum direction playerFacing = DIR_LEFT;
-enum direction playerMovedDir = DIR_NULL;
+enum playerAction playerAction = PLAYER_NO_ACTION;
 bool debugCollisionIsOff = false, debugMapIsVisible = false;
 u32 evb = 0x40;
 int8_t offsetX = 0, offsetY = 0;
@@ -60,7 +60,7 @@ void doPlayerInput()
         && isOutOfBounds(player.x + dirX[playerFacing], player.y + dirY[playerFacing]) == false)
         {
             movePlayer(playerFacing);
-            playerMovedDir = DIR_LEFT;
+            playerAction = PLAYER_WALKED_LEFT;
 
         }
     }
@@ -75,7 +75,7 @@ void doPlayerInput()
         && isOutOfBounds(player.x + dirX[playerFacing], player.y + dirY[playerFacing]) == false)
         {
             movePlayer(playerFacing);
-            playerMovedDir = DIR_RIGHT;
+            playerAction = PLAYER_WALKED_RIGHT;
 
         }
     }
@@ -90,7 +90,7 @@ void doPlayerInput()
         && isOutOfBounds(player.x + dirX[playerFacing], player.y + dirY[playerFacing]) == false)
         {
             movePlayer(playerFacing);
-            playerMovedDir = DIR_UP;
+            playerAction = PLAYER_WALKED_UP;
 
         }
     }
@@ -105,7 +105,7 @@ void doPlayerInput()
         && isOutOfBounds(player.x + dirX[playerFacing], player.y + dirY[playerFacing]) == false)
         {
             movePlayer(playerFacing);
-            playerMovedDir = DIR_DOWN;
+            playerAction = PLAYER_WALKED_DOWN;
 
         }
     }
@@ -304,81 +304,81 @@ void updateGraphics()
         screenOffsetY = approachValue(screenOffsetY, 0, 1);
     else
     {
-        if (playerMovedDir != DIR_NULL)
+        if (playerAction != PLAYER_NO_ACTION)
         {
             switch(mapSector)
             {
             case SECTOR_TOP_LEFT:
-                if (4 == player.y && playerMovedDir == DIR_UP)
-                    screenOffsetY += dirY[playerMovedDir] * TILE_SIZE;
+                if (4 == player.y && playerAction == PLAYER_WALKED_UP)
+                    screenOffsetY += dirY[playerFacing] * TILE_SIZE;
                 else
-                    offsetY += dirY[playerMovedDir] * TILE_SIZE;
-                if (7 == player.x && playerMovedDir == DIR_LEFT)
-                    screenOffsetX += dirX[playerMovedDir] * TILE_SIZE;
+                    offsetY += dirY[playerFacing] * TILE_SIZE;
+                if (7 == player.x && playerAction == PLAYER_WALKED_LEFT)
+                    screenOffsetX += dirX[playerFacing] * TILE_SIZE;
                 else
-                    offsetX += dirX[playerMovedDir] * TILE_SIZE;
+                    offsetX += dirX[playerFacing] * TILE_SIZE;
                 break;
             case SECTOR_TOP_MID:
-                if (4 == player.y && playerMovedDir == DIR_UP)
-                    screenOffsetY += dirY[playerMovedDir] * TILE_SIZE;
+                if (4 == player.y && playerAction == PLAYER_WALKED_UP)
+                    screenOffsetY += dirY[playerFacing] * TILE_SIZE;
                 else
-                    offsetY += dirY[playerMovedDir] * TILE_SIZE;
-                screenOffsetX += dirX[playerMovedDir] * TILE_SIZE;
+                    offsetY += dirY[playerFacing] * TILE_SIZE;
+                screenOffsetX += dirX[playerFacing] * TILE_SIZE;
                 break;
             case SECTOR_TOP_RIGHT:
-                if (4 == player.y && playerMovedDir == DIR_UP)
-                    screenOffsetY += dirY[playerMovedDir] * TILE_SIZE;
+                if (4 == player.y && playerAction == PLAYER_WALKED_UP)
+                    screenOffsetY += dirY[playerFacing] * TILE_SIZE;
                 else
-                    offsetY += dirY[playerMovedDir] * TILE_SIZE;
-                if (24 == player.x && playerMovedDir == DIR_RIGHT)
-                    screenOffsetX += dirX[playerMovedDir] * TILE_SIZE;
+                    offsetY += dirY[playerAction] * TILE_SIZE;
+                if (24 == player.x && playerAction == PLAYER_WALKED_RIGHT)
+                    screenOffsetX += dirX[playerFacing] * TILE_SIZE;
                 else
-                    offsetX += dirX[playerMovedDir] * TILE_SIZE;
+                    offsetX += dirX[playerFacing] * TILE_SIZE;
                 break;
             case SECTOR_MID_LEFT:
-                screenOffsetY += dirY[playerMovedDir] * TILE_SIZE;
-                if (7 == player.x && playerMovedDir == DIR_LEFT)
-                    screenOffsetX += dirX[playerMovedDir] * TILE_SIZE;
+                screenOffsetY += dirY[playerFacing] * TILE_SIZE;
+                if (7 == player.x && playerAction == PLAYER_WALKED_LEFT)
+                    screenOffsetX += dirX[playerFacing] * TILE_SIZE;
                 else
-                    offsetX += dirX[playerMovedDir] * TILE_SIZE;
+                    offsetX += dirX[playerFacing] * TILE_SIZE;
                 break;
             case SECTOR_MID_MID:
-                screenOffsetY += dirY[playerMovedDir] * TILE_SIZE;
-                screenOffsetX += dirX[playerMovedDir] * TILE_SIZE;
+                screenOffsetY += dirY[playerFacing] * TILE_SIZE;
+                screenOffsetX += dirX[playerFacing] * TILE_SIZE;
                 break;
             case SECTOR_MID_RIGHT:
-                screenOffsetY += dirY[playerMovedDir] * TILE_SIZE;
-                if (24 == player.x && playerMovedDir == DIR_RIGHT)
-                    screenOffsetX += dirX[playerMovedDir] * TILE_SIZE;
+                screenOffsetY += dirY[playerFacing] * TILE_SIZE;
+                if (24 == player.x && playerAction == PLAYER_WALKED_RIGHT)
+                    screenOffsetX += dirX[playerFacing] * TILE_SIZE;
                 else
-                    offsetX += dirX[playerMovedDir] * TILE_SIZE;
+                    offsetX += dirX[playerFacing] * TILE_SIZE;
                 break;
             case SECTOR_BOT_LEFT:
-                if (11 == player.y && playerMovedDir == DIR_DOWN)
-                    screenOffsetY += dirY[playerMovedDir] * TILE_SIZE;
+                if (11 == player.y && playerAction == PLAYER_WALKED_DOWN)
+                    screenOffsetY += dirY[playerFacing] * TILE_SIZE;
                 else
-                    offsetY += dirY[playerMovedDir] * TILE_SIZE;
-                if (7 == player.x && playerMovedDir == DIR_LEFT)
-                    screenOffsetX += dirX[playerMovedDir] * TILE_SIZE;
+                    offsetY += dirY[playerFacing] * TILE_SIZE;
+                if (7 == player.x && playerAction == PLAYER_WALKED_LEFT)
+                    screenOffsetX += dirX[playerFacing] * TILE_SIZE;
                 else
-                    offsetX += dirX[playerMovedDir] * TILE_SIZE;
+                    offsetX += dirX[playerFacing] * TILE_SIZE;
                 break;
             case SECTOR_BOT_MID:
-                if (11 == player.y && playerMovedDir == DIR_DOWN)
-                    screenOffsetY += dirY[playerMovedDir] * TILE_SIZE;
+                if (11 == player.y && playerAction == PLAYER_WALKED_DOWN)
+                    screenOffsetY += dirY[playerFacing] * TILE_SIZE;
                 else
-                    offsetY += dirY[playerMovedDir] * TILE_SIZE;
-                screenOffsetX += dirX[playerMovedDir] * TILE_SIZE;
+                    offsetY += dirY[playerFacing] * TILE_SIZE;
+                screenOffsetX += dirX[playerFacing] * TILE_SIZE;
                 break;
             case SECTOR_BOT_RIGHT:
-                if (11 == player.y && playerMovedDir == DIR_DOWN)
-                    screenOffsetY += dirY[playerMovedDir] * TILE_SIZE;
+                if (11 == player.y && playerAction == PLAYER_WALKED_DOWN)
+                    screenOffsetY += dirY[playerFacing] * TILE_SIZE;
                 else
-                    offsetY += dirY[playerMovedDir] * TILE_SIZE;
-                if (24 == player.x && playerMovedDir == DIR_RIGHT)
-                    screenOffsetX += dirX[playerMovedDir] * TILE_SIZE;
+                    offsetY += dirY[playerFacing] * TILE_SIZE;
+                if (24 == player.x && playerAction == PLAYER_WALKED_RIGHT)
+                    screenOffsetX += dirX[playerFacing] * TILE_SIZE;
                 else
-                    offsetX += dirX[playerMovedDir] * TILE_SIZE;
+                    offsetX += dirX[playerFacing] * TILE_SIZE;
                 break;
             }
         }
@@ -390,7 +390,7 @@ void updateGraphics()
     REG_BG1VOFS = screenOffsetY * -1;
     REG_BG2HOFS = getBgOffset(mapSector, DIM_WIDTH) - screenOffsetX;
     REG_BG2VOFS = getBgOffset(mapSector, DIM_HEIGHT) - screenOffsetY;
-    playerMovedDir = DIR_NULL;
+    playerAction = PLAYER_NO_ACTION;
     loadPlayerSprite(playerScreenX, playerScreenY);
     REG_BLDCNT= BLD_BUILD(
                     BLD_BG1,        // Top layers
@@ -505,7 +505,7 @@ int main(void)
             if (offsetX == 0 && offsetY == 0 && screenOffsetX == 0
             && screenOffsetY == 0)
                 doPlayerInput();
-            if (playerMovedDir != DIR_NULL)
+            if (playerAction != PLAYER_NO_ACTION)
             {
                 doFOV(player.x, player.y, sightRange);
                 REG_BLDALPHA= BLDA_BUILD(BG_0_BLEND_UP/8, evb/8);
