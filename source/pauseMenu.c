@@ -40,12 +40,12 @@ bool doPauseMenuInput()
     }
     if (KEY_EQ(key_hit, KI_UP))
     {
-        eva += 20;
+        
         return true;
     }
     if (KEY_EQ(key_hit, KI_DOWN))
     {
-        eva -= 20;
+        
         return true;
     }
     if (KEY_EQ(key_hit, KI_START))
@@ -53,7 +53,6 @@ bool doPauseMenuInput()
         doStateTransition(STATE_GAMEPLAY);
         return false;
     }
-    eva = clamp(eva, 0, 0x81);
     evb = clamp(evb, 0, 0x81);
     return false;
 }
@@ -74,9 +73,8 @@ void drawPauseMenu()
     tte_write(", ");
     tte_write_var_int(player.y);
     tte_write(")\n");
-    tte_write("UP/DOWN\teva: ");
-    tte_write_var_int(eva);
-    tte_write("\nLEFT/RIGHT\tevb: ");
+    tte_write("UP/DOWN\t: ");
+    tte_write("\nLEFT/RIGHT\tBG Blending: ");
     tte_write_var_int(evb);
     tte_write("\nA-BUTTON\tCollision: ");
     (debugCollisionIsOff == true) ? tte_write("OFF") : tte_write("ON");
@@ -106,7 +104,7 @@ void doStateTransition(enum state const targetState)
         REG_BG1CNT= BG_CBB(0) | BG_SBB(PAUSE_MENU_SB) | BG_4BPP | BG_REG_32x32;
         REG_DISPCNT= DCNT_MODE0 | DCNT_BG1 | DCNT_OBJ_1D;
         tte_init_chr4c(SCREEN_BG_1, BG_CBB(1) | BG_SBB(PAUSE_MENU_SB), 0xF000, 0x0201, CLR_ORANGE<<16|CLR_BLACK, &vwf_default, NULL);
-        drawPauseMenu(eva, evb);
+        drawPauseMenu(evb);
         gameState = STATE_MENU;
         break;
     }

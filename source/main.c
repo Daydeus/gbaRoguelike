@@ -24,7 +24,7 @@ int sightRange = SIGHT_RANGE_MIN;
 enum direction playerFacing = DIR_LEFT;
 enum direction playerMovedDir = DIR_NULL;
 bool debugCollisionIsOff = false;
-u32 eva = 0x80, evb = 0x40;
+u32 evb = 0x40;
 int8_t offsetX = 0, offsetY = 0;
 int16_t screenOffsetX = 0, screenOffsetY = 0;
 
@@ -506,14 +506,14 @@ int main(void)
             if (playerMovedDir != DIR_NULL)
             {
                 doFOV(player.x, player.y, sightRange);
-                REG_BLDALPHA= BLDA_BUILD(eva/8, evb/8);
+                REG_BLDALPHA= BLDA_BUILD(BG_0_BLEND_UP/8, evb/8);
             }
             updateGraphics();
             break;
         case STATE_MENU:
             REG_BG1HOFS = 0;
             REG_BG1VOFS = 0;
-            if(doPauseMenuInput(eva, evb) == true)
+            if(doPauseMenuInput())
                 drawPauseMenu();
             break;
         }

@@ -7,6 +7,7 @@
 #define SCREEN_BG_1 1
 #define SCREEN_BG_2 2
 #define SCREEN_BG_3 3
+#define BG_0_BLEND_UP 0x80
 
 #define TILE_SIZE  16
 #define MAP_WIDTH_TILES  32
