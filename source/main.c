@@ -32,12 +32,12 @@ int16_t screenOffsetX = 0, screenOffsetY = 0;
 // Function Prototypes
 //------------------------------------------------------------------
 void doPlayerInput();
-void movePlayer(int8_t direction);
+void movePlayer(int8_t const direction);
 void drawHUD();
-uint16_t getPlayerScreenCoord(struct Coord* playerPosition, uint8_t mapSector, uint8_t dimension);
-uint16_t getBgOffset(uint8_t mapSector, uint8_t dimension);
+uint16_t getPlayerScreenCoord(struct Coord* const playerPosition, uint8_t const mapSector, uint8_t const dimension);
+uint16_t getBgOffset(uint8_t const mapSector, uint8_t const dimension);
 void updateGraphics();
-void loadPlayerSprite(uint16_t playerScreenX, uint16_t playerScreenY);
+void loadPlayerSprite(uint16_t const playerScreenX, uint16_t const playerScreenY);
 
 //------------------------------------------------------------------
 // Function: doPlayerInput
@@ -136,7 +136,7 @@ void doPlayerInput()
 // 
 // Move the player in the given direction
 //------------------------------------------------------------------
-void movePlayer(int8_t direction)
+void movePlayer(int8_t const direction)
 {
     player.x += dirX[direction];
     player.y += dirY[direction];
@@ -190,7 +190,7 @@ void drawHUD()
 // 
 // Get the coords for drawing player sprite based on map position
 //------------------------------------------------------------------
-uint16_t getPlayerScreenCoord(struct Coord* playerPos, uint8_t mapSector, uint8_t dimension)
+uint16_t getPlayerScreenCoord(struct Coord* const playerPos, uint8_t const mapSector, uint8_t const dimension)
 {
     uint8_t screenCoord = 0;
 
@@ -238,7 +238,7 @@ uint16_t getPlayerScreenCoord(struct Coord* playerPos, uint8_t mapSector, uint8_
 // 
 // Calc screen offset using player position and given dimension
 //------------------------------------------------------------------
-uint16_t getBgOffset( uint8_t mapSector, uint8_t dimension)
+uint16_t getBgOffset( uint8_t const mapSector, uint8_t const dimension)
 {
     uint16_t offsetBg = 0;
 
@@ -398,7 +398,7 @@ void updateGraphics()
 // Loads the correct index of the player sprite based on frame
 // count and on facing direction. TODO: break into smaller funcs.
 //------------------------------------------------------------------
-void loadPlayerSprite(uint16_t playerScreenX, uint16_t playerScreenY)
+void loadPlayerSprite(uint16_t const playerScreenX, uint16_t const playerScreenY)
 {
     unsigned int startingIndex = 0, paletteBank = 0;
     OBJ_ATTR *player = &obj_buffer[0];

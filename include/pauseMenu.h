@@ -6,6 +6,6 @@
 //------------------------------------------------------------------
 bool doPauseMenuInput();
 void drawPauseMenu();
-void doStateTransition(enum state targetState);
+void doStateTransition(enum state const targetState);
 
 #endif // PAUSEMENU_H

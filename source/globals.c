@@ -14,7 +14,7 @@ int8_t dirY[5] = {0, 0, 0, -1, 1};
 //
 // Increment the passed variable to the target goal
 //------------------------------------------------------------------
-int8_t approachValue(int8_t currentValue, int8_t targetValue, int8_t increment)
+int8_t approachValue(int8_t currentValue, int8_t const targetValue, int8_t const increment)
 {
     if (currentValue < targetValue)
         currentValue += increment;

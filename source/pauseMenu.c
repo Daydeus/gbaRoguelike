@@ -8,8 +8,7 @@
 //------------------------------------------------------------------
 // Function Prototypes
 //------------------------------------------------------------------
-void tte_write_var_int(int varToPrint);
-void toggleValue(int value);
+void tte_write_var_int(int const varToPrint);
 
 //------------------------------------------------------------------
 // Function: doPauseMenuInput
@@ -91,7 +90,7 @@ void drawPauseMenu()
 // Sets the correct graphics mode for the new gameState and any
 // necessary variable values.
 //------------------------------------------------------------------
-void doStateTransition(enum state targetState)
+void doStateTransition(enum state const targetState)
 {
     switch(targetState)
     {
@@ -120,7 +119,7 @@ void doStateTransition(enum state targetState)
 // Prints as 8x8 graphical tiles each digit of the given number.
 // Used in the debug menu to print variable integers.
 //------------------------------------------------------------------
-void tte_write_var_int(int varToPrint)
+void tte_write_var_int(int const varToPrint)
 {
     for (int digitPlace = 1000000000; digitPlace >= 1; digitPlace = digitPlace / 10)
     {

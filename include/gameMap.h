@@ -6,11 +6,11 @@
 //------------------------------------------------------------------
 void initGameMap();
 void loadGameMap();
-void doFOV(int positionX, int positionY, int sightRange);
+void doFOV(int const positionX, int const positionY, int const sightRange);
 void setTileSeenStatus(uint8_t positionX, uint8_t positionY, uint8_t sightStatus);
-bool isSolid(uint8_t positionX, uint8_t positionY);
-bool isOutOfBounds(uint8_t positionX, uint8_t positionY);
+bool isSolid(uint8_t const positionX, uint8_t const positionY);
+bool isOutOfBounds(uint8_t const positionX, uint8_t const positionY);
 void initFOV();
-uint8_t getMapSector(int positionX, int positionY);
+uint8_t getMapSector(int const positionX, int const positionY);
 
 #endif // GAME_MAP_H

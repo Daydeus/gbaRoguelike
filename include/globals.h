@@ -20,7 +20,7 @@ struct Tile
 //------------------------------------------------------------------
 // Function Prototypes
 //------------------------------------------------------------------
-int8_t approachValue(int8_t currentValue, int8_t targetValue, int8_t increment);
+int8_t approachValue(int8_t currentValue, int8_t const targetValue, int8_t const increment);
 
 //------------------------------------------------------------------
 // Global Variables

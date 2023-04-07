@@ -15,12 +15,12 @@ extern struct Tile gameMap[MAP_HEIGHT_TILES][MAP_WIDTH_TILES];
 //------------------------------------------------------------------
 // Function Prototypes
 //------------------------------------------------------------------
-uint8_t getDynamicTileId(struct Tile* tile);
-int* getTilesetIndex(struct Tile* tile, uint8_t screenEntryCorner);
+uint8_t getDynamicTileId(struct Tile* const tile);
+int* getTilesetIndex(struct Tile* const tile, uint8_t const screenEntryCorner);
 void initFOV();
-void clearFOV(int positionX, int positionY);
-void drawFOV(int positionX, int positionY);
-void drawGameMapScreenEntry(struct Tile* tile);
+void clearFOV(int const positionX, int const positionY);
+void drawFOV(int const positionX, int const positionY);
+void drawGameMapScreenEntry(struct Tile* const tile);
 void checkLOS(int x1, int y1, int const x2, int const y2);
 
 //------------------------------------------------------------------
@@ -30,7 +30,7 @@ void checkLOS(int x1, int y1, int const x2, int const y2);
 // for the surrounding tiles and uses that plus its own tileId to
 // determine which variant of tile to return for being drawn.
 //------------------------------------------------------------------
-uint8_t getDynamicTileId(struct Tile* tile)
+uint8_t getDynamicTileId(struct Tile* const tile)
 {
     uint8_t tileId = tile->tileId;
 
@@ -52,7 +52,7 @@ uint8_t getDynamicTileId(struct Tile* tile)
 // index of the correct 8x8 bitmap and returns a pointer to the
 // bitmap so it may be drawn.
 //------------------------------------------------------------------
-int* getTilesetIndex(struct Tile* tile, uint8_t screenEntryCorner)
+int* getTilesetIndex(struct Tile* const tile, uint8_t const screenEntryCorner)
 {
     // Tile corners are arranged sequentially in memory.
     // Corner Top-Left, Top-Right, Bottom-Left, Bottom-Right
@@ -297,7 +297,7 @@ void loadGameMap()
 // Perform a line-of-sight check on every bounding tile at the edge
 // of the player's sight range.
 //------------------------------------------------------------------
-void doFOV(int positionX, int positionY, int sightRange)
+void doFOV(int const positionX, int const positionY, int const sightRange)
 {
     clearFOV(positionX, positionY);
 
@@ -330,7 +330,7 @@ void setTileSeenStatus(uint8_t positionX, uint8_t positionY, uint8_t sightStatus
 // Returns whether the tile at the given position is solid or not.
 // NOTE: Solid tiles should block player movement.
 //------------------------------------------------------------------
-bool isSolid(uint8_t positionX, uint8_t positionY)
+bool isSolid(uint8_t const positionX, uint8_t const positionY)
 {
     if(gameMap[positionY][positionX].tileId != ID_WALL)
         return false;
@@ -346,7 +346,7 @@ bool isSolid(uint8_t positionX, uint8_t positionY)
 // Returns whether the tile at the given position is out of bounds
 // for the player or not.
 //------------------------------------------------------------------
-bool isOutOfBounds(uint8_t positionX, uint8_t positionY)
+bool isOutOfBounds(uint8_t const positionX, uint8_t const positionY)
 {
     if (positionX < 0 || positionX > MAP_WIDTH_TILES - 1
     || positionY < 0 || positionY > MAP_HEIGHT_TILES - 1)
@@ -592,7 +592,7 @@ void drawGameMapScreenEntry(struct Tile* tile)
 // Check which mapSector the position is in for determining
 // whether to offset the background scroll or player sprite
 //------------------------------------------------------------------
-uint8_t getMapSector(int positionX, int positionY)
+uint8_t getMapSector(int const positionX, int const positionY)
 {
     if (4 >= positionY)
     {
