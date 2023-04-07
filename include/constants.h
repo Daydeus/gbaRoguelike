@@ -11,17 +11,19 @@
 
 #define TILE_SIZE  16
 #define MAP_WIDTH_TILES  32
-#define MAP_HEIGHT_TILES 16
+#define MAP_HEIGHT_TILES 32
 #define SCREEN_WIDTH_TILES     SCREEN_WIDTH / TILE_SIZE        // 15
 #define SCREEN_HEIGHT_TILES    SCREEN_HEIGHT / TILE_SIZE       // 10
 
 #define SCREEN_BLOCK_SIZE 32
 
-#define GAME_HUD_SB   25
-#define FOV_SB        26        // First Screen Block for Fog of War
-#define GAME_MAP_SB1  28           // First Screen Block for gameMap
-#define GAME_MAP_SB2  29          // Second Screen Block for gameMap
 #define PAUSE_MENU_SB 20
+#define GAME_HUD_SB   25
+#define FOV_SB        26         // Screen Block for Field-of-Vision
+#define GAME_MAP_SB1  27           // First Screen Block for gameMap
+#define GAME_MAP_SB2  28          // Second Screen Block for gameMap
+#define GAME_MAP_SB3  29           // Third Screen Block for gameMap
+#define GAME_MAP_SB4  30          // Fourth Screen Block for gameMap
 
 // Tileset Indices
 #define TRANSPARENT       0x06000000
@@ -125,6 +127,10 @@ enum mapSector
     SECTOR_BOT_MID,
     SECTOR_BOT_RIGHT
 };
+#define MAP_SECTOR_EDGE_LEFT     SCREEN_WIDTH_TILES / 2
+#define MAP_SECTOR_EDGE_RIGHT    MAP_WIDTH_TILES - (SCREEN_WIDTH_TILES / 2) - 1
+#define MAP_SECTOR_EDGE_UP       (SCREEN_HEIGHT_TILES / 2) - 1
+#define MAP_SECTOR_EDGE_BOT      MAP_HEIGHT_TILES - SCREEN_HEIGHT_TILES / 2
 
 enum
 {

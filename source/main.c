@@ -309,35 +309,35 @@ void updateGraphics()
             switch(mapSector)
             {
             case SECTOR_TOP_LEFT:
-                if (4 == player.y && playerAction == PLAYER_WALKED_UP)
+                if (MAP_SECTOR_EDGE_UP == player.y && playerAction == PLAYER_WALKED_UP)
                     screenOffsetY += dirY[playerFacing] * TILE_SIZE;
                 else
                     offsetY += dirY[playerFacing] * TILE_SIZE;
-                if (7 == player.x && playerAction == PLAYER_WALKED_LEFT)
+                if (MAP_SECTOR_EDGE_LEFT == player.x && playerAction == PLAYER_WALKED_LEFT)
                     screenOffsetX += dirX[playerFacing] * TILE_SIZE;
                 else
                     offsetX += dirX[playerFacing] * TILE_SIZE;
                 break;
             case SECTOR_TOP_MID:
-                if (4 == player.y && playerAction == PLAYER_WALKED_UP)
+                if (MAP_SECTOR_EDGE_UP == player.y && playerAction == PLAYER_WALKED_UP)
                     screenOffsetY += dirY[playerFacing] * TILE_SIZE;
                 else
                     offsetY += dirY[playerFacing] * TILE_SIZE;
                 screenOffsetX += dirX[playerFacing] * TILE_SIZE;
                 break;
             case SECTOR_TOP_RIGHT:
-                if (4 == player.y && playerAction == PLAYER_WALKED_UP)
+                if (MAP_SECTOR_EDGE_UP == player.y && playerAction == PLAYER_WALKED_UP)
                     screenOffsetY += dirY[playerFacing] * TILE_SIZE;
                 else
                     offsetY += dirY[playerAction] * TILE_SIZE;
-                if (24 == player.x && playerAction == PLAYER_WALKED_RIGHT)
+                if (MAP_SECTOR_EDGE_RIGHT == player.x && playerAction == PLAYER_WALKED_RIGHT)
                     screenOffsetX += dirX[playerFacing] * TILE_SIZE;
                 else
                     offsetX += dirX[playerFacing] * TILE_SIZE;
                 break;
             case SECTOR_MID_LEFT:
                 screenOffsetY += dirY[playerFacing] * TILE_SIZE;
-                if (7 == player.x && playerAction == PLAYER_WALKED_LEFT)
+                if (MAP_SECTOR_EDGE_LEFT == player.x && playerAction == PLAYER_WALKED_LEFT)
                     screenOffsetX += dirX[playerFacing] * TILE_SIZE;
                 else
                     offsetX += dirX[playerFacing] * TILE_SIZE;
@@ -348,34 +348,34 @@ void updateGraphics()
                 break;
             case SECTOR_MID_RIGHT:
                 screenOffsetY += dirY[playerFacing] * TILE_SIZE;
-                if (24 == player.x && playerAction == PLAYER_WALKED_RIGHT)
+                if (MAP_SECTOR_EDGE_RIGHT == player.x && playerAction == PLAYER_WALKED_RIGHT)
                     screenOffsetX += dirX[playerFacing] * TILE_SIZE;
                 else
                     offsetX += dirX[playerFacing] * TILE_SIZE;
                 break;
             case SECTOR_BOT_LEFT:
-                if (11 == player.y && playerAction == PLAYER_WALKED_DOWN)
+                if (MAP_SECTOR_EDGE_BOT == player.y && playerAction == PLAYER_WALKED_DOWN)
                     screenOffsetY += dirY[playerFacing] * TILE_SIZE;
                 else
                     offsetY += dirY[playerFacing] * TILE_SIZE;
-                if (7 == player.x && playerAction == PLAYER_WALKED_LEFT)
+                if (MAP_SECTOR_EDGE_LEFT == player.x && playerAction == PLAYER_WALKED_LEFT)
                     screenOffsetX += dirX[playerFacing] * TILE_SIZE;
                 else
                     offsetX += dirX[playerFacing] * TILE_SIZE;
                 break;
             case SECTOR_BOT_MID:
-                if (11 == player.y && playerAction == PLAYER_WALKED_DOWN)
+                if (MAP_SECTOR_EDGE_BOT == player.y && playerAction == PLAYER_WALKED_DOWN)
                     screenOffsetY += dirY[playerFacing] * TILE_SIZE;
                 else
                     offsetY += dirY[playerFacing] * TILE_SIZE;
                 screenOffsetX += dirX[playerFacing] * TILE_SIZE;
                 break;
             case SECTOR_BOT_RIGHT:
-                if (11 == player.y && playerAction == PLAYER_WALKED_DOWN)
+                if (MAP_SECTOR_EDGE_BOT == player.y && playerAction == PLAYER_WALKED_DOWN)
                     screenOffsetY += dirY[playerFacing] * TILE_SIZE;
                 else
                     offsetY += dirY[playerFacing] * TILE_SIZE;
-                if (24 == player.x && playerAction == PLAYER_WALKED_RIGHT)
+                if (MAP_SECTOR_EDGE_RIGHT == player.x && playerAction == PLAYER_WALKED_RIGHT)
                     screenOffsetX += dirX[playerFacing] * TILE_SIZE;
                 else
                     offsetX += dirX[playerFacing] * TILE_SIZE;

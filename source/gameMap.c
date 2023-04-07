@@ -255,22 +255,29 @@ void loadGameMap()
     {
         for (int x = 0; x <= MAP_WIDTH_TILES - 1; x++)
         {
-            if (x > 15)
-            {
-                screenBlock = GAME_MAP_SB2;
-                screenEntryTL = y * SCREEN_BLOCK_SIZE * 2 + x * 2 - SCREEN_BLOCK_SIZE;
-                screenEntryTR = screenEntryTL + 1;
-                screenEntryBL = screenEntryTL + SCREEN_BLOCK_SIZE;
-                screenEntryBR = screenEntryBL + 1;
-            }
-            else
+            if (x <= 15 && y <= 15)
             {
                 screenBlock = GAME_MAP_SB1;
-                screenEntryTL = y * SCREEN_BLOCK_SIZE * 2 + x * 2;
-                screenEntryTR = screenEntryTL + 1;
-                screenEntryBL = screenEntryTL + SCREEN_BLOCK_SIZE;
-                screenEntryBR = screenEntryBL + 1;
+                screenEntryTL = 2 * (y * SCREEN_BLOCK_SIZE + x);
             }
+            else if (x > 15 && y <= 15)
+            {
+                screenBlock = GAME_MAP_SB2;
+                screenEntryTL = 2 * (y * SCREEN_BLOCK_SIZE + x) - SCREEN_BLOCK_SIZE;
+            }
+            else if (x <= 15 && y > 15)
+            {
+                screenBlock = GAME_MAP_SB3;
+                screenEntryTL = 2 * (y * SCREEN_BLOCK_SIZE + x) - SCREEN_BLOCK_SIZE*SCREEN_BLOCK_SIZE;
+            }
+            else if (x > 15 && y > 15)
+            {
+                screenBlock = GAME_MAP_SB4;
+                screenEntryTL = 2 * (y * SCREEN_BLOCK_SIZE + x) - SCREEN_BLOCK_SIZE*(SCREEN_BLOCK_SIZE + 1);
+            }
+            screenEntryTR = screenEntryTL + 1;
+            screenEntryBL = screenEntryTL + SCREEN_BLOCK_SIZE;
+            screenEntryBR = screenEntryBL + 1;
 
             // Get and copy the 8x8 tile into map memory
             tileToDraw = getTilesetIndex(&gameMap[y][x], SCREEN_ENTRY_TL);
@@ -420,35 +427,35 @@ void drawFOV(int positionX, int positionY)
         break;
     case SECTOR_MID_LEFT:                         // SECTOR_MID_LEFT
         originTileX = 0;
-        originTileY = positionY - 4;
+        originTileY = positionY - (SCREEN_HEIGHT_TILES / 2 - 1);
         break;
     case SECTOR_BOT_LEFT:                         // SECTOR_BOT_LEFT
         originTileX = 0;
-        originTileY = 7;
+        originTileY = MAP_HEIGHT_TILES - (SCREEN_HEIGHT_TILES - 1);
         break;
     case SECTOR_TOP_MID:                           // SECTOR_TOP_MID
-        originTileX = positionX - 7;
+        originTileX = positionX - SCREEN_WIDTH_TILES / 2;
         originTileY = 0;
         break;
     case SECTOR_MID_MID:                           // SECTOR_MID_MID
-        originTileX = positionX - 7;
-        originTileY = positionY - 4;
+        originTileX = positionX - SCREEN_WIDTH_TILES / 2;
+        originTileY = positionY - (SCREEN_HEIGHT_TILES / 2 - 1);
         break;
     case SECTOR_BOT_MID:                           // SECTOR_BOT_MID
-        originTileX = positionX - 7;
-        originTileY = 7;
+        originTileX = positionX - SCREEN_WIDTH_TILES / 2;
+        originTileY = MAP_HEIGHT_TILES - (SCREEN_HEIGHT_TILES - 1);
         break;
     case SECTOR_TOP_RIGHT:                       // SECTOR_TOP_RIGHT
-        originTileX = 17;
+        originTileX = MAP_WIDTH_TILES - SCREEN_WIDTH_TILES;
         originTileY = 0;
         break;
     case SECTOR_MID_RIGHT:                       // SECTOR_MID_RIGHT
-        originTileX = 17;
-        originTileY = positionY - 4;
+        originTileX = MAP_WIDTH_TILES - SCREEN_WIDTH_TILES;
+        originTileY = positionY - (SCREEN_HEIGHT_TILES / 2 - 1);
         break;
     case SECTOR_BOT_RIGHT:                       // SECTOR_BOT_RIGHT
-        originTileX = 17;
-        originTileY = 7;
+        originTileX = MAP_WIDTH_TILES - SCREEN_WIDTH_TILES;
+        originTileY = MAP_HEIGHT_TILES - (SCREEN_HEIGHT_TILES - 1);
         break;
     default:
     }
@@ -555,22 +562,29 @@ void drawGameMapScreenEntry(struct Tile* tile)
     int screenEntryBR = 0;                 // screenEntryBottomRight
     int *tileToDraw = NULL;
 
-    if (tile->pos.x > 15)
-    {
-        screenBlock = GAME_MAP_SB2;
-        screenEntryTL = tile->pos.y * SCREEN_BLOCK_SIZE * 2 + tile->pos.x * 2 - SCREEN_BLOCK_SIZE;
-        screenEntryTR = screenEntryTL + 1;
-        screenEntryBL = screenEntryTL + SCREEN_BLOCK_SIZE;
-        screenEntryBR = screenEntryBL + 1;
-    }
-    else
+    if (tile->pos.x <= 15 && tile->pos.y <= 15)
     {
         screenBlock = GAME_MAP_SB1;
-        screenEntryTL = tile->pos.y * SCREEN_BLOCK_SIZE * 2 + tile->pos.x * 2;
-        screenEntryTR = screenEntryTL + 1;
-        screenEntryBL = screenEntryTL + SCREEN_BLOCK_SIZE;
-        screenEntryBR = screenEntryBL + 1;
+        screenEntryTL = 2* (tile->pos.y * SCREEN_BLOCK_SIZE + tile->pos.x);
     }
+    else if (tile->pos.x > 15 && tile->pos.y <= 15)
+    {
+        screenBlock = GAME_MAP_SB2;
+        screenEntryTL = 2* (tile->pos.y * SCREEN_BLOCK_SIZE + tile->pos.x) - SCREEN_BLOCK_SIZE;
+    }
+    else if (tile->pos.x <= 15 && tile->pos.y > 15)
+    {
+        screenBlock = GAME_MAP_SB3;
+        screenEntryTL = 2* (tile->pos.y * SCREEN_BLOCK_SIZE + tile->pos.x) - SCREEN_BLOCK_SIZE*SCREEN_BLOCK_SIZE;
+    }
+    else if (tile->pos.x > 15 && tile->pos.y > 15)
+    {
+        screenBlock = GAME_MAP_SB4;
+        screenEntryTL = 2* (tile->pos.y * SCREEN_BLOCK_SIZE + tile->pos.x) - SCREEN_BLOCK_SIZE*(SCREEN_BLOCK_SIZE + 1);
+    }
+    screenEntryTR = screenEntryTL + 1;
+    screenEntryBL = screenEntryTL + SCREEN_BLOCK_SIZE;
+    screenEntryBR = screenEntryBL + 1;
 
     // Get and copy the 8x8 tile into map memory
     tileToDraw = getTilesetIndex(tile, SCREEN_ENTRY_TL);
