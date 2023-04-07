@@ -94,6 +94,9 @@ void doStateTransition(enum state const targetState)
 {
     switch(targetState)
     {
+    case STATE_TITLE_SCREEN:
+        gameState = STATE_TITLE_SCREEN;
+        break;
     case STATE_GAMEPLAY:
         REG_BG0CNT= BG_CBB(0) | BG_SBB(GAME_HUD_SB) | BG_4BPP | BG_REG_32x32;
         REG_BG1CNT= BG_CBB(0) | BG_SBB(FOV_SB) | BG_4BPP | BG_REG_32x32;
@@ -109,6 +112,8 @@ void doStateTransition(enum state const targetState)
         tte_init_chr4c(SCREEN_BG_1, BG_CBB(1) | BG_SBB(PAUSE_MENU_SB), 0xF000, 0x0201, CLR_ORANGE<<16|CLR_BLACK, &vwf_default, NULL);
         drawPauseMenu(evb);
         gameState = STATE_MENU;
+        break;
+    default:
         break;
     }
 }

@@ -1,7 +1,7 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
-#define DEBUG
+//#define DEBUG
 
 #define SCREEN_BG_0 0
 #define SCREEN_BG_1 1
@@ -65,6 +65,7 @@
 
 enum state
 {
+    STATE_TITLE_SCREEN,
     STATE_GAMEPLAY,
     STATE_MENU
 };

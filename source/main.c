@@ -18,7 +18,8 @@ struct Tile gameMap[MAP_HEIGHT_TILES][MAP_WIDTH_TILES];
 OBJ_ATTR obj_buffer[128];
 OBJ_AFFINE *obj_aff_buffer = (OBJ_AFFINE*)obj_buffer;
 unsigned int frameCount = 1;
-enum state gameState = STATE_GAMEPLAY;
+unsigned int randomSeed = 0;
+enum state gameState = STATE_TITLE_SCREEN;
 struct Coord player = {1, 1};
 int sightRange = SIGHT_RANGE_MIN;
 enum direction playerFacing = DIR_LEFT;
@@ -121,6 +122,7 @@ void doPlayerInput()
         #ifdef DEBUG
             mgba_printf(MGBA_LOG_INFO, "pressed SELECT");
         #endif
+        doStateTransition(STATE_TITLE_SCREEN);
     }
     if (KEY_EQ(key_hit, KI_START))
     {
@@ -390,6 +392,10 @@ void updateGraphics()
     REG_BG2VOFS = getBgOffset(mapSector, DIM_HEIGHT) - screenOffsetY;
     playerMovedDir = DIR_NULL;
     loadPlayerSprite(playerScreenX, playerScreenY);
+    REG_BLDCNT= BLD_BUILD(
+                    BLD_BG1,        // Top layers
+                    BLD_BG2,        // Bottom layers
+                    1);             // Mode
 }
 
 //------------------------------------------------------------------
@@ -468,37 +474,33 @@ int main(void)
     // Load tiles and palette of sprite into video and palete RAM
     memcpy32(&tile_mem[4][0], playerSpriteTiles, playerSpriteTilesLen / 4);
     memcpy32(pal_obj_mem, playerSpritePal, playerSpritePalLen / 4);
-
-    initGameMap();
-    loadGameMap();
-    initFOV();
-    drawHUD();
-
-    doFOV(player.x, player.y, sightRange);
     oam_init(obj_buffer, 128);
-    REG_BG0CNT= BG_CBB(0) | BG_SBB(GAME_HUD_SB) | BG_4BPP | BG_REG_32x32;
-    REG_BG1CNT= BG_CBB(0) | BG_SBB(FOV_SB) | BG_4BPP | BG_REG_32x32;
-    REG_BG2CNT= BG_CBB(0) | BG_SBB(GAME_MAP_SB1) | BG_4BPP | BG_REG_64x32;
-    REG_DISPCNT= DCNT_MODE0 | DCNT_BG0 | DCNT_BG1 | DCNT_BG2 | DCNT_OBJ | DCNT_OBJ_1D;
-
-    REG_BLDCNT= BLD_BUILD(
-        BLD_BG1,        // Top layers
-        BLD_BG2,        // Bottom layers
-        1);             // Mode
 
     while (1)
     {
-        #ifdef DEBUG
-            if (frameCount % 10 == 0)
-                mgba_printf(MGBA_LOG_DEBUG, "Frame count: %d", frameCount);
-        #endif
-
         // Get player input
         key_poll();
 
         // gameState program control
         switch(gameState)
         {
+        case STATE_TITLE_SCREEN:
+            if (__key_curr != 0)
+            {
+                randomSeed = frameCount;
+                srand(randomSeed);
+                initGameMap();
+                loadGameMap();
+                initFOV();
+                drawHUD();
+
+                #ifdef DEBUG
+                    mgba_printf(MGBA_LOG_INFO, "RNG Seed: %d", randomSeed);
+                #endif
+
+                doStateTransition(STATE_GAMEPLAY);
+            }
+            break;
         case STATE_GAMEPLAY:
             if (offsetX == 0 && offsetY == 0 && screenOffsetX == 0
             && screenOffsetY == 0)

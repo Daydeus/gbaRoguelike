@@ -287,7 +287,7 @@ void loadGameMap()
         }
     }
     #ifdef DEBUG
-        mgba_printf(MGBA_LOG_INFO, "gameMap loaded");
+        mgba_printf(MGBA_LOG_DEBUG, "gameMap loaded");
     #endif
 }
 
