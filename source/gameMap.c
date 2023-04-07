@@ -59,7 +59,7 @@ int* getTilesetIndex(struct Tile* const tile, uint8_t const screenEntryCorner)
     uint8_t tileSubId = getDynamicTileId(tile);
     int *tilesetIndex = NULL;
 
-    if (tile->sightStatus == TILE_NEVER_SEEN)
+    if (tile->sightStatus == TILE_NEVER_SEEN && debugMapIsVisible == false)
         return (int*)BLANK_BLACK;
 
     switch (tileSubId)

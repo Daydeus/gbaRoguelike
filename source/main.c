@@ -23,7 +23,7 @@ struct Coord player = {1, 1};
 int sightRange = SIGHT_RANGE_MIN;
 enum direction playerFacing = DIR_LEFT;
 enum direction playerMovedDir = DIR_NULL;
-bool debugCollisionIsOff = false;
+bool debugCollisionIsOff = false, debugMapIsVisible = false;
 u32 evb = 0x40;
 int8_t offsetX = 0, offsetY = 0;
 int16_t screenOffsetX = 0, screenOffsetY = 0;

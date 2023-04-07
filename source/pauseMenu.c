@@ -25,7 +25,7 @@ bool doPauseMenuInput()
     }
     if (KEY_EQ(key_hit, KI_B))
     {
-        sightRange = (sightRange == SIGHT_RANGE_MIN) ? SIGHT_RANGE_MAX : SIGHT_RANGE_MIN;
+        debugMapIsVisible = (debugMapIsVisible == false) ? true : false;
         return true;
     }
     if (KEY_EQ(key_hit, KI_LEFT))
@@ -40,12 +40,12 @@ bool doPauseMenuInput()
     }
     if (KEY_EQ(key_hit, KI_UP))
     {
-        
+        sightRange += 1;//(sightRange == SIGHT_RANGE_MIN) ? SIGHT_RANGE_MAX : SIGHT_RANGE_MIN;
         return true;
     }
     if (KEY_EQ(key_hit, KI_DOWN))
     {
-        
+        sightRange -= 1;
         return true;
     }
     if (KEY_EQ(key_hit, KI_START))
@@ -53,6 +53,7 @@ bool doPauseMenuInput()
         doStateTransition(STATE_GAMEPLAY);
         return false;
     }
+    sightRange = clamp(sightRange, SIGHT_RANGE_MIN, SIGHT_RANGE_MAX + 1);
     evb = clamp(evb, 0, 0x81);
     return false;
 }
@@ -73,13 +74,14 @@ void drawPauseMenu()
     tte_write(", ");
     tte_write_var_int(player.y);
     tte_write(")\n");
-    tte_write("UP/DOWN\t: ");
+    tte_write("UP/DOWN\tSight Range: ");
+    tte_write_var_int(sightRange);
     tte_write("\nLEFT/RIGHT\tBG Blending: ");
     tte_write_var_int(evb);
     tte_write("\nA-BUTTON\tCollision: ");
     (debugCollisionIsOff == true) ? tte_write("OFF") : tte_write("ON");
-    tte_write("\nB-BUTTON\tSight Range: ");
-    (sightRange == SIGHT_RANGE_MIN) ? tte_write("MIN") : tte_write("MAX");
+    tte_write("\nB-BUTTON\tMapVisible: ");
+    (debugMapIsVisible == true) ? tte_write("ON") : tte_write("OFF");
 }
 
 //------------------------------------------------------------------
@@ -98,6 +100,7 @@ void doStateTransition(enum state const targetState)
         REG_BG2CNT= BG_CBB(0) | BG_SBB(GAME_MAP_SB1) | BG_4BPP | BG_REG_64x32;
         REG_DISPCNT= DCNT_MODE0 | DCNT_BG0 | DCNT_BG1 | DCNT_BG2 | DCNT_OBJ | DCNT_OBJ_1D;
         doFOV(player.x, player.y, sightRange);
+        loadGameMap();
         gameState = STATE_GAMEPLAY;
         break;
     case STATE_MENU:
