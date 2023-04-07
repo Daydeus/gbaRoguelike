@@ -68,8 +68,9 @@ void drawPauseMenu()
 {
     tte_erase_screen();
     tte_set_pos(0, 0);
-    tte_write("Pause Menu\n");
-    tte_write("Player position (");
+    tte_write("Pause Menu\t\t\tRNG Seed: ");
+    tte_write_var_int(randomSeed);
+    tte_write("\nPlayer position (");
     tte_write_var_int(player.x);
     tte_write(", ");
     tte_write_var_int(player.y);
