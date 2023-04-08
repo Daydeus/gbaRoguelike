@@ -30,12 +30,12 @@ bool doPauseMenuInput()
     }
     if (KEY_EQ(key_hit, KI_LEFT))
     {
-        evb -= 20;
+        blendingValue -= 20;
         return true;
     }
     if (KEY_EQ(key_hit, KI_RIGHT))
     {
-        evb += 20;
+        blendingValue += 20;
         return true;
     }
     if (KEY_EQ(key_hit, KI_UP))
@@ -54,7 +54,7 @@ bool doPauseMenuInput()
         return false;
     }
     sightRange = clamp(sightRange, SIGHT_RANGE_MIN, SIGHT_RANGE_MAX + 1);
-    evb = clamp(evb, 0, 0x81);
+    blendingValue = clamp(blendingValue, 0, 0x81);
     return false;
 }
 
@@ -78,7 +78,7 @@ void drawPauseMenu()
     tte_write("UP/DOWN\tSight Range: ");
     tte_write_var_int(sightRange);
     tte_write("\nLEFT/RIGHT\tBG Blending: ");
-    tte_write_var_int(evb);
+    tte_write_var_int(blendingValue);
     tte_write("\nA-BUTTON\tCollision: ");
     (debugCollisionIsOff == true) ? tte_write("OFF") : tte_write("ON");
     tte_write("\nB-BUTTON\tMapVisible: ");
@@ -111,7 +111,7 @@ void doStateTransition(enum state const targetState)
         REG_BG1CNT= BG_CBB(0) | BG_SBB(PAUSE_MENU_SB) | BG_4BPP | BG_REG_32x32;
         REG_DISPCNT= DCNT_MODE0 | DCNT_BG1 | DCNT_OBJ_1D;
         tte_init_chr4c(SCREEN_BG_1, BG_CBB(1) | BG_SBB(PAUSE_MENU_SB), 0xF000, 0x0201, CLR_ORANGE<<16|CLR_BLACK, &vwf_default, NULL);
-        drawPauseMenu(evb);
+        drawPauseMenu(blendingValue);
         gameState = STATE_MENU;
         break;
     default:

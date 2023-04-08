@@ -36,6 +36,6 @@ extern int8_t dirY[5];        // Vertical directional movement array
 extern int16_t screenOffsetX, screenOffsetY; // Screen offset from background origin
 extern enum direction playerFacing;
 extern bool debugCollisionIsOff, debugMapIsVisible;
-extern u32 eva, evb;                    // eva and evb are .4 fixeds
+extern u32 blendingValue;
 
 #endif // GLOBALS_H
