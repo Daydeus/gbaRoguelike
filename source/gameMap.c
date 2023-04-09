@@ -17,6 +17,10 @@ extern struct Tile gameMap[MAP_HEIGHT_TILES][MAP_WIDTH_TILES];
 //------------------------------------------------------------------
 uint8_t getDynamicTileId(struct Tile* const tile);
 int* getTilesetIndex(struct Tile* const tile, uint8_t const screenEntryCorner);
+void initGameMap();
+bool placeRoom(int startingX, int startingY, int width, int height);
+u8 getNumberNeighborsOfType(int const positionX, int const positionY, int const tileId);
+void ensureMapBoundarySolid();
 void initFOV();
 void clearFOV(int const positionX, int const positionY);
 void drawFOV(int const positionX, int const positionY);
@@ -201,31 +205,127 @@ void initGameMap()
             gameMap[y][x].pos.x = x;
             gameMap[y][x].pos.y = y;
             gameMap[y][x].sightStatus = TILE_NEVER_SEEN;
-
-            // Map boundaries should always be a solid tile(wall)
-            if (x == 0 || x == MAP_WIDTH_TILES - 1 || y == 0 
-            || y == MAP_HEIGHT_TILES - 1) 
-            {
-                gameMap[y][x].tileId = ID_WALL;
-            }
-            else if (rand() % 5 == 0)
-            {
-                gameMap[y][x].tileId = ID_WALL;
-            }
-            else
-            {
-                switch(rand() % 5)
-                {
-                case 0:
-                case 1: gameMap[y][x].tileId = ID_FLOOR; break;
-                case 2: gameMap[y][x].tileId = ID_FLOOR_BIG; break;
-                case 3: gameMap[y][x].tileId = ID_FLOOR_MOSSY; break;
-                case 4: gameMap[y][x].tileId = ID_FLOOR_CHIP; break;
-                }
-            }
-
+            gameMap[y][x].tileId = ID_WALL;
         }
     }
+}
+
+//------------------------------------------------------------------
+// Function: placeRoom
+// 
+// Places a room on the gameMap[][] at the given position with the
+// given width and height.
+//------------------------------------------------------------------
+bool placeRoom(int const startingX, int const startingY, int width, int height)
+{
+    if (width < 4) width = 4;
+    if (height < 4) height = 4;
+    if (isOutOfBounds(startingX, startingY) || gameMap[startingY][startingX].tileId != ID_WALL)
+        return false;
+
+    for (int y = startingY; y <= startingY + height; y++)
+    {
+        for (int x = startingX; x <= startingX + width; x++)
+        {
+            if (isOutOfBounds(x, y) || gameMap[y + 1][x].tileId != ID_WALL
+            || gameMap[y][x + 1].tileId != ID_WALL || gameMap[y + 1][x + 1].tileId != ID_WALL)
+                return true;
+            else
+                gameMap[y][x].tileId = ID_FLOOR;
+        }
+    }
+    return true;
+}
+
+//------------------------------------------------------------------
+// Function: getNumberNeighborsOfType
+// 
+// Checks each cardinal direction and returns the number of tiles
+// that have the given type.
+//------------------------------------------------------------------
+u8 getNumberNeighborsOfType(int const positionX, int const positionY, int const tileId)
+{
+    u8 numberNeighbors = 0;
+    for (int direction = DIR_LEFT; direction <= DIR_DOWN; direction++)
+    {
+        if (gameMap[positionY + dirY[direction]][positionX + dirX[direction]].tileId == tileId)
+            numberNeighbors++;
+    }
+    return numberNeighbors;
+}
+
+//------------------------------------------------------------------
+// Function: ensureMapBoundarySolid
+// 
+// At each bound of gameMap[][], a wall is placed so the player cannot
+// leave the map.
+//------------------------------------------------------------------
+void ensureMapBoundarySolid()
+{
+    // Top Boundary: Coord (0, 0) to (MAP_WIDTH_TILES - 1, 0)
+    for (int x = 0; x <= MAP_WIDTH_TILES - 1; x++)
+        gameMap[0][x].tileId = ID_WALL;
+
+    // Bottom Boundary: Coord (0, MAP_HEIGHT_TILES - 1) to (MAP_WIDTH_TILES - 1, MAP_HEIGHT_TILES - 1)
+    for (int x = 0; x <= MAP_WIDTH_TILES - 1; x++)
+        gameMap[MAP_HEIGHT_TILES - 1][x].tileId = ID_WALL;
+
+    // Left Boundary: Coord (0, 0) to (0, MAP_HEIGHT_TILES - 1)
+    for (int y = 0; y <= MAP_HEIGHT_TILES - 1; y++)
+        gameMap[y][0].tileId = ID_WALL;
+
+    // Right Boundary: Coord (MAP_WIDTH_TILES - 1, 0) to (MAP_WIDTH_TILES - 1, MAP_HEIGHT_TILES - 1)
+    for (int y = 0; y <= MAP_HEIGHT_TILES - 1; y++)
+        gameMap[y][MAP_WIDTH_TILES - 1].tileId = ID_WALL;
+}
+
+//------------------------------------------------------------------
+// Function: createGameMap
+// 
+// Creates the gameMap[][] for the player to explore
+//------------------------------------------------------------------
+void createGameMap()
+{
+    u32 roomPlacedFail = 0;
+
+    // Set starting values for gameMap[][]
+    initGameMap();
+
+    // Place Rooms
+    while (roomPlacedFail < 20)
+    {
+        int startingX = randomInRange(1, MAP_WIDTH_TILES - 1), startingY = randomInRange(1, MAP_HEIGHT_TILES - 1);
+        int width = randomInRange(4, 12), height = randomInRange(4, 12);
+        #ifdef DEBUG_MAP_GEN
+            mgba_printf(MGBA_LOG_INFO, "startingX: %d, startingY: %d ", startingX, startingY);
+            mgba_printf(MGBA_LOG_INFO, "width: %d, height: %d ", width, height);
+        #endif
+
+        if (!placeRoom(startingX, startingY, width, height))
+        {
+            roomPlacedFail++;
+            #ifdef DEBUG_MAP_GEN
+                mgba_printf(MGBA_LOG_DEBUG, "Room placement failed. Failures so far: %d", roomPlacedFail);
+            #endif
+        }
+    }
+
+    // Diversify floor tiles
+    for (int y = 1; y < MAP_HEIGHT_TILES - 1; y++)
+    {
+        for (int x = 1; x < MAP_WIDTH_TILES - 1; x++)
+        {
+            if (gameMap[y][x].tileId == ID_FLOOR)
+                switch(randomInRange(0, 5))
+                {
+                case 1: 
+                case 2: gameMap[y][x].tileId = ID_FLOOR_MOSSY; break;
+                case 3: gameMap[y][x].tileId = ID_FLOOR_BIG; break;
+                case 4: gameMap[y][x].tileId = ID_FLOOR_CHIP; break;
+                }
+        }
+    }
+    ensureMapBoundarySolid();
 }
 
 //------------------------------------------------------------------
@@ -293,8 +393,8 @@ void loadGameMap()
             memcpy(&se_mem[screenBlock][screenEntryBR], &tileToDraw, 2);
         }
     }
-    #ifdef DEBUG
-        mgba_printf(MGBA_LOG_DEBUG, "gameMap loaded");
+    #ifdef DEBUG_MAP_GEN
+        mgba_printf(MGBA_LOG_INFO, "gameMap loaded");
     #endif
 }
 
@@ -397,8 +497,8 @@ void clearFOV(int positionX, int positionY)
         }
     }
 
-    #ifdef DEBUG
-        mgba_printf(MGBA_LOG_DEBUG, "FOV cleared");
+    #ifdef DEBUG_FOV
+        mgba_printf(MGBA_LOG_INFO, "FOV cleared");
     #endif
 }
 
@@ -496,8 +596,8 @@ void drawFOV(int positionX, int positionY)
         currentTileX = originTileX;
         currentTileY++;
     }
-    #ifdef DEBUG
-        mgba_printf(MGBA_LOG_DEBUG, "FOV drawn");
+    #ifdef DEBUG_FOV
+        mgba_printf(MGBA_LOG_INFO, "FOV drawn");
     #endif
 }
 

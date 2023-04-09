@@ -1,8 +1,10 @@
+#include <stdlib.h>
 #include <tonc.h>
 #include <string.h>
 #include "constants.h"
 #include "gameMap.h"
 #include "globals.h"
+#include "mapGeneration.h"
 #include "mgba.h"
 #include "pauseMenu.h"
 #include "playerSprite.h"
@@ -489,8 +491,7 @@ int main(void)
             {
                 randomSeed = frameCount;
                 srand(randomSeed);
-                initGameMap();
-                loadGameMap();
+                createGameMap();
                 initFOV();
                 drawHUD();
 

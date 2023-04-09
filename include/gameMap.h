@@ -4,7 +4,7 @@
 //------------------------------------------------------------------
 // Function Prototypes
 //------------------------------------------------------------------
-void initGameMap();
+void createGameMap();
 void loadGameMap();
 void doFOV(int const positionX, int const positionY, int const sightRange);
 void setTileSeenStatus(uint8_t positionX, uint8_t positionY, uint8_t sightStatus);
