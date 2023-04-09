@@ -1,7 +1,12 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
+
 //#define DEBUG
+#ifdef DEBUG
+    #define DEBUG_MAP_GEN
+    #define DEBUG_FOV
+#endif
 
 #define SCREEN_BG_0 0
 #define SCREEN_BG_1 1
