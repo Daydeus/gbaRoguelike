@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <tonc.h>
 #include <string.h>
 #include "constants.h"
@@ -6,8 +7,18 @@
 //------------------------------------------------------------------
 // Global Variables
 //------------------------------------------------------------------
-int8_t dirX[5] = {0, -1, 1, 0, 0};
-int8_t dirY[5] = {0, 0, 0, -1, 1};
+int8_t const dirX[5] = {0, -1, 1, 0, 0};
+int8_t const dirY[5] = {0, 0, 0, -1, 1};
+
+//------------------------------------------------------------------
+// Function: random
+//
+// Returns a random value between the given numbers
+//------------------------------------------------------------------
+u32 randomInRange(int minimumValue, int maximumValue)
+{
+    return rand() % (maximumValue - minimumValue + 1) + minimumValue;
+}
 
 //------------------------------------------------------------------
 // Function: approachValue
