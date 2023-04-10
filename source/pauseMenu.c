@@ -1,8 +1,9 @@
 #include <tonc.h>
 #include <string.h>
 #include "constants.h"
-#include "gameMap.h"
 #include "globals.h"
+#include "fieldOfVision.h"
+#include "gameMap.h"
 #include "pauseMenu.h"
 
 //------------------------------------------------------------------
@@ -74,8 +75,10 @@ void drawPauseMenu()
     tte_write_var_int(player.x);
     tte_write(", ");
     tte_write_var_int(player.y);
-    tte_write(")\n");
-    tte_write("UP/DOWN\tSight Range: ");
+    tte_write(")");
+    tte_write("\nPlayer sightId: ");
+    tte_write_var_int(playerSightId);
+    tte_write("\nUP/DOWN\tSight Range: ");
     tte_write_var_int(sightRange);
     tte_write("\nLEFT/RIGHT\tBG Blending: ");
     tte_write_var_int(blendingValue);

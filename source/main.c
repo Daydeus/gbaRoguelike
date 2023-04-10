@@ -2,6 +2,7 @@
 #include <tonc.h>
 #include <string.h>
 #include "constants.h"
+#include "fieldOfVision.h"
 #include "gameMap.h"
 #include "globals.h"
 #include "mapGeneration.h"
@@ -23,6 +24,7 @@ unsigned int frameCount = 1;
 unsigned int randomSeed = 0;
 enum state gameState = STATE_TITLE_SCREEN;
 struct Coord player = {1, 1};
+uint8_t playerSightId = 1;
 int sightRange = SIGHT_RANGE_MIN;
 enum direction playerFacing = DIR_LEFT;
 enum playerAction playerAction = PLAYER_NO_ACTION;
@@ -63,7 +65,7 @@ void doPlayerInput()
         {
             movePlayer(playerFacing);
             playerAction = PLAYER_WALKED_LEFT;
-
+            playerSightId++;
         }
     }
     else if (KEY_EQ(key_hit, KI_RIGHT) || KEY_EQ(key_held, KI_RIGHT)) // Right Key
@@ -78,7 +80,7 @@ void doPlayerInput()
         {
             movePlayer(playerFacing);
             playerAction = PLAYER_WALKED_RIGHT;
-
+            playerSightId++;
         }
     }
     else if (KEY_EQ(key_hit, KI_UP) || KEY_EQ(key_held, KI_UP)) // Up Key
@@ -93,7 +95,7 @@ void doPlayerInput()
         {
             movePlayer(playerFacing);
             playerAction = PLAYER_WALKED_UP;
-
+            playerSightId++;
         }
     }
     else if (KEY_EQ(key_hit, KI_DOWN) || KEY_EQ(key_held, KI_DOWN)) // Down Key
@@ -108,7 +110,7 @@ void doPlayerInput()
         {
             movePlayer(playerFacing);
             playerAction = PLAYER_WALKED_DOWN;
-
+            playerSightId++;
         }
     }
 
@@ -383,6 +385,7 @@ void updateGraphics()
                     offsetX += dirX[playerFacing] * TILE_SIZE;
                 break;
             }
+            updateGameMapSight(player.x, player.y);
         }
     }
 

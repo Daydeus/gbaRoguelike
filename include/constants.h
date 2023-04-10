@@ -93,8 +93,7 @@ enum
 {
     TILE_NEVER_SEEN = 0,
     TILE_NOT_IN_SIGHT,
-    TILE_NOT_LIT,
-    TILE_LIT
+    TILE_IN_SIGHT
 };
 
 enum

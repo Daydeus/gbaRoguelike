@@ -35,7 +35,7 @@ void initGameMap()
             gameMap[y][x].pos.x = x;
             gameMap[y][x].pos.y = y;
             gameMap[y][x].terrainId = ID_WALL;
-            gameMap[y][x].sightStatus = TILE_NEVER_SEEN;
+            gameMap[y][x].sightId = TILE_NEVER_SEEN;
         }
     }
 }

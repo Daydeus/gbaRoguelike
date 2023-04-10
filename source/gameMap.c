@@ -19,12 +19,8 @@ extern struct Tile gameMap[MAP_HEIGHT_TILES][MAP_WIDTH_TILES];
 uint8_t getDynamicTerrainId(struct Tile* const tile);
 int* getTilesetIndex(struct Tile* const tile, uint8_t const screenEntryCorner);
 u8 getNumberNeighborsOfType(int const positionX, int const positionY, int const terrainId);
-void initFOV();
-void clearFOV(int const positionX, int const positionY);
-void drawFOV(int const positionX, int const positionY);
-void drawGameMapScreenEntry(struct Tile* const tile);
-void checkLOS(int x1, int y1, int const x2, int const y2);
 struct Tile* getRandomTileOfType(uint8_t const terrainId);
+void drawGameMapScreenEntry(struct Tile* const tile);
 
 //------------------------------------------------------------------
 // Function: getDynamicTerrainId
@@ -62,7 +58,7 @@ int* getTilesetIndex(struct Tile* const tile, uint8_t const screenEntryCorner)
     uint8_t tileSubId = getDynamicTerrainId(tile);
     int *tilesetIndex = NULL;
 
-    if (tile->sightStatus == TILE_NEVER_SEEN && debugMapIsVisible == false)
+    if (tile->sightId == TILE_NEVER_SEEN && debugMapIsVisible == false)
         return (int*)BLANK_BLACK;
 
     switch (tileSubId)
@@ -277,39 +273,6 @@ void loadGameMap()
 }
 
 //------------------------------------------------------------------
-// Function: doFOV
-// 
-// Perform a line-of-sight check on every bounding tile at the edge
-// of the player's sight range.
-//------------------------------------------------------------------
-void doFOV(int const positionX, int const positionY, int const sightRange)
-{
-    clearFOV(positionX, positionY);
-
-    for (int x = positionX - sightRange; x <= positionX + sightRange; x++)
-        checkLOS(positionX, positionY, x, positionY - sightRange);
-    for (int x = positionX - sightRange; x <= positionX + sightRange; x++)
-        checkLOS(positionX, positionY, x, positionY + sightRange);
-    for (int y = positionY - sightRange; y <= positionY + sightRange; y++)
-        checkLOS(positionX, positionY, positionX - sightRange, y);
-    for (int y = positionY - sightRange; y <= positionY + sightRange; y++)
-        checkLOS(positionX, positionY, positionX + sightRange, y);
-
-    drawFOV(positionX, positionY);
-}
-
-//------------------------------------------------------------------
-// Function: setTileSeenStatus
-// 
-// Sets the seenStatus of the tile at the given position to the
-// given status.
-//------------------------------------------------------------------
-void setTileSeenStatus(uint8_t positionX, uint8_t positionY, uint8_t sightStatus)
-{
-    gameMap[positionY][positionX].sightStatus = sightStatus;
-}
-
-//------------------------------------------------------------------
 // Function: isSolid
 // 
 // Returns whether the tile at the given position is solid or not.
@@ -341,188 +304,20 @@ bool isOutOfBounds(uint8_t const positionX, uint8_t const positionY)
 }
 
 //------------------------------------------------------------------
-// Function: initFOV
+// Function: updateGameMapSight
 // 
-// Initialize field-of-vision background layer by filling with black
-// 8x8 graphic tiles.
+// Redraws all tiles within sightRange of the player. Used for updating
+// wether a tile has been seen before.
 //------------------------------------------------------------------
-void initFOV()
+void updateGameMapSight(int playerX, int playerY)
 {
-    int *tileToDraw = (int*)FOV_TINT_DARK;
-
-    for (int y = 0; y < SCREEN_BLOCK_SIZE; y++)
+    for (int y = playerY - sightRange; y <= playerY + sightRange; y++)
     {
-        for (int x = 0; x < SCREEN_BLOCK_SIZE; x++)
+        for (int x = playerX - sightRange; x <= playerX + sightRange; x++)
         {
-            memcpy(&se_mem[FOV_SB][y * SCREEN_BLOCK_SIZE + x], &tileToDraw, 2);
+            if (gameMap[y][x].sightId == playerSightId)
+                drawGameMapScreenEntry(&gameMap[y][x]);
         }
-    }
-}
-
-//------------------------------------------------------------------
-// Function: clearFOV
-// 
-// Sets all tiles near the given position to TILE_NOT_IN_SIGHT
-//------------------------------------------------------------------
-void clearFOV(int positionX, int positionY)
-{
-    for (int y = positionY - SCREEN_HEIGHT_TILES / 2 - 1; y < positionY + SCREEN_HEIGHT_TILES / 2 + 1; y++)
-    {
-        for (int x = positionX - SCREEN_WIDTH_TILES / 2 - 1; x < positionX + SCREEN_WIDTH_TILES / 2 + 1; x++)
-        {
-            if (!isOutOfBounds(x, y) && gameMap[y][x].sightStatus != TILE_NEVER_SEEN)
-                gameMap[y][x].sightStatus = TILE_NOT_IN_SIGHT;
-        }
-    }
-
-    #ifdef DEBUG_FOV
-        mgba_printf(MGBA_LOG_INFO, "FOV cleared");
-    #endif
-}
-
-//------------------------------------------------------------------
-// Function: drawFOV
-// 
-// Updates field-of-vision background layer by copying the correct
-// 8x8 graphic based on tile.sightStatus.
-//------------------------------------------------------------------
-void drawFOV(int positionX, int positionY)
-{
-    int screenEntryTL = 0;                     // screenEntryTopLeft
-    int screenEntryTR = 0;                    // screenEntryTopRight
-    int screenEntryBL = 0;                  // screenEntryBottomLeft
-    int screenEntryBR = 0;                 // screenEntryBottomRight
-    int *tileToDraw = NULL;
-    int originTileX = 0, originTileY = 0;
-    int currentTileX = 0, currentTileY = 0;
-    
-    // Get coordinates of screen entry origin
-    switch (getMapSector(positionX, positionY))
-    {
-    case SECTOR_TOP_LEFT:                         // SECTOR_TOP_LEFT
-        originTileX = 0;
-        originTileY = 0;
-        break;
-    case SECTOR_MID_LEFT:                         // SECTOR_MID_LEFT
-        originTileX = 0;
-        originTileY = positionY - (SCREEN_HEIGHT_TILES / 2 - 1);
-        break;
-    case SECTOR_BOT_LEFT:                         // SECTOR_BOT_LEFT
-        originTileX = 0;
-        originTileY = MAP_HEIGHT_TILES - (SCREEN_HEIGHT_TILES - 1);
-        break;
-    case SECTOR_TOP_MID:                           // SECTOR_TOP_MID
-        originTileX = positionX - SCREEN_WIDTH_TILES / 2;
-        originTileY = 0;
-        break;
-    case SECTOR_MID_MID:                           // SECTOR_MID_MID
-        originTileX = positionX - SCREEN_WIDTH_TILES / 2;
-        originTileY = positionY - (SCREEN_HEIGHT_TILES / 2 - 1);
-        break;
-    case SECTOR_BOT_MID:                           // SECTOR_BOT_MID
-        originTileX = positionX - SCREEN_WIDTH_TILES / 2;
-        originTileY = MAP_HEIGHT_TILES - (SCREEN_HEIGHT_TILES - 1);
-        break;
-    case SECTOR_TOP_RIGHT:                       // SECTOR_TOP_RIGHT
-        originTileX = MAP_WIDTH_TILES - SCREEN_WIDTH_TILES;
-        originTileY = 0;
-        break;
-    case SECTOR_MID_RIGHT:                       // SECTOR_MID_RIGHT
-        originTileX = MAP_WIDTH_TILES - SCREEN_WIDTH_TILES;
-        originTileY = positionY - (SCREEN_HEIGHT_TILES / 2 - 1);
-        break;
-    case SECTOR_BOT_RIGHT:                       // SECTOR_BOT_RIGHT
-        originTileX = MAP_WIDTH_TILES - SCREEN_WIDTH_TILES;
-        originTileY = MAP_HEIGHT_TILES - (SCREEN_HEIGHT_TILES - 1);
-        break;
-    default:
-    }
-
-    currentTileX = originTileX;
-    currentTileY = originTileY;
-    for (int y = 0; y < SCREEN_HEIGHT_TILES; y++)
-    {
-        for (int x = 0; x < SCREEN_WIDTH_TILES; x++)
-        {
-            screenEntryTL = y * SCREEN_BLOCK_SIZE * 2 + x * 2 + SCREEN_BLOCK_SIZE * 2;
-            screenEntryTR = screenEntryTL + 1;
-            screenEntryBL = screenEntryTL + SCREEN_BLOCK_SIZE;
-            screenEntryBR = screenEntryBL + 1;
-
-
-            // Get index of tile to draw from tileset
-            switch (gameMap[currentTileY][currentTileX].sightStatus)
-            {
-            case TILE_LIT:
-            case TILE_NOT_LIT:
-                tileToDraw = (int*)TRANSPARENT;
-                break;
-            case TILE_NOT_IN_SIGHT:
-            case TILE_NEVER_SEEN:
-            default:
-                tileToDraw = (int*)FOV_TINT_DARK;
-            }
-
-            // Copy the 8x8 tile into map memory
-            memcpy(&se_mem[FOV_SB][screenEntryTL], &tileToDraw, 2);
-            memcpy(&se_mem[FOV_SB][screenEntryTR], &tileToDraw, 2);
-            memcpy(&se_mem[FOV_SB][screenEntryBL], &tileToDraw, 2);
-            memcpy(&se_mem[FOV_SB][screenEntryBR], &tileToDraw, 2);
-
-            currentTileX++;
-        }
-        currentTileX = originTileX;
-        currentTileY++;
-    }
-    #ifdef DEBUG_FOV
-        mgba_printf(MGBA_LOG_INFO, "FOV drawn");
-    #endif
-}
-
-//------------------------------------------------------------------
-// Function: checkLOS
-// 
-// Uses Bresenham's algorithm to step through a line from (x1, y1)
-// to (x2, y2). At each step, it sets the sight status of the tile.
-//------------------------------------------------------------------
-void checkLOS(int x1, int y1, int const x2, int const y2)
-{
-    int dx =  ABS(x2 - x1), sx = x1 < x2 ? 1 : -1;
-    int dy = -ABS(y2 - y1), sy = y1 < y2 ? 1 : -1;
-    int err = dx + dy, e2; /* error value e_xy */
- 
-    for (;;)
-    {  /* loop */
-        if (!isOutOfBounds(x1, y1))
-        {
-            if (gameMap[y1][x1].sightStatus == TILE_NEVER_SEEN)
-            {
-                gameMap[y1][x1].sightStatus = TILE_NOT_LIT;
-                drawGameMapScreenEntry(&gameMap[y1][x1]);
-            }
-            else
-                gameMap[y1][x1].sightStatus = TILE_NOT_LIT;
-        }
-
-        if ((x1 == x2 && y1 == y2) // Line has reached point (x2,y2)
-        || isSolid(x1, y1)         // Has encountered solid tile
-        // If NOT a horizontal or vertical line and is crossing a
-        // diagonal between two solid tiles
-        || ((x1 != x2 && y1 != y2) && (isSolid(x1 + sx, y1) && isSolid(x1, y1 +sy))))
-            break;
-
-        e2 = 2 * err;
-        if (e2 >= dy)
-        {
-            err += dy;
-            x1 += sx;
-        } /* e_xy+e_x > 0 */
-
-        if (e2 <= dx)
-        {
-            err += dx;
-            y1 += sy;
-        } /* e_xy+e_y < 0 */
     }
 }
 
