@@ -24,7 +24,7 @@ unsigned int frameCount = 1;
 unsigned int randomSeed = 0;
 enum state gameState = STATE_TITLE_SCREEN;
 struct Coord player = {1, 1};
-uint8_t playerSightId = 1;
+uint8_t playerSightId = TILE_IN_SIGHT;
 int sightRange = SIGHT_RANGE_MIN;
 enum direction playerFacing = DIR_LEFT;
 enum playerAction playerAction = PLAYER_NO_ACTION;
@@ -497,6 +497,13 @@ int main(void)
                 createGameMap();
                 initFOV();
                 drawHUD();
+
+                // Randomize player position
+                do
+                {
+                    player.x = randomInRange(1, MAP_WIDTH_TILES - 1);
+                    player.y = randomInRange(1, MAP_HEIGHT_TILES - 1);
+                } while(isSolid(player.x, player.y));
 
                 #ifdef DEBUG
                     mgba_printf(MGBA_LOG_INFO, "RNG Seed: %d", randomSeed);
