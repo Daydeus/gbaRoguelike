@@ -13,7 +13,7 @@ struct Coord
 struct Tile
 {
     struct Coord pos;
-    uint8_t tileId;
+    uint8_t terrainId;
     uint8_t sightStatus;
 };
 

@@ -16,42 +16,42 @@ extern struct Tile gameMap[MAP_HEIGHT_TILES][MAP_WIDTH_TILES];
 //------------------------------------------------------------------
 // Function Prototypes
 //------------------------------------------------------------------
-uint8_t getDynamicTileId(struct Tile* const tile);
+uint8_t getDynamicTerrainId(struct Tile* const tile);
 int* getTilesetIndex(struct Tile* const tile, uint8_t const screenEntryCorner);
-u8 getNumberNeighborsOfType(int const positionX, int const positionY, int const tileId);
+u8 getNumberNeighborsOfType(int const positionX, int const positionY, int const terrainId);
 void initFOV();
 void clearFOV(int const positionX, int const positionY);
 void drawFOV(int const positionX, int const positionY);
 void drawGameMapScreenEntry(struct Tile* const tile);
 void checkLOS(int x1, int y1, int const x2, int const y2);
-struct Tile* getRandomTileOfType(uint8_t const tileId);
+struct Tile* getRandomTileOfType(uint8_t const terrainId);
 
 //------------------------------------------------------------------
-// Function: getDynamicTileId
+// Function: getDynamicTerrainId
 // 
-// Takes a tile as an input and uses its position to get tileIds
-// for the surrounding tiles and uses that plus its own tileId to
+// Takes a tile as an input and uses its position to get terrainIds
+// for the surrounding tiles and uses that plus its own terrainId to
 // determine which variant of tile to return for being drawn.
 //------------------------------------------------------------------
-uint8_t getDynamicTileId(struct Tile* const tile)
+uint8_t getDynamicTerrainId(struct Tile* const tile)
 {
-    uint8_t tileId = tile->tileId;
+    uint8_t terrainId = tile->terrainId;
 
-    switch(tileId)
+    switch(terrainId)
     {
     case ID_WALL:
-        if(gameMap[tile->pos.y + 1][tile->pos.x].tileId != ID_WALL || tile->pos.y + 1 > MAP_HEIGHT_TILES -1)
-            tileId = ID_WALL_FRONT;
+        if(gameMap[tile->pos.y + 1][tile->pos.x].terrainId != ID_WALL || tile->pos.y + 1 > MAP_HEIGHT_TILES -1)
+            terrainId = ID_WALL_FRONT;
         break;
     default:
     }
-    return tileId;
+    return terrainId;
 }
 
 //------------------------------------------------------------------
 // Function: getTilesetIndex
 // 
-// Matches a given tile's tileId and screenEntryCorner to pick the
+// Matches a given tile's terrainId and screenEntryCorner to pick the
 // index of the correct 8x8 bitmap and returns a pointer to the
 // bitmap so it may be drawn.
 //------------------------------------------------------------------
@@ -59,7 +59,7 @@ int* getTilesetIndex(struct Tile* const tile, uint8_t const screenEntryCorner)
 {
     // Tile corners are arranged sequentially in memory.
     // Corner Top-Left, Top-Right, Bottom-Left, Bottom-Right
-    uint8_t tileSubId = getDynamicTileId(tile);
+    uint8_t tileSubId = getDynamicTerrainId(tile);
     int *tilesetIndex = NULL;
 
     if (tile->sightStatus == TILE_NEVER_SEEN && debugMapIsVisible == false)
@@ -195,12 +195,12 @@ int* getTilesetIndex(struct Tile* const tile, uint8_t const screenEntryCorner)
 // Checks each cardinal direction and returns the number of tiles
 // that have the given type.
 //------------------------------------------------------------------
-u8 getNumberNeighborsOfType(int const positionX, int const positionY, int const tileId)
+u8 getNumberNeighborsOfType(int const positionX, int const positionY, int const terrainId)
 {
     u8 numberNeighbors = 0;
     for (int direction = DIR_LEFT; direction <= DIR_DOWN; direction++)
     {
-        if (gameMap[positionY + dirY[direction]][positionX + dirX[direction]].tileId == tileId)
+        if (gameMap[positionY + dirY[direction]][positionX + dirX[direction]].terrainId == terrainId)
             numberNeighbors++;
     }
     return numberNeighbors;
@@ -210,7 +210,7 @@ u8 getNumberNeighborsOfType(int const positionX, int const positionY, int const 
 // Function: loadGameMap
 // 
 // Fill all the screen entries for the gameplay screen blocks with
-// the correct 8x8 graphic tiles for the gameMap's tileIds.
+// the correct 8x8 graphic tiles for the gameMap's terrainIds.
 //------------------------------------------------------------------
 void loadGameMap()
 {
@@ -317,7 +317,7 @@ void setTileSeenStatus(uint8_t positionX, uint8_t positionY, uint8_t sightStatus
 //------------------------------------------------------------------
 bool isSolid(uint8_t const positionX, uint8_t const positionY)
 {
-    if(gameMap[positionY][positionX].tileId != ID_WALL)
+    if(gameMap[positionY][positionX].terrainId != ID_WALL)
         return false;
     else if (debugCollisionIsOff == true)
         return false;
@@ -620,20 +620,20 @@ uint8_t getMapSector(int const positionX, int const positionY)
 //------------------------------------------------------------------
 // Function: getRandomTileOfType
 // 
-// Returns a pointer to a randomly positioned tile with the given tileId
+// Returns a pointer to a randomly positioned tile with the given terrainId
 //------------------------------------------------------------------
-struct Tile* getRandomTileOfType(uint8_t const tileId)
+struct Tile* getRandomTileOfType(uint8_t const terrainId)
 {
     int iterationCount = 0;
     int positionX = randomInRange(1, MAP_WIDTH_TILES - 1);
     int positionY = randomInRange(1, MAP_HEIGHT_TILES - 1);
 
-    while (gameMap[positionY][positionX].tileId != tileId)
+    while (gameMap[positionY][positionX].terrainId != terrainId)
     {
         if (iterationCount > 100)
         {
             #ifdef DEBUG_MAP_GEN
-                mgba_printf(MGBA_LOG_DEBUG, "    getRandomTileOfType(%d) returned NULL", tileId);
+                mgba_printf(MGBA_LOG_DEBUG, "    getRandomTileOfType(%d) returned NULL", terrainId);
             #endif
             return NULL;
         }
