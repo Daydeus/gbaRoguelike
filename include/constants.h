@@ -70,6 +70,7 @@
 #define PLAYER_FACING_DOWN_FR1 16
 #define PLAYER_FACING_DOWN_FR2 20
 
+
 enum state
 {
     STATE_TITLE_SCREEN,
@@ -106,7 +107,7 @@ enum
 
 enum direction
 {
-    DIR_NULL,
+    DIR_NULL = 0,
     DIR_LEFT,
     DIR_RIGHT,
     DIR_UP,

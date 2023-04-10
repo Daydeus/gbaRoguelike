@@ -8,14 +8,12 @@ struct Node
 {
     struct Tile* tile;
     struct Node* linkedNode;
+    enum direction tileDirection;
 };
 
 //------------------------------------------------------------------
 // Function Prototypes
 //------------------------------------------------------------------
-void addEndNode(struct Node *listHead, struct Tile *tile);
-void deleteEndNode(struct Node *listHead);
-struct Node* deleteAllNodes(struct Node *listHead);
-u32 getNodeCount(struct Node* listHead);
+void createGameMap();
 
 #endif

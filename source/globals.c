@@ -11,9 +11,10 @@ int8_t const dirX[5] = {0, -1, 1, 0, 0};
 int8_t const dirY[5] = {0, 0, 0, -1, 1};
 
 //------------------------------------------------------------------
-// Function: random
+// Function: randomInRange
 //
-// Returns a random value between the given numbers
+// Returns a random value between (and including) the given minimum
+// and maximum value.
 //------------------------------------------------------------------
 u32 randomInRange(int minimumValue, int maximumValue)
 {

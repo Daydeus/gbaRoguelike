@@ -4,7 +4,6 @@
 //------------------------------------------------------------------
 // Function Prototypes
 //------------------------------------------------------------------
-void createGameMap();
 void loadGameMap();
 void doFOV(int const positionX, int const positionY, int const sightRange);
 void setTileSeenStatus(uint8_t positionX, uint8_t positionY, uint8_t sightStatus);
@@ -12,5 +11,6 @@ bool isSolid(uint8_t const positionX, uint8_t const positionY);
 bool isOutOfBounds(uint8_t const positionX, uint8_t const positionY);
 void initFOV();
 uint8_t getMapSector(int const positionX, int const positionY);
+enum direction getTileDirection(int startX, int startY, int endX, int endY);
 
 #endif // GAME_MAP_H
