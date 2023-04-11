@@ -36,7 +36,7 @@ uint8_t getDynamicTerrainId(struct Tile* const tile)
     switch(terrainId)
     {
     case ID_WALL:
-        if(gameMap[tile->pos.y + 1][tile->pos.x].terrainId != ID_WALL || tile->pos.y + 1 > MAP_HEIGHT_TILES -1)
+        if(gameMap[tile->posY + 1][tile->posX].terrainId != ID_WALL || tile->posY + 1 > MAP_HEIGHT_TILES -1)
             terrainId = ID_WALL_FRONT;
         break;
     default:
@@ -335,25 +335,25 @@ void drawGameMapScreenEntry(struct Tile* tile)
     int screenEntryBR = 0;                 // screenEntryBottomRight
     int *tileToDraw = NULL;
 
-    if (tile->pos.x <= 15 && tile->pos.y <= 15)
+    if (tile->posX <= 15 && tile->posY <= 15)
     {
         screenBlock = GAME_MAP_SB1;
-        screenEntryTL = 2* (tile->pos.y * SCREEN_BLOCK_SIZE + tile->pos.x);
+        screenEntryTL = 2* (tile->posY * SCREEN_BLOCK_SIZE + tile->posX);
     }
-    else if (tile->pos.x > 15 && tile->pos.y <= 15)
+    else if (tile->posX > 15 && tile->posY <= 15)
     {
         screenBlock = GAME_MAP_SB2;
-        screenEntryTL = 2* (tile->pos.y * SCREEN_BLOCK_SIZE + tile->pos.x) - SCREEN_BLOCK_SIZE;
+        screenEntryTL = 2* (tile->posY * SCREEN_BLOCK_SIZE + tile->posX) - SCREEN_BLOCK_SIZE;
     }
-    else if (tile->pos.x <= 15 && tile->pos.y > 15)
+    else if (tile->posX <= 15 && tile->posY > 15)
     {
         screenBlock = GAME_MAP_SB3;
-        screenEntryTL = 2* (tile->pos.y * SCREEN_BLOCK_SIZE + tile->pos.x) - SCREEN_BLOCK_SIZE*SCREEN_BLOCK_SIZE;
+        screenEntryTL = 2* (tile->posY * SCREEN_BLOCK_SIZE + tile->posX) - SCREEN_BLOCK_SIZE*SCREEN_BLOCK_SIZE;
     }
-    else if (tile->pos.x > 15 && tile->pos.y > 15)
+    else if (tile->posX > 15 && tile->posY > 15)
     {
         screenBlock = GAME_MAP_SB4;
-        screenEntryTL = 2* (tile->pos.y * SCREEN_BLOCK_SIZE + tile->pos.x) - SCREEN_BLOCK_SIZE*(SCREEN_BLOCK_SIZE + 1);
+        screenEntryTL = 2* (tile->posY * SCREEN_BLOCK_SIZE + tile->posX) - SCREEN_BLOCK_SIZE*(SCREEN_BLOCK_SIZE + 1);
     }
     screenEntryTR = screenEntryTL + 1;
     screenEntryBL = screenEntryTL + SCREEN_BLOCK_SIZE;

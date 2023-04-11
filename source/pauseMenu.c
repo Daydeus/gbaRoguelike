@@ -72,9 +72,9 @@ void drawPauseMenu()
     tte_write("Pause Menu\t\t\tRNG Seed: ");
     tte_write_var_int(randomSeed);
     tte_write("\nPlayer position (");
-    tte_write_var_int(player.x);
+    tte_write_var_int(playerX);
     tte_write(", ");
-    tte_write_var_int(player.y);
+    tte_write_var_int(playerY);
     tte_write(")");
     tte_write("\nPlayer sightId: ");
     tte_write_var_int(playerSightId);
@@ -106,7 +106,7 @@ void doStateTransition(enum state const targetState)
         REG_BG1CNT= BG_CBB(0) | BG_SBB(FOV_SB) | BG_4BPP | BG_REG_32x32;
         REG_BG2CNT= BG_CBB(0) | BG_SBB(GAME_MAP_SB1) | BG_4BPP | BG_REG_64x64;
         REG_DISPCNT= DCNT_MODE0 | DCNT_BG0 | DCNT_BG1 | DCNT_BG2 | DCNT_OBJ | DCNT_OBJ_1D;
-        doFOV(player.x, player.y, sightRange);
+        doFOV(playerX, playerY, sightRange);
         loadGameMap();
         gameState = STATE_GAMEPLAY;
         break;

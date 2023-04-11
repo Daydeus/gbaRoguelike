@@ -4,15 +4,9 @@
 //------------------------------------------------------------------
 // Data Structures
 //------------------------------------------------------------------
-struct Coord
-{
-    uint8_t x;
-    uint8_t y;
-};
-
 struct Tile
 {
-    struct Coord pos;
+    uint8_t posX, posY;
     uint8_t terrainId;
     uint8_t sightId;
 };
@@ -30,7 +24,7 @@ extern unsigned int frameCount;
 extern unsigned int randomSeed;
 extern enum state gameState;
 extern struct Tile gameMap[MAP_HEIGHT_TILES][MAP_WIDTH_TILES];
-extern struct Coord player;        // Player position on gameMap[][]
+extern int playerX, playerY;        // Player position on gameMap[][]
 extern uint8_t playerSightId; // The value to which current visible tiles are set
 extern int sightRange;   // Range from player before shadow blending
 extern int8_t const dirX[5];      // Horizontal directional movement array

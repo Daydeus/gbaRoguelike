@@ -32,8 +32,8 @@ void initGameMap()
     {
         for (int x = 0; x <= MAP_WIDTH_TILES - 1; x++)
         {
-            gameMap[y][x].pos.x = x;
-            gameMap[y][x].pos.y = y;
+            gameMap[y][x].posX = x;
+            gameMap[y][x].posY = y;
             gameMap[y][x].terrainId = ID_WALL;
             gameMap[y][x].sightId = TILE_NEVER_SEEN;
         }
@@ -125,10 +125,10 @@ void carveMaze()
             if (currentTile == NULL)
             {
                 mgba_printf(MGBA_LOG_DEBUG, "currentTile is NULL");
-                mgba_printf(MGBA_LOG_DEBUG, "previous linkedNode->tile is (%d, %d)", endNode->tile->pos.x, endNode->tile->pos.y);
+                mgba_printf(MGBA_LOG_DEBUG, "previous linkedNode->tile is (%d, %d)", endNode->tile->posX, endNode->tile->posY);
             }
             else
-                mgba_printf(MGBA_LOG_DEBUG, "currentTile is (%d, %d)", currentTile->pos.x, currentTile->pos.y);
+                mgba_printf(MGBA_LOG_DEBUG, "currentTile is (%d, %d)", currentTile->posX, currentTile->posY);
         #endif
 
         // Set currentTile to be one of endNode's tile's unmarked targets
@@ -201,8 +201,8 @@ struct Tile* getUnmarkedTile(struct Tile* const tile)
     while (!checkedLeft || !checkedRight || !checkedUp || !checkedDown)
     {
         // Move two tiles at a time to ensure we don't just remove every wall in gameMap[][]
-        positionX = tile->pos.x + dirX[direction] * 2;
-        positionY = tile->pos.y + dirY[direction] * 2;
+        positionX = tile->posX + dirX[direction] * 2;
+        positionY = tile->posY + dirY[direction] * 2;
 
         #ifdef DEBUG_MAP_GEN
             mgba_printf(MGBA_LOG_DEBUG, "    getUnmarkedTile checking direction: %d", direction);
@@ -270,10 +270,10 @@ void addEndNode(struct Node* listHead, struct Tile* tile)
     newEnd->linkedNode = NULL;
     
     // Set placeholder variables for finding tileDirection
-    startX = currentEnd->tile->pos.x;
-    startY = currentEnd->tile->pos.y;
-    endX = newEnd->tile->pos.x;
-    endY = newEnd->tile->pos.y;
+    startX = currentEnd->tile->posX;
+    startY = currentEnd->tile->posY;
+    endX = newEnd->tile->posX;
+    endY = newEnd->tile->posY;
 
     // Store newEnd's tileDirection
     newEnd->tileDirection = getTileDirection(startX, startY, endX, endY);
@@ -305,12 +305,12 @@ void markEndNode(struct Node* listHead)
     endNode->tile->terrainId = ID_FLOOR;
 
     #ifdef DEBUG_MAP_GEN
-        mgba_printf(MGBA_LOG_DEBUG, "    markEndNode endNode tile: (%d, %d)", endNode->tile->pos.x, endNode->tile->pos.y);
+        mgba_printf(MGBA_LOG_DEBUG, "    markEndNode endNode tile: (%d, %d)", endNode->tile->posX, endNode->tile->posY);
     #endif
 
     // Get the skipped-over tile's position
-    skippedX = endNode->tile->pos.x - dirX[endNode->tileDirection];
-    skippedY = endNode->tile->pos.y - dirY[endNode->tileDirection];
+    skippedX = endNode->tile->posX - dirX[endNode->tileDirection];
+    skippedY = endNode->tile->posY - dirY[endNode->tileDirection];
 
     // Set the skipped-over tile's terrainId
     gameMap[skippedY][skippedX].terrainId = ID_FLOOR;
