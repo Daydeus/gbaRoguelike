@@ -3,14 +3,9 @@
 #include <tonc.h>
 #include "constants.h"
 #include "fieldOfVision.h"
-#include "gameMap.h"
 #include "globals.h"
 #include "mgba.h"
-
-//------------------------------------------------------------------
-// Data Structures
-//------------------------------------------------------------------
-extern struct Tile gameMap[MAP_HEIGHT_TILES][MAP_WIDTH_TILES];
+#include "tile.h"
 
 //------------------------------------------------------------------
 // Function Prototypes
@@ -39,7 +34,7 @@ void checkLOS(int x1, int y1, int const x2, int const y2)
                 mgba_printf(MGBA_LOG_DEBUG, "checkLOS (%d, %d)", x1, y1);
             #endif
 
-            gameMap[y1][x1].sightId = playerSightId;
+            setTileSight(x1, y1, playerSightId);
         }
 
         if ((x1 == x2 && y1 == y2) || isSolid(x1, y1)
@@ -136,7 +131,7 @@ void drawFOV(int positionX, int positionY)
             screenEntryBR = screenEntryBL + 1;
 
             // Get tileset index of tile to draw
-            if (gameMap[currentTileY][currentTileX].sightId == playerSightId)
+            if (getTileSight(currentTileX, currentTileY) == playerSightId)
                 tileToDraw = (int*)TRANSPARENT;
             else
                 tileToDraw = (int*)FOV_TINT_DARK;
@@ -174,8 +169,8 @@ void resetFOV()
             for (int x = 0; x < MAP_WIDTH_TILES; x++)
             {
                 // Don't make TILE_NEVER_SEEN(0) suddenly visible
-                if (gameMap[y][x].sightId != TILE_NEVER_SEEN)
-                    gameMap[y][x].sightId = TILE_NOT_IN_SIGHT;
+                if (getTileSight(x, y) != TILE_NEVER_SEEN)
+                    setTileSight(x, y, TILE_NOT_IN_SIGHT);
             }
         }
 

@@ -3,12 +3,12 @@
 #include <string.h>
 #include "constants.h"
 #include "fieldOfVision.h"
-#include "gameMap.h"
 #include "globals.h"
 #include "mapGeneration.h"
 #include "mgba.h"
 #include "pauseMenu.h"
 #include "playerSprite.h"
+#include "tile.h"
 
 //------------------------------------------------------------------
 // Data Structures

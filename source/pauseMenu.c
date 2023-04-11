@@ -3,8 +3,8 @@
 #include "constants.h"
 #include "globals.h"
 #include "fieldOfVision.h"
-#include "gameMap.h"
 #include "pauseMenu.h"
+#include "tile.h"
 
 //------------------------------------------------------------------
 // Function Prototypes

@@ -1,10 +1,10 @@
 #include <stdlib.h>
 #include <tonc.h>
 #include "constants.h"
-#include "gameMap.h"
 #include "globals.h"
 #include "mapGeneration.h"
 #include "mgba.h"
+#include "tile.h"
 
 //------------------------------------------------------------------
 // Function Prototypes
@@ -32,12 +32,15 @@ void initGameMap()
     {
         for (int x = 0; x <= MAP_WIDTH_TILES - 1; x++)
         {
-            gameMap[y][x].posX = x;
-            gameMap[y][x].posY = y;
-            gameMap[y][x].terrainId = ID_WALL;
-            gameMap[y][x].sightId = TILE_NEVER_SEEN;
+            initTilePosition(x, y);
+            setTileTerrain(x, y, ID_WALL);
+            setTileSight(x, y, TILE_NEVER_SEEN);
         }
     }
+
+    #ifdef DEBUG_MAP_GEN
+        mgba_printf(MGBA_LOG_DEBUG, "initGameMap");
+    #endif
 }
 
 //------------------------------------------------------------------
@@ -55,10 +58,10 @@ bool placeRoom(int const startingX, int const startingY, int const width, int co
 
     // Check if room placement should fail (room outside map or overlapping another room)
     if (isOutOfBounds(startingX, startingY) || isOutOfBounds(startingX + width, startingY + height)
-    || gameMap[startingY][startingX].terrainId != ID_WALL
-    || gameMap[startingY + height][startingX].terrainId != ID_WALL
-    || gameMap[startingY][startingX + width].terrainId != ID_WALL
-    || gameMap[startingY + height][startingX + width].terrainId != ID_WALL)
+    || getTileTerrain(startingX, startingY) != ID_WALL
+    || getTileTerrain(startingX, startingY + height) != ID_WALL
+    || getTileTerrain(startingX + width, startingY) != ID_WALL
+    || getTileTerrain(startingX + width, startingY + height) != ID_WALL)
     {
         #ifdef DEBUG_MAP_GEN
             mgba_printf(MGBA_LOG_DEBUG, "    placeRoom FAILED");
@@ -72,7 +75,7 @@ bool placeRoom(int const startingX, int const startingY, int const width, int co
     {
         for (int x = startingX; x < startingX + width; x++)
         {
-            gameMap[y][x].terrainId = ID_FLOOR;
+            setTileTerrain(x, y, ID_FLOOR);
         }
     }
 
@@ -98,7 +101,7 @@ void carveMaze()
     #endif
 
     // Set the first node's tile
-    listHead->tile = &gameMap[1][1];
+    listHead->tile = getTile(1, 1);
 
     // Initialize starting node's tile data
     listHead->tile->terrainId = ID_FLOOR;
@@ -164,26 +167,26 @@ void carveMaze()
 //------------------------------------------------------------------
 // Function: ensureMapBoundarySolid
 // 
-// At each boundary of gameMap[][], place a wall so the player cannot
-// leave the map.
+// At each boundary of the game map, place a wall to ensure that the
+// player cannot leave the map.
 //------------------------------------------------------------------
 void ensureMapBoundarySolid()
 {
     // Top Boundary: Coord (0, 0) to (MAP_WIDTH_TILES - 1, 0)
     for (int x = 0; x <= MAP_WIDTH_TILES - 1; x++)
-        gameMap[0][x].terrainId = ID_WALL;
+        setTileTerrain(x, 0, ID_WALL);
 
     // Bottom Boundary: Coord (0, MAP_HEIGHT_TILES - 1) to (MAP_WIDTH_TILES - 1, MAP_HEIGHT_TILES - 1)
     for (int x = 0; x <= MAP_WIDTH_TILES - 1; x++)
-        gameMap[MAP_HEIGHT_TILES - 1][x].terrainId = ID_WALL;
+        setTileTerrain(x, MAP_HEIGHT_TILES - 1, ID_WALL);
 
     // Left Boundary: Coord (0, 0) to (0, MAP_HEIGHT_TILES - 1)
     for (int y = 0; y <= MAP_HEIGHT_TILES - 1; y++)
-        gameMap[y][0].terrainId = ID_WALL;
+        setTileTerrain(0, y, ID_WALL);
 
     // Right Boundary: Coord (MAP_WIDTH_TILES - 1, 0) to (MAP_WIDTH_TILES - 1, MAP_HEIGHT_TILES - 1)
     for (int y = 0; y <= MAP_HEIGHT_TILES - 1; y++)
-        gameMap[y][MAP_WIDTH_TILES - 1].terrainId = ID_WALL;
+        setTileTerrain(MAP_WIDTH_TILES - 1, y, ID_WALL);
 }
 
 //------------------------------------------------------------------
@@ -200,7 +203,7 @@ struct Tile* getUnmarkedTile(struct Tile* const tile)
     // Loop until every cardinal direction is checked
     while (!checkedLeft || !checkedRight || !checkedUp || !checkedDown)
     {
-        // Move two tiles at a time to ensure we don't just remove every wall in gameMap[][]
+        // Move two tiles at a time to ensure we don't just remove every wall
         positionX = tile->posX + dirX[direction] * 2;
         positionY = tile->posY + dirY[direction] * 2;
 
@@ -210,17 +213,13 @@ struct Tile* getUnmarkedTile(struct Tile* const tile)
         #endif
 
         // Return tile if in bounds and unmarked
-        if (!isOutOfBounds(positionX, positionY))
+        if (!isOutOfBounds(positionX, positionY) && getTileTerrain(positionX, positionY) == ID_WALL)
         {
-            // Checks must be seperate as gameMap[y > MAP_HEIGHT][x > MAP_WIDTH] may give false positives
-            if (gameMap[positionY][positionX].terrainId == ID_WALL)
-            {
-                #ifdef DEBUG_MAP_GEN
-                    mgba_printf(MGBA_LOG_DEBUG, "    getUnmarkedTile returned value: (%d, %d)", positionX, positionY);
-                #endif
+            #ifdef DEBUG_MAP_GEN
+                mgba_printf(MGBA_LOG_DEBUG, "    getUnmarkedTile returned value: (%d, %d)", positionX, positionY);
+            #endif
 
-                return &gameMap[positionY][positionX];
-            }
+            return getTile(positionX, positionY);
         }
 
         // Set direction checked
@@ -313,7 +312,7 @@ void markEndNode(struct Node* listHead)
     skippedY = endNode->tile->posY - dirY[endNode->tileDirection];
 
     // Set the skipped-over tile's terrainId
-    gameMap[skippedY][skippedX].terrainId = ID_FLOOR;
+    setTileTerrain(skippedX, skippedY, ID_FLOOR);
 
     #ifdef DEBUG_MAP_GEN
         mgba_printf(MGBA_LOG_DEBUG, "    markEndNode skipped-over tile: (%d, %d)", skippedX, skippedY);
@@ -437,6 +436,10 @@ void createGameMap()
 {
     int placeRoomFailures = 0;
 
+    #ifdef DEBUG_MAP_GEN
+        mgba_printf(MGBA_LOG_DEBUG, "createGameMap");
+    #endif
+
     // Set starting values for gameMap[][]
     initGameMap();
 
@@ -465,14 +468,14 @@ void createGameMap()
     {
         for (int x = 1; x < MAP_WIDTH_TILES - 1; x++)
         {
-            if (gameMap[y][x].terrainId == ID_FLOOR)
+            if (getTileTerrain(x, y) == ID_FLOOR)
             {
                 switch(randomInRange(0, 5))
                 {
                 case 1: 
-                case 2: gameMap[y][x].terrainId = ID_FLOOR_MOSSY; break;
-                case 3: gameMap[y][x].terrainId = ID_FLOOR_BIG; break;
-                case 4: gameMap[y][x].terrainId = ID_FLOOR_CHIP; break;
+                case 2: setTileTerrain(x, y, ID_FLOOR_MOSSY);   break;
+                case 3: setTileTerrain(x, y, ID_FLOOR_BIG);     break;
+                case 4: setTileTerrain(x, y, ID_FLOOR_CHIP);    break;
                 }
             }
         }
