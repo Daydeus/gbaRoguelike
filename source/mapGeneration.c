@@ -9,16 +9,16 @@
 //------------------------------------------------------------------
 // Function Prototypes
 //------------------------------------------------------------------
-void initGameMap();
-bool placeRoom(int const startingX, int const startingY, int const width, int const height);
-void carveMaze();
-void ensureMapBoundarySolid();
-struct Tile* getUnmarkedTile(struct Tile* const tile);
-void addEndNode(struct Node* const listHead, struct Tile *tile);
-void markEndNode(struct Node* const listHead);
-struct Node* deleteEndNode(struct Node *listHead);
-struct Node* deleteAllNodes(struct Node *listHead);
-u32 getNodeCount(struct Node* const listHead);
+static void initGameMap();
+static bool placeRoom(int const startingX, int const startingY, int const width, int const height);
+static void carveMaze();
+static void ensureMapBoundarySolid();
+static struct Tile* getUnmarkedTile(struct Tile* const tile);
+static void addEndNode(struct Node* const listHead, struct Tile *tile);
+static void markEndNode(struct Node* const listHead);
+static struct Node* deleteEndNode(struct Node *listHead);
+static struct Node* deleteAllNodes(struct Node *listHead);
+static u32 getNodeCount(struct Node* const listHead);
 
 //------------------------------------------------------------------
 // Function: initGameMap
@@ -26,7 +26,7 @@ u32 getNodeCount(struct Node* const listHead);
 // Initializes the gameMap by assigning the tiles' positions and
 // other variables.
 //------------------------------------------------------------------
-void initGameMap()
+static void initGameMap()
 {
     for (int y = 0; y <= MAP_HEIGHT_TILES - 1; y++)
     {
@@ -50,7 +50,7 @@ void initGameMap()
 // width and height. All tiles within the rectangle have their terrainId
 // set to ID_FLOOR.
 //------------------------------------------------------------------
-bool placeRoom(int const startingX, int const startingY, int const width, int const height)
+static bool placeRoom(int const startingX, int const startingY, int const width, int const height)
 {
     #ifdef DEBUG_MAP_GEN
         mgba_printf(MGBA_LOG_DEBUG, "placeRoom: (%d, %d), width: %d, height: %d", startingX, startingY, width, height);
@@ -91,7 +91,7 @@ bool placeRoom(int const startingX, int const startingY, int const width, int co
 // 
 // Carves a maze out of a map filled with wall tiles.
 //------------------------------------------------------------------
-void carveMaze()
+static void carveMaze()
 {
     struct Tile *currentTile = NULL;
     struct Node *listHead = (struct Node*)malloc(sizeof(struct Node));
@@ -170,7 +170,7 @@ void carveMaze()
 // At each boundary of the game map, place a wall to ensure that the
 // player cannot leave the map.
 //------------------------------------------------------------------
-void ensureMapBoundarySolid()
+static void ensureMapBoundarySolid()
 {
     // Top Boundary: Coord (0, 0) to (MAP_WIDTH_TILES - 1, 0)
     for (int x = 0; x <= MAP_WIDTH_TILES - 1; x++)
@@ -195,7 +195,7 @@ void ensureMapBoundarySolid()
 // Returns a tile two spaces in a random cardinal direction from the
 // given tile that hasn't been marked yet.
 //------------------------------------------------------------------
-struct Tile* getUnmarkedTile(struct Tile* const tile)
+static struct Tile* getUnmarkedTile(struct Tile* const tile)
 {
     int positionX = 0, positionY = 0, direction = randomInRange(1, 4);
     bool checkedLeft = false, checkedRight = false, checkedUp = false, checkedDown = false;
@@ -249,7 +249,7 @@ struct Tile* getUnmarkedTile(struct Tile* const tile)
 // 
 // Adds a new node at the end of the given linked list.
 //------------------------------------------------------------------
-void addEndNode(struct Node* listHead, struct Tile* tile)
+static void addEndNode(struct Node* listHead, struct Tile* tile)
 {
     struct Node *currentEnd = NULL, *newEnd = NULL;
 
@@ -291,7 +291,7 @@ void addEndNode(struct Node* listHead, struct Tile* tile)
 // to ID_FLOOR. It does this for both the end node's tile and the
 // skipped-over tile by checking backwards in the end node's tileDirection.
 //------------------------------------------------------------------
-void markEndNode(struct Node* listHead)
+static void markEndNode(struct Node* listHead)
 {
     int skippedX = 0, skippedY = 0;
     struct Node *endNode = listHead;
@@ -324,7 +324,7 @@ void markEndNode(struct Node* listHead)
 // 
 // Deletes the node at the end of the given linked list.
 //------------------------------------------------------------------
-struct Node* deleteEndNode(struct Node *listHead)
+static struct Node* deleteEndNode(struct Node *listHead)
 {
     // If listHead is NULL, there is no linked list
     if (listHead == NULL)
@@ -372,10 +372,10 @@ struct Node* deleteEndNode(struct Node *listHead)
 // 
 // Delete all nodes in the given linked list.
 //------------------------------------------------------------------
-struct Node* deleteAllNodes(struct Node *listHead)
+static struct Node* deleteAllNodes(struct Node *listHead)
 {
     struct Node *temp = listHead;
-\
+
     // If listHead is NULL, there is no linked list
     if (listHead == NULL)
     {
@@ -402,7 +402,7 @@ struct Node* deleteAllNodes(struct Node *listHead)
 // 
 // Count and return the number of nodes in the given linked list.
 //------------------------------------------------------------------
-u32 getNodeCount(struct Node* listHead)
+static u32 getNodeCount(struct Node* listHead)
 {
     struct Node *temp = listHead;
     u32 nodeCount = 0;
@@ -432,7 +432,7 @@ u32 getNodeCount(struct Node* listHead)
 // 
 // Fills the gameMap[][] with content for the player to interact with.
 //------------------------------------------------------------------
-void createGameMap()
+extern void createGameMap()
 {
     int placeRoomFailures = 0;
 

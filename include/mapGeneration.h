@@ -14,6 +14,6 @@ struct Node
 //------------------------------------------------------------------
 // Function Prototypes
 //------------------------------------------------------------------
-void createGameMap();
+extern void createGameMap();
 
 #endif

@@ -4,7 +4,7 @@
 //------------------------------------------------------------------
 // Function Prototypes
 //------------------------------------------------------------------
-void initFOV();
-void doFOV(int const positionX, int const positionY, int const sightRange);
+extern void initFOV();
+extern void doFOV(int const positionX, int const positionY, int const sightRange);
 
 #endif // FOV_H

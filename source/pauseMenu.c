@@ -9,7 +9,56 @@
 //------------------------------------------------------------------
 // Function Prototypes
 //------------------------------------------------------------------
-void tte_write_var_int(int const varToPrint);
+static void tte_write_var_int(int const varToPrint);
+
+//------------------------------------------------------------------
+// Function: tte_write_var_int
+// 
+// Tonc's Text Engine: write variable integers
+// Prints as 8x8 graphical tiles each digit of the given number.
+// Used in the debug menu to print variable integers.
+//------------------------------------------------------------------
+static void tte_write_var_int(int const varToPrint)
+{
+    for (int digitPlace = 1000000000; digitPlace >= 1; digitPlace = digitPlace / 10)
+    {
+        int numberToPrint = varToPrint / digitPlace % 10;
+
+        switch(numberToPrint)
+        {
+        case 9:
+            tte_write("9");
+            break;
+        case 8:
+            tte_write("8");
+            break;
+        case 7:
+            tte_write("7");
+            break;
+        case 6:
+            tte_write("6");
+            break;
+        case 5:
+            tte_write("5");
+            break;
+        case 4:
+            tte_write("4");
+            break;
+        case 3:
+            tte_write("3");
+            break;
+        case 2:
+            tte_write("2");
+            break;
+        case 1:
+            tte_write("1");
+            break;
+        case 0:
+            if (digitPlace < varToPrint)
+                tte_write("0");
+        }
+    }
+}
 
 //------------------------------------------------------------------
 // Function: doPauseMenuInput
@@ -17,7 +66,7 @@ void tte_write_var_int(int const varToPrint);
 // Changes variable values by reading keys pressed with key_poll()
 // Only used while in STATE_MENU
 //------------------------------------------------------------------
-bool doPauseMenuInput()
+extern bool doPauseMenuInput()
 {
     if (KEY_EQ(key_hit, KI_A))
     {
@@ -65,7 +114,7 @@ bool doPauseMenuInput()
 // Prints the menu's text as 8x8 graphical tiles into the menu's
 // screen entries
 //------------------------------------------------------------------
-void drawPauseMenu()
+extern void drawPauseMenu()
 {
     tte_erase_screen();
     tte_set_pos(0, 0);
@@ -94,7 +143,7 @@ void drawPauseMenu()
 // Sets the correct graphics mode for the new gameState and any
 // necessary variable values.
 //------------------------------------------------------------------
-void doStateTransition(enum state const targetState)
+extern void doStateTransition(enum state const targetState)
 {
     switch(targetState)
     {
@@ -119,54 +168,5 @@ void doStateTransition(enum state const targetState)
         break;
     default:
         break;
-    }
-}
-
-//------------------------------------------------------------------
-// Function: tte_write_var_int
-// 
-// Tonc's Text Engine: write variable integers
-// Prints as 8x8 graphical tiles each digit of the given number.
-// Used in the debug menu to print variable integers.
-//------------------------------------------------------------------
-void tte_write_var_int(int const varToPrint)
-{
-    for (int digitPlace = 1000000000; digitPlace >= 1; digitPlace = digitPlace / 10)
-    {
-        int numberToPrint = varToPrint / digitPlace % 10;
-
-        switch(numberToPrint)
-        {
-        case 9:
-            tte_write("9");
-            break;
-        case 8:
-            tte_write("8");
-            break;
-        case 7:
-            tte_write("7");
-            break;
-        case 6:
-            tte_write("6");
-            break;
-        case 5:
-            tte_write("5");
-            break;
-        case 4:
-            tte_write("4");
-            break;
-        case 3:
-            tte_write("3");
-            break;
-        case 2:
-            tte_write("2");
-            break;
-        case 1:
-            tte_write("1");
-            break;
-        case 0:
-            if (digitPlace < varToPrint)
-                tte_write("0");
-        }
     }
 }

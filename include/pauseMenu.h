@@ -4,8 +4,8 @@
 //------------------------------------------------------------------
 // Function Prototypes
 //------------------------------------------------------------------
-bool doPauseMenuInput();
-void drawPauseMenu();
-void doStateTransition(enum state const targetState);
+extern bool doPauseMenuInput();
+extern void drawPauseMenu();
+extern void doStateTransition(enum state const targetState);
 
 #endif // PAUSEMENU_H

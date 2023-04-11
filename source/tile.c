@@ -11,20 +11,20 @@
 //------------------------------------------------------------------
 // Function Prototypes
 //------------------------------------------------------------------
-void drawGameMapScreenEntry(struct Tile* const tile);
-int getScreenBlock(int const positionX, int const positionY);
-int getScreenEntryTL(int const positionX, int const positionY, int const screenBlock);
-int* getTilesetIndex(struct Tile* const tile, uint8_t const screenEntryCorner);
-uint8_t getDynamicTerrainId(struct Tile* const tile);
-u8 getNumberNeighborsOfType(int const positionX, int const positionY, int const terrainId);
-struct Tile* getRandomTileOfType(uint8_t const terrainId);
+static void drawGameMapScreenEntry(struct Tile* const tile);
+static int getScreenBlock(int const positionX, int const positionY);
+static int getScreenEntryTL(int const positionX, int const positionY, int const screenBlock);
+static int* getTilesetIndex(struct Tile* const tile, uint8_t const screenEntryCorner);
+static uint8_t getDynamicTerrainId(struct Tile* const tile);
+static uint8_t getNumberNeighborsOfType(int const positionX, int const positionY, int const terrainId);
+static struct Tile* getRandomTileOfType(uint8_t const terrainId);
 
 //------------------------------------------------------------------
 // Function: drawGameMapScreenEntry
 // 
 // Update the four screen entries of a given tile in the gameMap[][].
 //------------------------------------------------------------------
-void drawGameMapScreenEntry(struct Tile* tile)
+static void drawGameMapScreenEntry(struct Tile* tile)
 {
     // Find where (and on which screen block) to draw the tile
     int screenBlock = getScreenBlock(tile->posX, tile->posY);
@@ -54,7 +54,7 @@ void drawGameMapScreenEntry(struct Tile* tile)
 // Returns on which screen block a tile should be drawn by using the
 // given position.
 //------------------------------------------------------------------
-int getScreenBlock(int const positionX, int const positionY)
+static int getScreenBlock(int const positionX, int const positionY)
 {
     if (positionX <= MAP_WIDTH_TILES / 2 - 1 && positionY <= MAP_HEIGHT_TILES / 2 - 1)
         return GAME_MAP_SB1;
@@ -72,7 +72,7 @@ int getScreenBlock(int const positionX, int const positionY)
 // Returns where the top-left screen entry of a tile at the given
 // position, within the given screen block, should be drawn.
 //------------------------------------------------------------------
-int getScreenEntryTL(int const positionX, int const positionY, int const screenBlock)
+static int getScreenEntryTL(int const positionX, int const positionY, int const screenBlock)
 {
     int screenEntry = 0;
 
@@ -95,7 +95,7 @@ int getScreenEntryTL(int const positionX, int const positionY, int const screenB
 // index of the correct 8x8 bitmap and returns a pointer to the
 // bitmap so it may be drawn.
 //------------------------------------------------------------------
-int* getTilesetIndex(struct Tile* const tile, uint8_t const screenEntryCorner)
+static int* getTilesetIndex(struct Tile* const tile, uint8_t const screenEntryCorner)
 {
     // Tile corners are arranged sequentially in memory.
     // Corner Top-Left, Top-Right, Bottom-Left, Bottom-Right
@@ -208,7 +208,7 @@ int* getTilesetIndex(struct Tile* const tile, uint8_t const screenEntryCorner)
 // for the surrounding tiles and uses that plus its own terrainId to
 // determine which variant of tile to return for being drawn.
 //------------------------------------------------------------------
-uint8_t getDynamicTerrainId(struct Tile* const tile)
+static uint8_t getDynamicTerrainId(struct Tile* const tile)
 {
     uint8_t terrainId = tile->terrainId;
 
@@ -230,7 +230,7 @@ uint8_t getDynamicTerrainId(struct Tile* const tile)
 // Checks each cardinal direction and returns the number of tiles
 // that have the given type.
 //------------------------------------------------------------------
-uint8_t getNumberNeighborsOfType(int const positionX, int const positionY, int const terrainId)
+static uint8_t getNumberNeighborsOfType(int const positionX, int const positionY, int const terrainId)
 {
     uint8_t numberNeighbors = 0;
 
@@ -248,7 +248,7 @@ uint8_t getNumberNeighborsOfType(int const positionX, int const positionY, int c
 // 
 // Returns a pointer to a random tile with the given terrainId.
 //------------------------------------------------------------------
-struct Tile* getRandomTileOfType(uint8_t const terrainId)
+static struct Tile* getRandomTileOfType(uint8_t const terrainId)
 {
     int iterationCount = 0;
     int positionX = randomInRange(1, MAP_WIDTH_TILES - 1);
@@ -277,7 +277,7 @@ struct Tile* getRandomTileOfType(uint8_t const terrainId)
 // 
 // Used only to set the tiles' positions to their index in gameMap[][].
 //------------------------------------------------------------------
-void initTilePosition(int const positionX, int const positionY)
+extern void initTilePosition(int const positionX, int const positionY)
 {
     gameMap[positionY][positionX].posX = positionX;
     gameMap[positionY][positionX].posY = positionY;
@@ -288,7 +288,7 @@ void initTilePosition(int const positionX, int const positionY)
 // 
 // Returns a pointer to the tile at the given position.
 //------------------------------------------------------------------
-struct Tile* getTile(int const positionX, int const positionY)
+extern struct Tile* getTile(int const positionX, int const positionY)
 {
     if (!isOutOfBounds(positionX, positionY))
         return &gameMap[positionY][positionX];
@@ -301,7 +301,7 @@ struct Tile* getTile(int const positionX, int const positionY)
 // 
 // Returns the tile terrain at the given position.
 //------------------------------------------------------------------
-uint8_t getTileTerrain(int const positionX, int const positionY)
+extern uint8_t getTileTerrain(int const positionX, int const positionY)
 {
     if (!isOutOfBounds(positionX, positionY))
         return gameMap[positionY][positionX].terrainId;
@@ -314,7 +314,7 @@ uint8_t getTileTerrain(int const positionX, int const positionY)
 // 
 // Sets the terrain of the tile at the given position.
 //------------------------------------------------------------------
-void setTileTerrain(int const positionX, int const positionY, uint8_t const terrainId)
+extern void setTileTerrain(int const positionX, int const positionY, uint8_t const terrainId)
 {
     if (!isOutOfBounds(positionX, positionY))
         gameMap[positionY][positionX].terrainId = terrainId;
@@ -325,7 +325,7 @@ void setTileTerrain(int const positionX, int const positionY, uint8_t const terr
 // 
 // Returns the sightId of the tile at the given position.
 //------------------------------------------------------------------
-uint8_t getTileSight(int const positionX, const int positionY)
+extern uint8_t getTileSight(int const positionX, const int positionY)
 {
     if (!isOutOfBounds(positionX, positionY))
         return gameMap[positionY][positionX].sightId;
@@ -338,7 +338,7 @@ uint8_t getTileSight(int const positionX, const int positionY)
 // 
 // Sets the sightId of the tile at the given position.
 //------------------------------------------------------------------
-void setTileSight(int const positionX, int const positionY, uint8_t const sightId)
+extern void setTileSight(int const positionX, int const positionY, uint8_t const sightId)
 {
     if (!isOutOfBounds(positionX, positionY))
         gameMap[positionY][positionX].sightId = sightId;
@@ -350,7 +350,7 @@ void setTileSight(int const positionX, int const positionY, uint8_t const sightI
 // Returns the cardinal direction required to reach the endingTile
 // from the startingTile.
 //------------------------------------------------------------------
-enum direction getTileDirection(int const startX, int const startY, int const endX, int const endY)
+extern enum direction getTileDirection(int const startX, int const startY, int const endX, int const endY)
 {
     enum direction direction = DIR_NULL;
     int distanceX = endX - startX;
@@ -380,7 +380,7 @@ enum direction getTileDirection(int const startX, int const startY, int const en
 // 
 // Calls function drawGameMapScreenEntry for each tile in the gameMap.
 //------------------------------------------------------------------
-void loadGameMap()
+extern void loadGameMap()
 {
     // Load palette
     memcpy(pal_bg_mem, tileset_stonePal, tileset_stonePalLen);
@@ -408,7 +408,7 @@ void loadGameMap()
 // Redraws all tiles within sightRange of the player. Used for updating
 // whether a tile has been seen before.
 //------------------------------------------------------------------
-void updateGameMapSight(int const playerX, int const playerY)
+extern void updateGameMapSight(int const playerX, int const playerY)
 {
     // Only check tiles the player could possibly see
     for (int y = playerY - sightRange; y <= playerY + sightRange; y++)
@@ -428,7 +428,7 @@ void updateGameMapSight(int const playerX, int const playerY)
 // Returns whether the tile at the given position is out of bounds
 // for the player or not.
 //------------------------------------------------------------------
-bool isOutOfBounds(uint8_t const positionX, uint8_t const positionY)
+extern bool isOutOfBounds(uint8_t const positionX, uint8_t const positionY)
 {
     if (positionX < 0 || positionX > MAP_WIDTH_TILES - 1
     || positionY < 0 || positionY > MAP_HEIGHT_TILES - 1)
@@ -443,7 +443,7 @@ bool isOutOfBounds(uint8_t const positionX, uint8_t const positionY)
 // Returns whether the tile at the given position is solid or not.
 // NOTE: Solid tiles should block player movement.
 //------------------------------------------------------------------
-bool isSolid(uint8_t const positionX, uint8_t const positionY)
+extern bool isSolid(uint8_t const positionX, uint8_t const positionY)
 {
     if(getTileTerrain(positionX, positionY) != ID_WALL)
         return false;
@@ -459,7 +459,7 @@ bool isSolid(uint8_t const positionX, uint8_t const positionY)
 // Check which mapSector the position is in for determining
 // whether to offset the background scroll or player sprite
 //------------------------------------------------------------------
-uint8_t getMapSector(int const positionX, int const positionY)
+extern uint8_t getMapSector(int const positionX, int const positionY)
 {
     if (4 >= positionY)
     {

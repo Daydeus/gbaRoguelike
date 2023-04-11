@@ -10,9 +10,9 @@
 //------------------------------------------------------------------
 // Function Prototypes
 //------------------------------------------------------------------
-void checkLOS(int x1, int y1, int const x2, int const y2);
-void drawFOV(int positionX, int positionY);
-void resetFOV();
+static void checkLOS(int x1, int y1, int const x2, int const y2);
+static void drawFOV(int positionX, int positionY);
+static void resetFOV();
 
 //------------------------------------------------------------------
 // Function: checkLOS
@@ -20,7 +20,7 @@ void resetFOV();
 // Uses Bresenham's algorithm to step through a line from (x1, y1)
 // to (x2, y2). At each step, it sets the sightId of the tile.
 //------------------------------------------------------------------
-void checkLOS(int x1, int y1, int const x2, int const y2)
+static void checkLOS(int x1, int y1, int const x2, int const y2)
 {
     int dx =  ABS(x2 - x1), sx = x1 < x2 ? 1 : -1;
     int dy = -ABS(y2 - y1), sy = y1 < y2 ? 1 : -1;
@@ -67,7 +67,7 @@ void checkLOS(int x1, int y1, int const x2, int const y2)
 // Updates field-of-vision background layer by copying the correct
 // 8x8 graphic based on tile.sightId.
 //------------------------------------------------------------------
-void drawFOV(int positionX, int positionY)
+static void drawFOV(int positionX, int positionY)
 {
     int screenEntryTL = 0;                     // screenEntryTopLeft
     int screenEntryTR = 0;                    // screenEntryTopRight
@@ -158,7 +158,7 @@ void drawFOV(int positionX, int positionY)
 // In the event that variable playerSight is going to overflow, this
 // function sets it to 2 and sets all tiles' sightId back to 1
 //------------------------------------------------------------------
-void resetFOV()
+static void resetFOV()
 {
     // Check that playerSightId is about to overflow
     if (playerSightId == 255)
@@ -189,7 +189,7 @@ void resetFOV()
 // Initialize field-of-vision background layer by filling with black
 // 8x8 graphic tiles.
 //------------------------------------------------------------------
-void initFOV()
+extern void initFOV()
 {
     int *tileToDraw = (int*)FOV_TINT_DARK;
 
@@ -208,7 +208,7 @@ void initFOV()
 // Performs a line-of-sight check on every bounding tile at the edge
 // of the player's sight range.
 //------------------------------------------------------------------
-void doFOV(int const positionX, int const positionY, int const sightRange)
+extern void doFOV(int const positionX, int const positionY, int const sightRange)
 {
     resetFOV();
 

@@ -36,13 +36,13 @@ int16_t screenOffsetX = 0, screenOffsetY = 0;
 //------------------------------------------------------------------
 // Function Prototypes
 //------------------------------------------------------------------
-void doPlayerInput();
-void movePlayer(int8_t const direction);
-void drawHUD();
-uint16_t getPlayerScreenCoord(int playerPos, uint8_t const mapSector, uint8_t const dimension);
-uint16_t getBgOffset(uint8_t const mapSector, uint8_t const dimension);
-void updateGraphics();
-void loadPlayerSprite(uint16_t const playerScreenX, uint16_t const playerScreenY);
+static void doPlayerInput();
+static void movePlayer(int8_t const direction);
+static void drawHUD();
+static uint16_t getPlayerScreenCoord(int playerPos, uint8_t const mapSector, uint8_t const dimension);
+static uint16_t getBgOffset(uint8_t const mapSector, uint8_t const dimension);
+static void updateGraphics();
+static void loadPlayerSprite(uint16_t const playerScreenX, uint16_t const playerScreenY);
 
 //------------------------------------------------------------------
 // Function: doPlayerInput
