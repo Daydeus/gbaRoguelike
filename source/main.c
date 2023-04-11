@@ -116,7 +116,10 @@ void doPlayerInput()
 
     if (KEY_EQ(key_hit, KI_A))
     {
-        loadGameMap();
+        uint8_t terrainToSet = getTileTerrain(playerX + dirX[playerFacing], playerY + dirY[playerFacing]) != ID_WALL ? ID_WALL : ID_FLOOR_BIG;
+        setTileTerrain(playerX + dirX[playerFacing], playerY + dirY[playerFacing], terrainToSet);
+        playerAction = PLAYER_EARTH_BEND;
+
         #ifdef DEBUG
             mgba_printf(MGBA_LOG_INFO, "pressed A");
         #endif
@@ -306,9 +309,9 @@ void updateGraphics()
         screenOffsetX = approachValue(screenOffsetX, 0, 1);
     else if (screenOffsetY != 0)
         screenOffsetY = approachValue(screenOffsetY, 0, 1);
-    else
+    else if (playerAction != PLAYER_NO_ACTION)
     {
-        if (playerAction != PLAYER_NO_ACTION)
+        if (playerAction < PLAYER_EARTH_BEND)
         {
             switch(mapSector)
             {
@@ -385,8 +388,8 @@ void updateGraphics()
                     offsetX += dirX[playerFacing] * TILE_SIZE;
                 break;
             }
-            updateGameMapSight(playerX, playerY);
         }
+        updateGameMapSight(playerX, playerY);
     }
 
     playerScreenX = getPlayerScreenCoord(playerX, mapSector, DIM_WIDTH) - offsetX;
