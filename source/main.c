@@ -119,6 +119,7 @@ void doPlayerInput()
         uint8_t terrainToSet = getTileTerrain(playerX + dirX[playerFacing], playerY + dirY[playerFacing]) != ID_WALL ? ID_WALL : ID_FLOOR_BIG;
         setTileTerrain(playerX + dirX[playerFacing], playerY + dirY[playerFacing], terrainToSet);
         playerAction = PLAYER_EARTH_BEND;
+        playerSightId++;
 
         #ifdef DEBUG
             mgba_printf(MGBA_LOG_INFO, "pressed A");

@@ -37,22 +37,24 @@ static void checkLOS(int x1, int y1, int const x2, int const y2)
             setTileSight(x1, y1, playerSightId);
         }
 
-        if ((x1 == x2 && y1 == y2) || isSolid(x1, y1)
-        // If NOT a horizontal or vertical line and is crossing a
-        // diagonal between two solid tiles
-        || ((x1 != x2 && y1 != y2) && (isSolid(x1 + sx, y1) && isSolid(x1, y1 +sy))))
-        {
-            // Exit loop
+        // If reached end of line or solid tile, exit loop
+        if ((x1 == x2 && y1 == y2) || isSolid(x1, y1))
             break;
-        }
 
         e2 = 2 * err;
+
+        // If crossing a diagonal, and either side of the diagonal is solid but the diagonal itself isn't, exit loop
+        if (e2 >= dy && e2 <= dx && isSolid(x1 + sx, y1) && isSolid(x1, y1 + sy) && !isSolid(x1 + sx, y1 + sy))
+            break;
+
+        // Move along x-axis
         if (e2 >= dy)
         {
             err += dy;
             x1 += sx;
         } // e_xy+e_x > 0
 
+        // Move along y-axis
         if (e2 <= dx)
         {
             err += dx;

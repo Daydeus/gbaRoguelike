@@ -415,9 +415,15 @@ extern void updateGameMapSight(int const playerX, int const playerY)
     {
         for (int x = playerX - sightRange; x <= playerX + sightRange; x++)
         {
-            // Only update tiles the player actually sees
-            if (getTileSight(x, y) == playerSightId)
+            // Only update tiles that need it
+            if (getTileSight(x, y) == playerSightId || getTileSight(x, y) == playerSightId - 1)
+            {
                 drawGameMapScreenEntry(getTile(x, y));
+
+                #ifdef DEBUG_FOV
+                    mgba_printf(MGBA_LOG_DEBUG, "updateGameMapSight: (%d, %d)", x, y);
+                #endif
+            }
         }
     }
 }
