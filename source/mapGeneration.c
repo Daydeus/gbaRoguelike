@@ -101,7 +101,11 @@ static void carveMaze()
     #endif
 
     // Set the first node's tile
-    listHead->tile = getTile(1, 1);
+    listHead->tile = getTile(randomInRange(1, MAP_WIDTH_TILES - 2), randomInRange(1, MAP_HEIGHT_TILES - 2));
+
+    // Randomize the starting tile
+    while (!isSolid(listHead->tile->posX, listHead->tile->posY))
+        listHead->tile = getTile(randomInRange(1, MAP_WIDTH_TILES - 2), randomInRange(1, MAP_HEIGHT_TILES - 2));
 
     // Initialize starting node's tile data
     listHead->tile->terrainId = ID_FLOOR;
