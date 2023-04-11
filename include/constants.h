@@ -139,7 +139,10 @@ enum mapSector
 
 enum
 {
-    SIGHT_RANGE_MIN = 1,
+    SIGHT_RANGE_SELF = 0,
+    SIGHT_RANGE_MIN,
+    SIGHT_RANGE_STANDARD,
+    SIGHT_RANGE_EXTENDED,
     SIGHT_RANGE_MAX = 4
 };
 

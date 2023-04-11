@@ -41,7 +41,7 @@ bool doPauseMenuInput()
     }
     if (KEY_EQ(key_hit, KI_UP))
     {
-        sightRange += 1;//(sightRange == SIGHT_RANGE_MIN) ? SIGHT_RANGE_MAX : SIGHT_RANGE_MIN;
+        sightRange += 1;
         return true;
     }
     if (KEY_EQ(key_hit, KI_DOWN))
@@ -54,7 +54,7 @@ bool doPauseMenuInput()
         doStateTransition(STATE_GAMEPLAY);
         return false;
     }
-    sightRange = clamp(sightRange, SIGHT_RANGE_MIN, SIGHT_RANGE_MAX + 1);
+    sightRange = clamp(sightRange, SIGHT_RANGE_SELF, SIGHT_RANGE_MAX + 1);
     blendingValue = clamp(blendingValue, 0, 0x81);
     return false;
 }

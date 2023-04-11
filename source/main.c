@@ -25,7 +25,7 @@ unsigned int randomSeed = 0;
 enum state gameState = STATE_TITLE_SCREEN;
 int playerX = 1, playerY = 1;
 uint8_t playerSightId = TILE_IN_SIGHT;
-int sightRange = SIGHT_RANGE_MIN;
+int sightRange = SIGHT_RANGE_STANDARD;
 enum direction playerFacing = DIR_LEFT;
 enum playerAction playerAction = PLAYER_NO_ACTION;
 bool debugCollisionIsOff = false, debugMapIsVisible = false;
