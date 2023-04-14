@@ -55,7 +55,7 @@ void doPlayerInput()
 {
     if (KEY_EQ(key_hit, KI_LEFT) || KEY_EQ(key_held, KI_LEFT)) // Left Key
     {
-        #ifdef DEBUG
+        #ifdef DEBUG_PLAYER
             mgba_printf(MGBA_LOG_INFO, "pressed LEFT");
         #endif
 
@@ -70,7 +70,7 @@ void doPlayerInput()
     }
     else if (KEY_EQ(key_hit, KI_RIGHT) || KEY_EQ(key_held, KI_RIGHT)) // Right Key
     {
-        #ifdef DEBUG
+        #ifdef DEBUG_PLAYER
             mgba_printf(MGBA_LOG_INFO, "pressed RIGHT");
         #endif
 
@@ -85,7 +85,7 @@ void doPlayerInput()
     }
     else if (KEY_EQ(key_hit, KI_UP) || KEY_EQ(key_held, KI_UP)) // Up Key
     {
-        #ifdef DEBUG
+        #ifdef DEBUG_PLAYER
             mgba_printf(MGBA_LOG_INFO, "pressed UP");
         #endif
 
@@ -100,7 +100,7 @@ void doPlayerInput()
     }
     else if (KEY_EQ(key_hit, KI_DOWN) || KEY_EQ(key_held, KI_DOWN)) // Down Key
     {
-        #ifdef DEBUG
+        #ifdef DEBUG_PLAYER
             mgba_printf(MGBA_LOG_INFO, "pressed DOWN");
         #endif
 
@@ -121,20 +121,20 @@ void doPlayerInput()
         playerAction = PLAYER_EARTH_BEND;
         playerSightId++;
 
-        #ifdef DEBUG
+        #ifdef DEBUG_PLAYER
             mgba_printf(MGBA_LOG_INFO, "pressed A");
         #endif
     }
     if (KEY_EQ(key_hit, KI_SELECT))
     {
-        #ifdef DEBUG
+        #ifdef DEBUG_PLAYER
             mgba_printf(MGBA_LOG_INFO, "pressed SELECT");
         #endif
         doStateTransition(STATE_TITLE_SCREEN);
     }
     if (KEY_EQ(key_hit, KI_START))
     {
-        #ifdef DEBUG
+        #ifdef DEBUG_PLAYER
             mgba_printf(MGBA_LOG_INFO, "pressed START");
         #endif
         doStateTransition(STATE_MENU);
@@ -151,7 +151,7 @@ void movePlayer(int8_t const direction)
     playerX += dirX[direction];
     playerY += dirY[direction];
 
-    #ifdef DEBUG
+    #ifdef DEBUG_PLAYER
         mgba_printf(MGBA_LOG_INFO, "Player moved to: %d, %d", playerX, playerY);
         mgba_printf(MGBA_LOG_DEBUG, "Player in map sector: %d", getMapSector(playerX, playerY));
     #endif
@@ -503,7 +503,12 @@ int main(void)
             {
                 randomSeed = frameCount;
                 srand(randomSeed);
-                createGameMap();
+
+                #ifdef DEBUG
+                    mgba_printf(MGBA_LOG_INFO, "RNG Seed: %d", randomSeed);
+                #endif
+
+                generateGameMap();
                 initFOV();
                 drawHUD();
 
@@ -513,10 +518,6 @@ int main(void)
                     playerX = randomInRange(1, MAP_WIDTH_TILES - 1);
                     playerY = randomInRange(1, MAP_HEIGHT_TILES - 1);
                 } while (isSolid(playerX, playerY));
-
-                #ifdef DEBUG
-                    mgba_printf(MGBA_LOG_INFO, "RNG Seed: %d", randomSeed);
-                #endif
 
                 doStateTransition(STATE_GAMEPLAY);
             }

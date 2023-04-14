@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include <tonc.h>
 #include "constants.h"
 #include "globals.h"
@@ -53,7 +54,7 @@ static void initGameMap()
 //------------------------------------------------------------------
 static bool placeRoom(int const startingX, int const startingY, int const width, int const height)
 {
-    #ifdef DEBUG_MAP_GEN
+    #ifdef PRINT_ROOM_PLACEMENT
         mgba_printf(MGBA_LOG_DEBUG, "placeRoom: (%d, %d), width: %d, height: %d", startingX, startingY, width, height);
     #endif
 
@@ -64,7 +65,7 @@ static bool placeRoom(int const startingX, int const startingY, int const width,
     || getTileTerrain(startingX + width, startingY) != ID_WALL
     || getTileTerrain(startingX + width, startingY + height) != ID_WALL)
     {
-        #ifdef DEBUG_MAP_GEN
+        #ifdef PRINT_ROOM_PLACEMENT
             mgba_printf(MGBA_LOG_DEBUG, "    placeRoom FAILED");
         #endif
 
@@ -80,7 +81,7 @@ static bool placeRoom(int const startingX, int const startingY, int const width,
         }
     }
 
-    #ifdef DEBUG_MAP_GEN
+    #ifdef PRINT_ROOM_PLACEMENT
         mgba_printf(MGBA_LOG_DEBUG, "    placeRoom SUCCEEDED");
     #endif
 
@@ -120,7 +121,7 @@ static void carveMaze()
     // While there are still nodes(tiles) to check
     while (listHead != NULL)
     {
-        #ifdef DEBUG_MAP_GEN
+        #ifdef PRINT_MAZE_MARKING
             mgba_printf(MGBA_LOG_DEBUG, "carveMaze TOP OF LOOP");
         #endif
 
@@ -129,7 +130,7 @@ static void carveMaze()
         while (endNode->linkedNode != NULL)
             endNode = endNode->linkedNode;
 
-        #ifdef DEBUG_MAP_GEN
+        #ifdef PRINT_MAZE_MARKING
             if (currentTile == NULL)
             {
                 mgba_printf(MGBA_LOG_DEBUG, "currentTile is NULL");
@@ -155,7 +156,7 @@ static void carveMaze()
             markEndNode(listHead);
         }
 
-        #ifdef DEBUG_MAP_GEN
+        #ifdef PRINT_MAZE_MARKING
             nodeCount = getNodeCount(listHead);
             mgba_printf(MGBA_LOG_DEBUG, "Current node count: %d\n", nodeCount);
             if (nodeCount > highestNodeCount)
@@ -165,7 +166,9 @@ static void carveMaze()
 
     #ifdef DEBUG_MAP_GEN
         mgba_printf(MGBA_LOG_DEBUG, "carveMaze END");
-        mgba_printf(MGBA_LOG_DEBUG, "Highest node count: %d", highestNodeCount);
+        #ifdef PRINT_MAZE_MARKING
+            mgba_printf(MGBA_LOG_DEBUG, "Highest node count: %d", highestNodeCount);
+        #endif
     #endif
 }
 
@@ -201,11 +204,14 @@ static void ensureMapBoundarySolid()
 //------------------------------------------------------------------
 static void placeStairs()
 {
-    int positionX = randomInRange(1, MAP_WIDTH_TILES - 1);
-    int positionY = randomInRange(1, MAP_HEIGHT_TILES - 1);
+        int positionX = 0;
+        int positionY = 0;
 
     do
     {
+        positionX = randomInRange(1, MAP_WIDTH_TILES - 1);
+        positionY = randomInRange(1, MAP_HEIGHT_TILES - 1);
+
         if (!isSolid(positionX, positionY))
         {
             setTileTerrain(positionX, positionY, ID_STAIRS);
@@ -214,9 +220,6 @@ static void placeStairs()
                 mgba_printf(MGBA_LOG_DEBUG, "placeStairs: (%d, %d)", positionX, positionY);
             #endif
         }
-
-        positionX = randomInRange(1, MAP_WIDTH_TILES - 1);
-        positionY = randomInRange(1, MAP_HEIGHT_TILES - 1);
     } while (isSolid(positionX, positionY));
 }
 
@@ -238,7 +241,7 @@ static struct Tile* getUnmarkedTile(struct Tile* const tile)
         positionX = tile->posX + dirX[direction] * 2;
         positionY = tile->posY + dirY[direction] * 2;
 
-        #ifdef DEBUG_MAP_GEN
+        #ifdef PRINT_MAZE_MARKING
             mgba_printf(MGBA_LOG_DEBUG, "    getUnmarkedTile checking direction: %d", direction);
             mgba_printf(MGBA_LOG_DEBUG, "    getUnmarkedTile checking tile: (%d, %d)", positionX, positionY);
         #endif
@@ -246,7 +249,7 @@ static struct Tile* getUnmarkedTile(struct Tile* const tile)
         // Return tile if in bounds and unmarked
         if (!isOutOfBounds(positionX, positionY) && getTileTerrain(positionX, positionY) == ID_WALL)
         {
-            #ifdef DEBUG_MAP_GEN
+            #ifdef PRINT_MAZE_MARKING
                 mgba_printf(MGBA_LOG_DEBUG, "    getUnmarkedTile returned value: (%d, %d)", positionX, positionY);
             #endif
 
@@ -267,7 +270,7 @@ static struct Tile* getUnmarkedTile(struct Tile* const tile)
         direction = randomInRange(1, 4);
     }
 
-    #ifdef DEBUG_MAP_GEN
+    #ifdef PRINT_MAZE_MARKING
         mgba_printf(MGBA_LOG_DEBUG, "    getUnmarkedTile returned NULL.");
     #endif
 
@@ -334,7 +337,7 @@ static void markEndNode(struct Node* listHead)
     // Set the end node's tile's terrainId
     endNode->tile->terrainId = ID_FLOOR;
 
-    #ifdef DEBUG_MAP_GEN
+    #ifdef PRINT_MAZE_MARKING
         mgba_printf(MGBA_LOG_DEBUG, "    markEndNode endNode tile: (%d, %d)", endNode->tile->posX, endNode->tile->posY);
     #endif
 
@@ -345,7 +348,7 @@ static void markEndNode(struct Node* listHead)
     // Set the skipped-over tile's terrainId
     setTileTerrain(skippedX, skippedY, ID_FLOOR);
 
-    #ifdef DEBUG_MAP_GEN
+    #ifdef PRINT_MAZE_MARKING
         mgba_printf(MGBA_LOG_DEBUG, "    markEndNode skipped-over tile: (%d, %d)", skippedX, skippedY);
     #endif
 }
@@ -360,7 +363,7 @@ static struct Node* deleteEndNode(struct Node *listHead)
     // If listHead is NULL, there is no linked list
     if (listHead == NULL)
     {
-        #ifdef DEBUG_MAP_GEN
+        #ifdef PRINT_MAZE_MARKING
             mgba_printf(MGBA_LOG_DEBUG, "    In function deleteEndNode: listHead = NULL");
         #endif
     }
@@ -371,7 +374,7 @@ static struct Node* deleteEndNode(struct Node *listHead)
         free(listHead);
         listHead = NULL;
 
-        #ifdef DEBUG_MAP_GEN
+        #ifdef PRINT_MAZE_MARKING
             mgba_printf(MGBA_LOG_DEBUG, "    In function deleteEndNode: listHead DELETED");
         #endif
     }
@@ -410,7 +413,7 @@ static struct Node* deleteAllNodes(struct Node *listHead)
     // If listHead is NULL, there is no linked list
     if (listHead == NULL)
     {
-        #ifdef DEBUG_MAP_GEN
+        #ifdef PRINT_MAZE_MARKING
             mgba_printf(MGBA_LOG_DEBUG, "    In function deleteAllNodes: listHead = NULL");
         #endif
     }
@@ -441,7 +444,7 @@ static u32 getNodeCount(struct Node* listHead)
     // If listHead is NULL, there is no linked list
     if (listHead == NULL)
     {
-        #ifdef DEBUG_MAP_GEN
+        #ifdef PRINT_MAZE_MARKING
             mgba_printf(MGBA_LOG_DEBUG, "    In function countNodes: listHead = NULL");
         #endif
 
@@ -459,11 +462,11 @@ static u32 getNodeCount(struct Node* listHead)
 }
 
 //------------------------------------------------------------------
-// Function: createGameMap
+// Function: generateGameMap
 // 
 // Fills the gameMap[][] with content for the player to interact with.
 //------------------------------------------------------------------
-extern void createGameMap()
+extern void generateGameMap()
 {
     int placeRoomFailures = 0;
 
@@ -485,7 +488,7 @@ extern void createGameMap()
         {
             placeRoomFailures++;
 
-            #ifdef DEBUG_MAP_GEN
+            #ifdef PRINT_ROOM_PLACEMENT
                 mgba_printf(MGBA_LOG_DEBUG, "placeRoomFailures: %d\n", placeRoomFailures);
             #endif
         }
@@ -514,4 +517,38 @@ extern void createGameMap()
 
     ensureMapBoundarySolid();
     placeStairs();
+
+    #ifdef PRINT_MAP
+        for (int y = 0; y < MAP_HEIGHT_TILES; y++)
+        {
+            char mapRow[MAP_WIDTH_TILES + 1];
+            for (int c = 0; c < MAP_WIDTH_TILES + 1; c++)
+                mapRow[c] = '\0';
+
+            for (int x = 0; x < MAP_WIDTH_TILES; x++)
+            {
+                switch (getTile(x, y)->terrainId)
+                {
+                case ID_FLOOR:
+                case ID_FLOOR_MOSSY:
+                case ID_FLOOR_BIG:
+                case ID_FLOOR_CHIP:
+                    strcat(mapRow, ".");
+                    break;
+                case ID_WALL:
+                case ID_WALL_FRONT:
+                    strcat(mapRow, "#");
+                    break;
+                case ID_STAIRS:
+                    strcat(mapRow, "S");
+                    break;
+                default:
+                    strcat(mapRow, "?");
+                    break;
+                }
+
+            }
+            mgba_printf(MGBA_LOG_INFO, mapRow);
+        }
+    #endif
 }

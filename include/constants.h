@@ -2,10 +2,19 @@
 #define CONSTANTS_H
 
 
-//#define DEBUG
+#define DEBUG
 #ifdef DEBUG
+
+    //#define DEBUG_PLAYER
+
     #define DEBUG_MAP_GEN
-    #define DEBUG_FOV
+    #ifdef DEBUG_MAP_GEN
+        //#define PRINT_ROOM_PLACEMENT
+        //#define PRINT_MAZE_MARKING
+        #define PRINT_MAP
+    #endif
+
+    //#define DEBUG_FOV
 #endif
 
 #define SCREEN_BG_0 0
