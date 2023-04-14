@@ -61,6 +61,10 @@
 #define HEART_BR          0x6000001B
 #define FOV_TINT_DARK     0x6000001C
 #define FOV_TINT_LIGHT    0x6000001D
+#define STAIRS_TL         0x6000001E
+#define STAIRS_TR         0x6000001F
+#define STAIRS_BL         0x60000020
+#define STAIRS_BR         0x60000021
 
 // Player Sprite Indices
 #define PLAYER_FACING_LEFT_FR1  0
@@ -86,7 +90,8 @@ enum
     ID_FLOOR_MOSSY,                     // Just for visual variation
     ID_FLOOR_CHIP,                      // Just for visual variation
     ID_WALL,
-    ID_WALL_FRONT                       // Just for visual variation
+    ID_WALL_FRONT,                      // Just for visual variation
+    ID_STAIRS
 };
 
 enum

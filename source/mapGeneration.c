@@ -13,6 +13,7 @@ static void initGameMap();
 static bool placeRoom(int const startingX, int const startingY, int const width, int const height);
 static void carveMaze();
 static void ensureMapBoundarySolid();
+static void placeStairs();
 static struct Tile* getUnmarkedTile(struct Tile* const tile);
 static void addEndNode(struct Node* const listHead, struct Tile *tile);
 static void markEndNode(struct Node* const listHead);
@@ -191,6 +192,32 @@ static void ensureMapBoundarySolid()
     // Right Boundary: Coord (MAP_WIDTH_TILES - 1, 0) to (MAP_WIDTH_TILES - 1, MAP_HEIGHT_TILES - 1)
     for (int y = 0; y <= MAP_HEIGHT_TILES - 1; y++)
         setTileTerrain(MAP_WIDTH_TILES - 1, y, ID_WALL);
+}
+
+//------------------------------------------------------------------
+// Function: placeStairs
+// 
+// Place the tile that allows transition to the next map.
+//------------------------------------------------------------------
+static void placeStairs()
+{
+    int positionX = randomInRange(1, MAP_WIDTH_TILES - 1);
+    int positionY = randomInRange(1, MAP_HEIGHT_TILES - 1);
+
+    do
+    {
+        if (!isSolid(positionX, positionY))
+        {
+            setTileTerrain(positionX, positionY, ID_STAIRS);
+
+            #ifdef DEBUG_MAP_GEN
+                mgba_printf(MGBA_LOG_DEBUG, "placeStairs: (%d, %d)", positionX, positionY);
+            #endif
+        }
+
+        positionX = randomInRange(1, MAP_WIDTH_TILES - 1);
+        positionY = randomInRange(1, MAP_HEIGHT_TILES - 1);
+    } while (isSolid(positionX, positionY));
 }
 
 //------------------------------------------------------------------
@@ -486,4 +513,5 @@ extern void createGameMap()
     }
 
     ensureMapBoundarySolid();
+    placeStairs();
 }

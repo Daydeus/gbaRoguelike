@@ -193,6 +193,20 @@ static int* getTilesetIndex(struct Tile* const tile, uint8_t const screenEntryCo
         default:                                     break;
         }
         break;
+    case ID_STAIRS:                                     // ID_STAIRS
+        switch (screenEntryCorner)
+        {
+        case SCREEN_ENTRY_TL:
+            tilesetIndex = (int*)STAIRS_TL;          break;
+        case SCREEN_ENTRY_TR:
+            tilesetIndex = (int*)STAIRS_TR;          break;
+        case SCREEN_ENTRY_BL:
+            tilesetIndex = (int*)STAIRS_BL;          break;
+        case SCREEN_ENTRY_BR:
+            tilesetIndex = (int*)STAIRS_BR;          break;
+        default:                                     break;
+        }
+        break;
     default:
         tilesetIndex = (int*)TRANSPARENT;             // TRANSPARENT
         break;

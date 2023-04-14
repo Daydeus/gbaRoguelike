@@ -155,6 +155,10 @@ void movePlayer(int8_t const direction)
         mgba_printf(MGBA_LOG_INFO, "Player moved to: %d, %d", playerX, playerY);
         mgba_printf(MGBA_LOG_DEBUG, "Player in map sector: %d", getMapSector(playerX, playerY));
     #endif
+
+    // If player found stairs
+    if (getTileTerrain(playerX, playerY) == ID_STAIRS)
+        doStateTransition(STATE_TITLE_SCREEN);
 }
 
 //------------------------------------------------------------------
@@ -483,6 +487,7 @@ int main(void)
     // Load tiles and palette of sprite into video and palete RAM
     memcpy32(&tile_mem[4][0], playerSpriteTiles, playerSpriteTilesLen / 4);
     memcpy32(pal_obj_mem, playerSpritePal, playerSpritePalLen / 4);
+
     oam_init(obj_buffer, 128);
 
     while (1)
@@ -507,7 +512,7 @@ int main(void)
                 {
                     playerX = randomInRange(1, MAP_WIDTH_TILES - 1);
                     playerY = randomInRange(1, MAP_HEIGHT_TILES - 1);
-                } while(isSolid(playerX, playerY));
+                } while (isSolid(playerX, playerY));
 
                 #ifdef DEBUG
                     mgba_printf(MGBA_LOG_INFO, "RNG Seed: %d", randomSeed);
