@@ -117,7 +117,8 @@ void doPlayerInput()
     if (KEY_EQ(key_hit, KI_A))
     {
         uint8_t terrainToSet = getTileTerrain(playerX + dirX[playerFacing], playerY + dirY[playerFacing]) != ID_WALL ? ID_WALL : ID_FLOOR_BIG;
-        setTileTerrain(playerX + dirX[playerFacing], playerY + dirY[playerFacing], terrainToSet);
+        if (getTileTerrain(playerX + dirX[playerFacing], playerY + dirY[playerFacing]) != ID_STAIRS)
+            setTileTerrain(playerX + dirX[playerFacing], playerY + dirY[playerFacing], terrainToSet);
         playerAction = PLAYER_EARTH_BEND;
         playerSightId++;
 
