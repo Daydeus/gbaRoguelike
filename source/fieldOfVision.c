@@ -10,56 +10,55 @@
 //------------------------------------------------------------------
 // Function Prototypes
 //------------------------------------------------------------------
-static void checkLOS(int x1, int y1, int const x2, int const y2);
+static void markLOS(int startX, int startY, int const endX, int const endY);
 static void drawFOV(int positionX, int positionY);
 static void resetFOV();
 
 //------------------------------------------------------------------
-// Function: checkLOS
+// Function: markLOS
 // 
-// Uses Bresenham's algorithm to step through a line from (x1, y1)
-// to (x2, y2). At each step, it sets the sightId of the tile.
+// Walks through a line using function getTileDirInline (which uses
+// Bresenham's algorithm) and marks all applicable tiles as in LOS.
+//
+// Used only for showing the tiles visible to the player, as non-marked
+// tiles are shadow-blended.
 //------------------------------------------------------------------
-static void checkLOS(int x1, int y1, int const x2, int const y2)
+static void markLOS(int startX, int startY, int const endX, int const endY)
 {
-    int dx =  ABS(x2 - x1), sx = x1 < x2 ? 1 : -1;
-    int dy = -ABS(y2 - y1), sy = y1 < y2 ? 1 : -1;
-    int err = dx + dy, e2; // error value e_xy
- 
-    for (;;)
+    int currentX = startX, currentY = startY;
+    enum direction direction = DIR_NULL;
+
+    while(1)
     {
-        if (!isOutOfBounds(x1, y1))
-        {
-            #ifdef DEBUG_FOV
-                mgba_printf(MGBA_LOG_DEBUG, "checkLOS (%d, %d)", x1, y1);
-            #endif
+        #ifdef DEBUG_FOV
+            mgba_printf(MGBA_LOG_DEBUG, "markLOS (%d, %d)", currentX, currentY);
+        #endif
 
-            setTileSight(x1, y1, playerSightId);
-        }
+        // Checks if we moved diagonally along the line, and if the current tile is non-solid but the
+        // tiles to either side of the diagonal ARE solid, exit loop
+        if (direction == DIR_UP_LEFT && !isSolid(currentX, currentY)
+        && isSolid(currentX + dirX[DIR_RIGHT], currentY) && isSolid(currentX, currentY + dirY[DIR_DOWN]))
+            break;
+        else if (direction == DIR_UP_RIGHT && !isSolid(currentX, currentY)
+        && isSolid(currentX + dirX[DIR_LEFT], currentY) && isSolid(currentX, currentY + dirY[DIR_DOWN]))
+            break;
+        if (direction == DIR_DOWN_LEFT && !isSolid(currentX, currentY)
+        && isSolid(currentX + dirX[DIR_RIGHT], currentY) && isSolid(currentX, currentY + dirY[DIR_UP]))
+            break;
+        if (direction == DIR_DOWN_RIGHT && !isSolid(currentX, currentY)
+        && isSolid(currentX + dirX[DIR_LEFT], currentY) && isSolid(currentX, currentY + dirY[DIR_UP]))
+            break;
+        else // Mark the current tile as visible(in line-of-sight)
+            setTileSight(currentX, currentY, playerSightId);
 
-        // If reached end of line or solid tile, exit loop
-        if ((x1 == x2 && y1 == y2) || isSolid(x1, y1))
+        // Check the non-diagonal conditions for ending loop
+        if ((currentX == endX && currentY == endY) || isSolid(currentX, currentY))
             break;
 
-        e2 = 2 * err;
-
-        // If crossing a diagonal, and either side of the diagonal is solid but the diagonal itself isn't, exit loop
-        if (e2 >= dy && e2 <= dx && isSolid(x1 + sx, y1) && isSolid(x1, y1 + sy) && !isSolid(x1 + sx, y1 + sy))
-            break;
-
-        // Move along x-axis
-        if (e2 >= dy)
-        {
-            err += dy;
-            x1 += sx;
-        } // e_xy+e_x > 0
-
-        // Move along y-axis
-        if (e2 <= dx)
-        {
-            err += dx;
-            y1 += sy;
-        } // e_xy+e_y < 0
+        // Make the next tile on the line the current one
+        direction = getTileDirInLine(currentX, currentY, endX, endY);
+        currentX += dirX[direction];
+        currentY += dirY[direction];
     }
 }
 
@@ -216,19 +215,65 @@ extern void doFOV(int const positionX, int const positionY, int const sightRange
 
     // Top Boundary
     for (int x = positionX - sightRange; x <= positionX + sightRange; x++)
-        checkLOS(positionX, positionY, x, positionY - sightRange);
+        markLOS(positionX, positionY, x, positionY - sightRange);
 
     // Bottom Boundary
     for (int x = positionX - sightRange; x <= positionX + sightRange; x++)
-        checkLOS(positionX, positionY, x, positionY + sightRange);
+        markLOS(positionX, positionY, x, positionY + sightRange);
 
     // Left Boundary
     for (int y = positionY - sightRange; y <= positionY + sightRange; y++)
-        checkLOS(positionX, positionY, positionX - sightRange, y);
+        markLOS(positionX, positionY, positionX - sightRange, y);
 
     // Right Boundary
     for (int y = positionY - sightRange; y <= positionY + sightRange; y++)
-        checkLOS(positionX, positionY, positionX + sightRange, y);
+        markLOS(positionX, positionY, positionX + sightRange, y);
 
     drawFOV(positionX, positionY);
+}
+
+//------------------------------------------------------------------
+// Function: checkLOS
+// 
+// Walks through a line using function getTileDirInline (which uses
+// Bresenham's algorithm) and returns false if any tiles block sight.
+//------------------------------------------------------------------
+extern bool checkLOS(int startX, int startY, int const endX, int const endY)
+{
+    int currentX = startX, currentY = startY;
+    enum direction direction = DIR_NULL;
+
+    while(1)
+    {
+        #ifdef DEBUG_FOV
+            mgba_printf(MGBA_LOG_DEBUG, "checkLOS (%d, %d)", currentX, currentY);
+        #endif
+
+        // Ensure that line-of-sight doesn't cross diagonally through walls
+        if (direction == DIR_UP_LEFT && !isSolid(currentX, currentY)
+        && isSolid(currentX + dirX[DIR_RIGHT], currentY) && isSolid(currentX, currentY + dirY[DIR_DOWN]))
+            return false;
+        else if (direction == DIR_UP_RIGHT && !isSolid(currentX, currentY)
+        && isSolid(currentX + dirX[DIR_LEFT], currentY) && isSolid(currentX, currentY + dirY[DIR_DOWN]))
+            return false;
+        if (direction == DIR_DOWN_LEFT && !isSolid(currentX, currentY)
+        && isSolid(currentX + dirX[DIR_RIGHT], currentY) && isSolid(currentX, currentY + dirY[DIR_UP]))
+            return false;
+        if (direction == DIR_DOWN_RIGHT && !isSolid(currentX, currentY)
+        && isSolid(currentX + dirX[DIR_LEFT], currentY) && isSolid(currentX, currentY + dirY[DIR_UP]))
+            return false;
+
+        // Check the non-diagonal conditions for ending loop
+        if (isSolid(currentX, currentY))
+            return false;
+        else if (currentX == endX && currentY == endY)
+            break;
+
+        // Make the next tile on the line the current one
+        direction = getTileDirInLine(currentX, currentY, endX, endY);
+        currentX += dirX[direction];
+        currentY += dirY[direction];
+    }
+    // Should only return true if loop reached end position without being solid
+    return true;
 }

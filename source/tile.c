@@ -361,8 +361,8 @@ extern void setTileSight(int const positionX, int const positionY, uint8_t const
 //------------------------------------------------------------------
 // Function: getTileDirection
 // 
-// Returns the cardinal direction required to reach the endingTile
-// from the startingTile.
+// Given two positions, returns the direction of travel to get from
+// the start to the end. Used only for adjacent tiles.
 //------------------------------------------------------------------
 extern enum direction getTileDirection(int const startX, int const startY, int const endX, int const endY)
 {
@@ -371,22 +371,76 @@ extern enum direction getTileDirection(int const startX, int const startY, int c
     int distanceY = endY - startY;
 
     // Set direction
-    if (distanceY > 0) direction = DIR_DOWN;
-    else if (distanceY < 0) direction = DIR_UP;
-    if (distanceX > 0) direction = DIR_RIGHT;
-    else if (distanceX < 0) direction = DIR_LEFT;
-
-    // Error check for non-cardinal direction
-    if (distanceY > 0 && distanceX > 0)
+    if (distanceY < 0)
     {
-        direction = DIR_NULL;
-
-        #ifdef DEBUG_MAP_GEN
-            mgba_printf(MGBA_LOG_DEBUG, "getTileDirection returned NULL. Non-cardinal direction detected.");
-        #endif
+        if (distanceX < 0)
+            direction = DIR_UP_LEFT;
+        else if (distanceX == 0)
+            direction = DIR_UP;
+        else
+            direction = DIR_UP_RIGHT;
+    }
+    else if (distanceY == 0)
+    {
+        if (distanceX < 0)
+            direction = DIR_LEFT;
+        else if (distanceX > 0)
+            direction = DIR_RIGHT;
+        else
+            direction = DIR_NULL;
+    }
+    else if (distanceY > 0)
+    {
+        if (distanceX < 0)
+            direction = DIR_DOWN_LEFT;
+        else if (distanceX == 0)
+            direction = DIR_DOWN;
+        else
+            direction = DIR_DOWN_RIGHT;
     }
 
+    #ifdef DEBUG_MAP_GEN
+        mgba_printf(MGBA_LOG_DEBUG, "getTileDirection returned NULL.");
+    #endif
+
     return direction;
+}
+
+//------------------------------------------------------------------
+// Function: getTileDirInLine
+// 
+// Given a starting and ending position, calculate the line between
+// the two using Bresenham's algorithm and return the direction of
+// the next tile along the line.
+//
+// Call in a loop to traverse and perform an action along the whole line.
+//------------------------------------------------------------------
+enum direction getTileDirInLine(int startX, int startY, int const endX, int const endY)
+{
+    int changeInX =  ABS(endX - startX);
+    int changeInY = -ABS(endY - startY);
+    int stepOfX = startX < endX ? dirX[DIR_RIGHT] : dirX[DIR_LEFT];
+    int stepOfY = startY < endY ? dirY[DIR_DOWN] : dirY[DIR_UP];
+    int err = changeInX + changeInY, e2; // error value e_xy
+    int nextX = startX, nextY = startY;
+
+    e2 = 2 * err;
+
+    // Move along x-axis
+    if (e2 >= changeInY)
+    {
+        err += changeInY;
+        nextX += stepOfX;
+    } // e_xy+e_x > 0
+
+    // Move along y-axis
+    if (e2 <= changeInX)
+    {
+        err += changeInX;
+        nextY += stepOfY;
+    } // e_xy+e_y < 0
+
+    return getTileDirection(startX, startY, nextX, nextY);
 }
 
 //------------------------------------------------------------------

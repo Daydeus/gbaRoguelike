@@ -22,6 +22,7 @@ extern void setTileTerrain(int const positionX, int const positionY, uint8_t con
 extern uint8_t getTileSight(int const positionX, int const positionY);
 extern void setTileSight(int const positionX, int const positionY, uint8_t const sightId);
 extern enum direction getTileDirection(int const startX, int const startY, int const endX, int const endY);
+extern enum direction getTileDirInLine(int const startX, int const startY, int const endX, int const endY);
 
 extern void loadGameMap();
 extern void updateGameMapSight(int const playerX, int const playerY);

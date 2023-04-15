@@ -2,19 +2,19 @@
 #define CONSTANTS_H
 
 
-#define DEBUG
+//#define DEBUG
 #ifdef DEBUG
 
-    //#define DEBUG_PLAYER
+    #define DEBUG_PLAYER
 
     #define DEBUG_MAP_GEN
     #ifdef DEBUG_MAP_GEN
-        //#define PRINT_ROOM_PLACEMENT
-        //#define PRINT_MAZE_MARKING
+        #define PRINT_ROOM_PLACEMENT
+        #define PRINT_MAZE_MARKING
         #define PRINT_MAP
     #endif
 
-    //#define DEBUG_FOV
+    #define DEBUG_FOV
 #endif
 
 #define SCREEN_BG_0 0
@@ -124,7 +124,11 @@ enum direction
     DIR_LEFT,
     DIR_RIGHT,
     DIR_UP,
-    DIR_DOWN
+    DIR_DOWN,
+    DIR_UP_LEFT,
+    DIR_UP_RIGHT,
+    DIR_DOWN_LEFT,
+    DIR_DOWN_RIGHT
 };
 
 enum
