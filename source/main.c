@@ -53,7 +53,7 @@ static void loadPlayerSprite(uint16_t const playerScreenX, uint16_t const player
 //------------------------------------------------------------------
 void doPlayerInput()
 {
-    if (KEY_EQ(key_hit, KI_LEFT) || KEY_EQ(key_held, KI_LEFT)) // Left Key
+    if ((KEY_EQ(key_hit, KI_LEFT) || KEY_EQ(key_held, KI_LEFT)) && !KEY_EQ(key_held, KI_B)) // Left Key
     {
         #ifdef DEBUG_PLAYER
             mgba_printf(MGBA_LOG_INFO, "pressed LEFT");
@@ -68,7 +68,7 @@ void doPlayerInput()
             playerSightId++;
         }
     }
-    else if (KEY_EQ(key_hit, KI_RIGHT) || KEY_EQ(key_held, KI_RIGHT)) // Right Key
+    else if ((KEY_EQ(key_hit, KI_RIGHT) || KEY_EQ(key_held, KI_RIGHT)) && !KEY_EQ(key_held, KI_B)) // Right Key
     {
         #ifdef DEBUG_PLAYER
             mgba_printf(MGBA_LOG_INFO, "pressed RIGHT");
@@ -83,7 +83,7 @@ void doPlayerInput()
             playerSightId++;
         }
     }
-    else if (KEY_EQ(key_hit, KI_UP) || KEY_EQ(key_held, KI_UP)) // Up Key
+    else if ((KEY_EQ(key_hit, KI_UP) || KEY_EQ(key_held, KI_UP)) && !KEY_EQ(key_held, KI_B)) // Up Key
     {
         #ifdef DEBUG_PLAYER
             mgba_printf(MGBA_LOG_INFO, "pressed UP");
@@ -98,7 +98,7 @@ void doPlayerInput()
             playerSightId++;
         }
     }
-    else if (KEY_EQ(key_hit, KI_DOWN) || KEY_EQ(key_held, KI_DOWN)) // Down Key
+    else if ((KEY_EQ(key_hit, KI_DOWN) || KEY_EQ(key_held, KI_DOWN)) && !KEY_EQ(key_held, KI_B)) // Down Key
     {
         #ifdef DEBUG_PLAYER
             mgba_printf(MGBA_LOG_INFO, "pressed DOWN");
@@ -126,6 +126,19 @@ void doPlayerInput()
             mgba_printf(MGBA_LOG_INFO, "pressed A");
         #endif
     }
+
+    if (KEY_EQ(key_held, KI_B))
+    {
+        if (KEY_EQ(key_hit, KI_LEFT))
+            playerFacing = DIR_LEFT;
+        else if (KEY_EQ(key_hit, KI_RIGHT))
+            playerFacing = DIR_RIGHT;
+        else if (KEY_EQ(key_hit, KI_UP))
+            playerFacing = DIR_UP;
+        else if (KEY_EQ(key_hit, KI_DOWN))
+            playerFacing = DIR_DOWN;
+    }
+
     if (KEY_EQ(key_hit, KI_SELECT))
     {
         #ifdef DEBUG_PLAYER
