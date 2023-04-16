@@ -53,7 +53,7 @@ static void loadPlayerSprite(uint16_t const playerScreenX, uint16_t const player
 //------------------------------------------------------------------
 void doPlayerInput()
 {
-    if ((KEY_EQ(key_hit, KI_LEFT) || KEY_EQ(key_held, KI_LEFT)) && !KEY_EQ(key_held, KI_B)) // Left Key
+    if ((KEY_EQ(key_hit, KI_LEFT) || KEY_EQ(key_held, KI_LEFT)) && !KEY_EQ(key_held, KI_R)) // Left Key
     {
         #ifdef DEBUG_PLAYER
             mgba_printf(MGBA_LOG_INFO, "pressed LEFT");
@@ -68,7 +68,7 @@ void doPlayerInput()
             playerSightId++;
         }
     }
-    else if ((KEY_EQ(key_hit, KI_RIGHT) || KEY_EQ(key_held, KI_RIGHT)) && !KEY_EQ(key_held, KI_B)) // Right Key
+    else if ((KEY_EQ(key_hit, KI_RIGHT) || KEY_EQ(key_held, KI_RIGHT)) && !KEY_EQ(key_held, KI_R)) // Right Key
     {
         #ifdef DEBUG_PLAYER
             mgba_printf(MGBA_LOG_INFO, "pressed RIGHT");
@@ -83,7 +83,7 @@ void doPlayerInput()
             playerSightId++;
         }
     }
-    else if ((KEY_EQ(key_hit, KI_UP) || KEY_EQ(key_held, KI_UP)) && !KEY_EQ(key_held, KI_B)) // Up Key
+    else if ((KEY_EQ(key_hit, KI_UP) || KEY_EQ(key_held, KI_UP)) && !KEY_EQ(key_held, KI_R)) // Up Key
     {
         #ifdef DEBUG_PLAYER
             mgba_printf(MGBA_LOG_INFO, "pressed UP");
@@ -98,7 +98,7 @@ void doPlayerInput()
             playerSightId++;
         }
     }
-    else if ((KEY_EQ(key_hit, KI_DOWN) || KEY_EQ(key_held, KI_DOWN)) && !KEY_EQ(key_held, KI_B)) // Down Key
+    else if ((KEY_EQ(key_hit, KI_DOWN) || KEY_EQ(key_held, KI_DOWN)) && !KEY_EQ(key_held, KI_R)) // Down Key
     {
         #ifdef DEBUG_PLAYER
             mgba_printf(MGBA_LOG_INFO, "pressed DOWN");
@@ -127,7 +127,7 @@ void doPlayerInput()
         #endif
     }
 
-    if (KEY_EQ(key_held, KI_B))
+    if (KEY_EQ(key_held, KI_R))
     {
         if (KEY_EQ(key_hit, KI_LEFT))
             playerFacing = DIR_LEFT;
