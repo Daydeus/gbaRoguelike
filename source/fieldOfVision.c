@@ -2,6 +2,7 @@
 #include <string.h>
 #include <tonc.h>
 #include "constants.h"
+#include "debug.h"
 #include "fieldOfVision.h"
 #include "globals.h"
 #include "mgba.h"

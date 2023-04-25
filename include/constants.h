@@ -1,22 +1,6 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
-
-//#define DEBUG
-#ifdef DEBUG
-
-    #define DEBUG_PLAYER
-
-    #define DEBUG_MAP_GEN
-    #ifdef DEBUG_MAP_GEN
-        #define PRINT_ROOM_PLACEMENT
-        #define PRINT_MAZE_MARKING
-        #define PRINT_MAP
-    #endif
-
-    #define DEBUG_FOV
-#endif
-
 #define SCREEN_BG_0 0
 #define SCREEN_BG_1 1
 #define SCREEN_BG_2 2
@@ -34,10 +18,7 @@
 #define PAUSE_MENU_SB 20
 #define GAME_HUD_SB   25
 #define FOV_SB        26         // Screen Block for Field-of-Vision
-#define GAME_MAP_SB1  27           // First Screen Block for gameMap
-#define GAME_MAP_SB2  28          // Second Screen Block for gameMap
-#define GAME_MAP_SB3  29           // Third Screen Block for gameMap
-#define GAME_MAP_SB4  30          // Fourth Screen Block for gameMap
+#define GAME_MAP_SB   30                 // Screen Block for gameMap
 
 // Tileset Indices
 #define TRANSPARENT       0x06000000

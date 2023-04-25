@@ -24,7 +24,8 @@ extern void setTileSight(int const positionX, int const positionY, uint8_t const
 extern enum direction getTileDirection(int const startX, int const startY, int const endX, int const endY);
 extern enum direction getTileDirInLine(int const startX, int const startY, int const endX, int const endY);
 
-extern void loadGameMap();
+extern void drawGameMap();
+extern void redrawGameMapEdge(enum playerAction playerWalkedDir);
 extern void updateGameMapSight(int const playerX, int const playerY);
 
 extern bool isOutOfBounds(uint8_t const positionX, uint8_t const positionY);

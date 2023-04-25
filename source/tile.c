@@ -1,6 +1,7 @@
 #include <tonc.h>
 #include <string.h>
 #include "constants.h"
+#include "debug.h"
 #include "globals.h"
 #include "mapGeneration.h"
 #include "mgba.h"
@@ -11,81 +12,37 @@
 //------------------------------------------------------------------
 // Function Prototypes
 //------------------------------------------------------------------
-static void drawGameMapScreenEntry(struct Tile* const tile);
-static int getScreenBlock(int const positionX, int const positionY);
-static int getScreenEntryTL(int const positionX, int const positionY, int const screenBlock);
+static void drawTile(struct Tile* const tile, int const screenEntryTL);
 static int* getTilesetIndex(struct Tile* const tile, uint8_t const screenEntryCorner);
 static uint8_t getDynamicTerrainId(struct Tile* const tile);
 static uint8_t getNumberNeighborsOfType(int const positionX, int const positionY, int const terrainId);
 static struct Tile* getRandomTileOfType(uint8_t const terrainId);
 
 //------------------------------------------------------------------
-// Function: drawGameMapScreenEntry
+// Function: drawTile
 // 
-// Update the four screen entries of a given tile in the gameMap[][].
+// Draws all four corners of a 16x16 tile using the given top-left screen
+// entry.
 //------------------------------------------------------------------
-static void drawGameMapScreenEntry(struct Tile* tile)
+static void drawTile(struct Tile* const tile, int const screenEntryTL)
 {
-    // Find where (and on which screen block) to draw the tile
-    int screenBlock = getScreenBlock(tile->posX, tile->posY);
-    int screenEntryTL = getScreenEntryTL(tile->posX, tile->posY, screenBlock); // screenEntryTopLeft
-    int screenEntryTR = screenEntryTL + 1;                                    // screenEntryTopRight
-    int screenEntryBL = screenEntryTL + SCREEN_BLOCK_SIZE;                  // screenEntryBottomLeft
-    int screenEntryBR = screenEntryBL + 1;                                 // screenEntryBottomRight
-    int *tileToDraw = NULL;
+    int* tilesetIndex = NULL;
 
-    // Get and copy the 8x8 tile into map memory
-    tileToDraw = getTilesetIndex(tile, SCREEN_ENTRY_TL);
-    memcpy(&se_mem[screenBlock][screenEntryTL], &tileToDraw, 2);
+    // Top-left screen entry
+    tilesetIndex = getTilesetIndex(tile, SCREEN_ENTRY_TL);
+    memcpy(&se_mem[GAME_MAP_SB][screenEntryTL], &tilesetIndex, 2);
 
-    tileToDraw = getTilesetIndex(tile, SCREEN_ENTRY_TR);
-    memcpy(&se_mem[screenBlock][screenEntryTR], &tileToDraw, 2);
+    // Top-right screen entry
+    tilesetIndex = getTilesetIndex(tile, SCREEN_ENTRY_TR);
+    memcpy(&se_mem[GAME_MAP_SB][screenEntryTL + 1], &tilesetIndex, 2);
 
-    tileToDraw = getTilesetIndex(tile, SCREEN_ENTRY_BL);
-    memcpy(&se_mem[screenBlock][screenEntryBL], &tileToDraw, 2);
+    // Bottom-left screen entry
+    tilesetIndex = getTilesetIndex(tile, SCREEN_ENTRY_BL);
+    memcpy(&se_mem[GAME_MAP_SB][screenEntryTL + SCREEN_BLOCK_SIZE], &tilesetIndex, 2);
 
-    tileToDraw = getTilesetIndex(tile, SCREEN_ENTRY_BR);
-    memcpy(&se_mem[screenBlock][screenEntryBR], &tileToDraw, 2);
-}
-
-//------------------------------------------------------------------
-// Function: getScreenBlock
-// 
-// Returns on which screen block a tile should be drawn by using the
-// given position.
-//------------------------------------------------------------------
-static int getScreenBlock(int const positionX, int const positionY)
-{
-    if (positionX <= MAP_WIDTH_TILES / 2 - 1 && positionY <= MAP_HEIGHT_TILES / 2 - 1)
-        return GAME_MAP_SB1;
-    else if (positionX > MAP_WIDTH_TILES / 2 - 1 && positionY <= MAP_HEIGHT_TILES / 2 - 1)
-        return GAME_MAP_SB2;
-    else if (positionX <= MAP_WIDTH_TILES / 2 - 1 && positionY > MAP_HEIGHT_TILES / 2 - 1)
-        return GAME_MAP_SB3;
-    else
-        return GAME_MAP_SB4;
-}
-
-//------------------------------------------------------------------
-// Function: getScreenEntryTL
-// 
-// Returns where the top-left screen entry of a tile at the given
-// position, within the given screen block, should be drawn.
-//------------------------------------------------------------------
-static int getScreenEntryTL(int const positionX, int const positionY, int const screenBlock)
-{
-    int screenEntry = 0;
-
-    switch (screenBlock)
-    {
-    case GAME_MAP_SB1: screenEntry = 2* (positionY * SCREEN_BLOCK_SIZE + positionX); break;
-    case GAME_MAP_SB2: screenEntry = 2* (positionY * SCREEN_BLOCK_SIZE + positionX) - SCREEN_BLOCK_SIZE; break;
-    case GAME_MAP_SB3: screenEntry = 2* (positionY * SCREEN_BLOCK_SIZE + positionX) - SCREEN_BLOCK_SIZE*SCREEN_BLOCK_SIZE; break;
-    case GAME_MAP_SB4: screenEntry = 2* (positionY * SCREEN_BLOCK_SIZE + positionX) - SCREEN_BLOCK_SIZE*(SCREEN_BLOCK_SIZE + 1); break;
-    default:
-    }
-
-    return screenEntry;
+    // Bottom-right screen entry
+    tilesetIndex = getTilesetIndex(tile, SCREEN_ENTRY_BR);
+    memcpy(&se_mem[GAME_MAP_SB][screenEntryTL + SCREEN_BLOCK_SIZE + 1], &tilesetIndex, 2);
 }
 
 //------------------------------------------------------------------
@@ -97,14 +54,16 @@ static int getScreenEntryTL(int const positionX, int const positionY, int const 
 //------------------------------------------------------------------
 static int* getTilesetIndex(struct Tile* const tile, uint8_t const screenEntryCorner)
 {
-    // Tile corners are arranged sequentially in memory.
-    // Corner Top-Left, Top-Right, Bottom-Left, Bottom-Right
-    uint8_t tileSubId = getDynamicTerrainId(tile);
+    uint8_t tileSubId = 0;
     int *tilesetIndex = NULL;
 
-    // If player has never seen tile, tile's terrain doesn't matter
-    if (tile->sightId == TILE_NEVER_SEEN && debugMapIsVisible == false)
+    // Conditions for immediate return
+    if (tile == NULL)
         return (int*)BLANK_BLACK;
+    else if (tile->sightId == TILE_NEVER_SEEN && debugMapIsVisible == false)
+        return (int*)BLANK_BLACK;
+
+    tileSubId = getDynamicTerrainId(tile);
 
     switch (tileSubId)
     {
@@ -399,7 +358,7 @@ extern enum direction getTileDirection(int const startX, int const startY, int c
             direction = DIR_DOWN_RIGHT;
     }
 
-    #ifdef DEBUG_MAP_GEN
+    #ifdef PRINT_MAZE_MARKING
         mgba_printf(MGBA_LOG_DEBUG, "getTileDirection returned NULL.");
     #endif
 
@@ -444,30 +403,170 @@ enum direction getTileDirInLine(int startX, int startY, int const endX, int cons
 }
 
 //------------------------------------------------------------------
-// Function: loadGameMap
+// Function: drawGameMap
 // 
-// Calls function drawGameMapScreenEntry for each tile in the gameMap.
+// Fills all screen entries of the gameMap's screen block with the
+// appropriate tiles based on the player's position.
 //------------------------------------------------------------------
-extern void loadGameMap()
+extern void drawGameMap()
 {
-    // Load palette
+    int screenEntryTL = 0;                     // screenEntryTopLeft
+    int originTileX = playerX - SCREEN_WIDTH_TILES / 2;
+    int originTileY = playerY - SCREEN_HEIGHT_TILES / 2;
+
+    // Load palette (TODO: set outside function)
     memcpy(pal_bg_mem, tileset_stonePal, tileset_stonePalLen);
 
-    // Load tiles into CBB 0
+    // Load tiles into CBB 0 (TODO: set outside function)
     memcpy(&tile_mem[0][0], tileset_stoneTiles, tileset_stoneTilesLen);
 
+    #ifdef PRINT_MAP_DRAW
+        mgba_printf(MGBA_LOG_DEBUG, "drawGameMap START");
+        mgba_printf(MGBA_LOG_DEBUG, "  player position: (%d, %d)", playerX, playerY);
+        mgba_printf(MGBA_LOG_DEBUG, "  origin tile: (%d, %d)", originTileX, originTileY);
+    #endif
+
     // Copy each tile's graphic to the appropriate screen entry
-    for (int y = 0; y <= MAP_HEIGHT_TILES - 1; y++)
+    for (int y = 0; y < SCREEN_BLOCK_SIZE / 2; y++)
     {
-        for (int x = 0; x <= MAP_WIDTH_TILES - 1; x++)
+        for (int x = 0; x < SCREEN_BLOCK_SIZE / 2; x++)
         {
-            drawGameMapScreenEntry(getTile(x, y));
+            struct Tile *currentTile = getTile(originTileX + x, originTileY + y);
+
+            screenEntryTL = 2 * (y * SCREEN_BLOCK_SIZE + x);
+
+            drawTile(currentTile, screenEntryTL);
         }
     }
 
-    #ifdef DEBUG_MAP_GEN
-        mgba_printf(MGBA_LOG_INFO, "loadGameMap");
+    // (TODO: set outside function)
+    screenOffsetX = 0;
+    screenOffsetY = 0;
+
+    #ifdef PRINT_MAP_DRAW
+        mgba_printf(MGBA_LOG_DEBUG, "drawGameMap END");
     #endif
+}
+
+//------------------------------------------------------------------
+// Function: redrawGameMapEdge
+// 
+// Draws over the gameMap screenblock's farthest column or row depending
+// on the player's movement direction.
+//------------------------------------------------------------------
+extern void redrawGameMapEdge(enum playerAction playerWalkedDir)
+{
+    int screenEntryTL = 0, startingRow = 0; // Starting row screen entry
+    int tileToDrawX = 0, tileToDrawY = 0;
+
+    #ifdef PRINT_MAP_DRAW
+        mgba_printf(MGBA_LOG_DEBUG, "redrawGameMapEdge");
+    #endif
+
+    // Set the screen entry and first tile to draw based on walking direction
+    switch (playerWalkedDir)
+    {
+    case PLAYER_WALKED_LEFT:
+        screenEntryTL = screenOffsetX / TILE_SIZE;
+
+        // Loop around to first column
+        if (screenEntryTL >= SCREEN_BLOCK_SIZE / 2)
+            screenEntryTL -= SCREEN_BLOCK_SIZE / 2;
+        else if (screenEntryTL < 0)
+            screenEntryTL = SCREEN_BLOCK_SIZE / 2 - 1;
+
+        screenEntryTL = (screenEntryTL + screenOffsetY / TILE_SIZE * SCREEN_BLOCK_SIZE) * 2;
+
+        tileToDrawX = playerX - SCREEN_WIDTH_TILES / 2;
+        tileToDrawY = playerY - SCREEN_HEIGHT_TILES / 2;
+        break;
+    case PLAYER_WALKED_RIGHT:
+        screenEntryTL = screenOffsetX / TILE_SIZE + SCREEN_WIDTH_TILES - 1;
+
+        // Loop around to first column
+        if (screenEntryTL >= SCREEN_BLOCK_SIZE / 2)
+            screenEntryTL -= SCREEN_BLOCK_SIZE / 2;
+        else if (screenEntryTL < 0)
+            screenEntryTL = SCREEN_BLOCK_SIZE / 2 - 1;
+
+        screenEntryTL = (screenEntryTL + screenOffsetY / TILE_SIZE * SCREEN_BLOCK_SIZE) * 2;
+
+        tileToDrawX = playerX + SCREEN_WIDTH_TILES / 2;
+        tileToDrawY = playerY - SCREEN_HEIGHT_TILES / 2;
+        break;
+    case PLAYER_WALKED_UP:
+        screenEntryTL = (screenOffsetX / TILE_SIZE + screenOffsetY / TILE_SIZE * SCREEN_BLOCK_SIZE) * 2;
+
+        // Loop around first row
+        if (screenEntryTL > SCREEN_BLOCK_SIZE * SCREEN_BLOCK_SIZE)
+            screenEntryTL -= SCREEN_BLOCK_SIZE * SCREEN_BLOCK_SIZE;
+        else if (screenEntryTL < 0)
+            screenEntryTL = SCREEN_BLOCK_SIZE * SCREEN_BLOCK_SIZE;
+
+        tileToDrawX = playerX - SCREEN_WIDTH_TILES / 2;
+        tileToDrawY = playerY - SCREEN_HEIGHT_TILES / 2;
+        break;
+    case PLAYER_WALKED_DOWN:
+        screenEntryTL = (screenOffsetX / TILE_SIZE + (screenOffsetY / TILE_SIZE + SCREEN_HEIGHT_TILES) * SCREEN_BLOCK_SIZE) * 2;
+
+        // Loop around first row
+        if (screenEntryTL > SCREEN_BLOCK_SIZE * SCREEN_BLOCK_SIZE)
+            screenEntryTL -= SCREEN_BLOCK_SIZE * SCREEN_BLOCK_SIZE;
+        else if (screenEntryTL < 0)
+            screenEntryTL = SCREEN_BLOCK_SIZE * SCREEN_BLOCK_SIZE;
+
+        tileToDrawX = playerX - SCREEN_WIDTH_TILES / 2;
+        tileToDrawY = playerY + SCREEN_HEIGHT_TILES / 2;
+        break;
+    default:
+    }
+
+    // Store the starting row of the screen entry, in case we need to loop around
+    startingRow = screenEntryTL / SCREEN_BLOCK_SIZE;
+
+    // Loop through all tiles to be drawn
+    for (int c = 0; c < SCREEN_BLOCK_SIZE / 2; c++)
+    {
+        int currentRow = 0;
+        struct Tile *currentTile = NULL;
+
+        // Current tile loops along either column or row
+        if (playerWalkedDir == PLAYER_WALKED_LEFT || playerWalkedDir == PLAYER_WALKED_RIGHT)
+            currentTile = getTile(tileToDrawX, tileToDrawY + c);
+        else if (playerWalkedDir == PLAYER_WALKED_UP || playerWalkedDir == PLAYER_WALKED_DOWN)
+            currentTile = getTile(tileToDrawX + c, tileToDrawY);
+
+        drawTile(currentTile, screenEntryTL);
+
+        #ifdef PRINT_MAP_DRAW
+            mgba_printf(MGBA_LOG_DEBUG, "    screenEntryTL: %d", screenEntryTL);
+        #endif
+
+        // Move screenEntryTL to the next draw position
+        if (playerWalkedDir == PLAYER_WALKED_LEFT || playerWalkedDir == PLAYER_WALKED_RIGHT)
+        {
+            screenEntryTL += SCREEN_BLOCK_SIZE * 2;
+
+            // Ensure we loop around to the top of the column if necessary
+            if (screenEntryTL > SCREEN_BLOCK_SIZE * SCREEN_BLOCK_SIZE)
+                screenEntryTL -= SCREEN_BLOCK_SIZE * SCREEN_BLOCK_SIZE;
+        }
+        else if (playerWalkedDir == PLAYER_WALKED_UP || playerWalkedDir == PLAYER_WALKED_DOWN)
+        {
+            screenEntryTL += 2;
+
+            // Ensure we continue drawing on the same row
+            currentRow = screenEntryTL / SCREEN_BLOCK_SIZE;
+            if (currentRow > startingRow) screenEntryTL -= SCREEN_BLOCK_SIZE;
+            else if (currentRow < startingRow) screenEntryTL += SCREEN_BLOCK_SIZE;
+        }
+        else
+        {
+            #ifdef PRINT_MAP_DRAW
+                mgba_printf(MGBA_LOG_DEBUG, "    playerWalkedDir not cardinal direction");
+            #endif
+        }
+    }
 }
 
 //------------------------------------------------------------------
@@ -486,7 +585,7 @@ extern void updateGameMapSight(int const playerX, int const playerY)
             // Only update tiles that need it
             if (getTileSight(x, y) == playerSightId || getTileSight(x, y) == playerSightId - 1)
             {
-                drawGameMapScreenEntry(getTile(x, y));
+                //drawGameMapScreenEntry(getTile(x, y));
 
                 #ifdef DEBUG_FOV
                     mgba_printf(MGBA_LOG_DEBUG, "updateGameMapSight: (%d, %d)", x, y);
@@ -525,43 +624,4 @@ extern bool isSolid(uint8_t const positionX, uint8_t const positionY)
         return false;
     else
         return true;
-}
-
-//------------------------------------------------------------------
-// Function: getMapSector
-// 
-// Check which mapSector the position is in for determining
-// whether to offset the background scroll or player sprite
-//------------------------------------------------------------------
-extern uint8_t getMapSector(int const positionX, int const positionY)
-{
-    if (4 >= positionY)
-    {
-        if (7 >= positionX)
-            return SECTOR_TOP_LEFT;
-        else if (MAP_WIDTH_TILES - 8 <= positionX)
-            return SECTOR_TOP_RIGHT;
-        else
-            return SECTOR_TOP_MID;
-    }
-    else if (MAP_HEIGHT_TILES - 5 <= positionY)
-    {
-        if (7 >= positionX)
-            return SECTOR_BOT_LEFT;
-        else if (MAP_WIDTH_TILES - 8 <= positionX)
-            return SECTOR_BOT_RIGHT;
-        else
-            return SECTOR_BOT_MID;
-    }
-    else
-    {
-        if (7 >= positionX)
-            return SECTOR_MID_LEFT;
-        else if (MAP_WIDTH_TILES - 8 <= positionX)
-            return SECTOR_MID_RIGHT;
-        else
-            return SECTOR_MID_MID;
-    }
-
-    return SECTOR_ERROR;
 }

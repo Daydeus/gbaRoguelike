@@ -2,6 +2,7 @@
 #include <tonc.h>
 #include <string.h>
 #include "constants.h"
+#include "debug.h"
 #include "fieldOfVision.h"
 #include "globals.h"
 #include "mapGeneration.h"
@@ -28,9 +29,9 @@ uint8_t playerSightId = TILE_IN_SIGHT;
 int sightRange = SIGHT_RANGE_STANDARD;
 enum direction playerFacing = DIR_LEFT;
 enum playerAction playerAction = PLAYER_NO_ACTION;
-bool debugCollisionIsOff = false, debugMapIsVisible = false;
+bool debugCollisionIsOff = false, debugMapIsVisible = true;
 u32 blendingValue = 0x40;
-int8_t offsetX = 0, offsetY = 0;
+int8_t playerMoveOffsetX = 0, playerMoveOffsetY = 0;
 int16_t screenOffsetX = 0, screenOffsetY = 0;
 
 //------------------------------------------------------------------
@@ -39,8 +40,6 @@ int16_t screenOffsetX = 0, screenOffsetY = 0;
 static void doPlayerInput();
 static void movePlayer(int8_t const direction);
 static void drawHUD();
-static uint16_t getPlayerScreenCoord(int playerPos, uint8_t const mapSector, uint8_t const dimension);
-static uint16_t getBgOffset(uint8_t const mapSector, uint8_t const dimension);
 static void updateGraphics();
 static void loadPlayerSprite(uint16_t const playerScreenX, uint16_t const playerScreenY);
 
@@ -66,6 +65,9 @@ void doPlayerInput()
             movePlayer(playerFacing);
             playerAction = PLAYER_WALKED_LEFT;
             playerSightId++;
+
+            playerMoveOffsetX = dirX[DIR_RIGHT] * TILE_SIZE;
+            screenOffsetX += dirX[DIR_LEFT] * TILE_SIZE;
         }
     }
     else if ((KEY_EQ(key_hit, KI_RIGHT) || KEY_EQ(key_held, KI_RIGHT)) && !KEY_EQ(key_held, KI_R)) // Right Key
@@ -81,6 +83,9 @@ void doPlayerInput()
             movePlayer(playerFacing);
             playerAction = PLAYER_WALKED_RIGHT;
             playerSightId++;
+
+            playerMoveOffsetX = dirX[DIR_LEFT] * TILE_SIZE;
+            screenOffsetX += dirX[DIR_RIGHT] * TILE_SIZE;
         }
     }
     else if ((KEY_EQ(key_hit, KI_UP) || KEY_EQ(key_held, KI_UP)) && !KEY_EQ(key_held, KI_R)) // Up Key
@@ -96,6 +101,9 @@ void doPlayerInput()
             movePlayer(playerFacing);
             playerAction = PLAYER_WALKED_UP;
             playerSightId++;
+
+            playerMoveOffsetY = dirY[DIR_DOWN] * TILE_SIZE;
+            screenOffsetY += dirY[DIR_UP] * TILE_SIZE;
         }
     }
     else if ((KEY_EQ(key_hit, KI_DOWN) || KEY_EQ(key_held, KI_DOWN)) && !KEY_EQ(key_held, KI_R)) // Down Key
@@ -111,6 +119,9 @@ void doPlayerInput()
             movePlayer(playerFacing);
             playerAction = PLAYER_WALKED_DOWN;
             playerSightId++;
+
+            playerMoveOffsetY = dirY[DIR_UP] * TILE_SIZE;
+            screenOffsetY += dirY[DIR_DOWN] * TILE_SIZE;
         }
     }
 
@@ -166,8 +177,7 @@ void movePlayer(int8_t const direction)
     playerY += dirY[direction];
 
     #ifdef DEBUG_PLAYER
-        mgba_printf(MGBA_LOG_INFO, "Player moved to: %d, %d", playerX, playerY);
-        mgba_printf(MGBA_LOG_DEBUG, "Player in map sector: %d", getMapSector(playerX, playerY));
+        mgba_printf(MGBA_LOG_INFO, "Player moved to: (%d, %d)", playerX, playerY);
     #endif
 
     // If player found stairs
@@ -214,102 +224,6 @@ void drawHUD()
 }
 
 //------------------------------------------------------------------
-// Function: getPlayerScreenCoord
-// 
-// Get the coords for drawing player sprite based on map position
-//------------------------------------------------------------------
-uint16_t getPlayerScreenCoord(int playerPos, uint8_t const mapSector, uint8_t const dimension)
-{
-    uint8_t screenCoord = 0;
-
-    if (dimension == DIM_WIDTH)
-    {
-        switch(mapSector)
-        {
-        case SECTOR_TOP_LEFT:
-        case SECTOR_MID_LEFT:
-        case SECTOR_BOT_LEFT:
-            screenCoord = playerPos * TILE_SIZE;
-            break;
-        case SECTOR_TOP_RIGHT:
-        case SECTOR_MID_RIGHT:
-        case SECTOR_BOT_RIGHT:
-            screenCoord = SCREEN_WIDTH - (MAP_WIDTH_TILES - playerPos) * TILE_SIZE;
-            break;
-        default:
-            screenCoord = SCREEN_WIDTH / 2 - TILE_SIZE / 2;
-        }
-    }
-    else if (dimension == DIM_HEIGHT)
-    {
-        switch(mapSector)
-        {
-        case SECTOR_TOP_LEFT:
-        case SECTOR_TOP_MID:
-        case SECTOR_TOP_RIGHT:
-            screenCoord = (playerPos + 1) * TILE_SIZE;
-            break;
-        case SECTOR_BOT_LEFT:
-        case SECTOR_BOT_MID:
-        case SECTOR_BOT_RIGHT:
-            screenCoord = SCREEN_HEIGHT - (MAP_HEIGHT_TILES - playerPos) * TILE_SIZE;
-            break;
-        default:
-            screenCoord = SCREEN_HEIGHT / 2;
-        }
-    }
-    return screenCoord;
-}
-
-//------------------------------------------------------------------
-// Function: getBgOffset
-// 
-// Calc screen offset using player position and given dimension
-//------------------------------------------------------------------
-uint16_t getBgOffset( uint8_t const mapSector, uint8_t const dimension)
-{
-    uint16_t offsetBg = 0;
-
-    if (dimension == DIM_WIDTH)
-    {
-        switch(mapSector)
-        {
-        case SECTOR_TOP_LEFT:
-        case SECTOR_MID_LEFT:
-        case SECTOR_BOT_LEFT:
-            offsetBg = 0;
-            break;
-        case SECTOR_TOP_RIGHT:
-        case SECTOR_MID_RIGHT:
-        case SECTOR_BOT_RIGHT:
-            offsetBg = (MAP_WIDTH_TILES - SCREEN_WIDTH_TILES) * TILE_SIZE;
-            break;
-        default:
-            offsetBg = (playerX - SCREEN_WIDTH_TILES / 2) * TILE_SIZE;
-        }
-    }
-    else if (dimension == DIM_HEIGHT)
-    {
-        switch(mapSector)
-        {
-        case SECTOR_TOP_LEFT:
-        case SECTOR_TOP_MID:
-        case SECTOR_TOP_RIGHT:
-            offsetBg = (MAP_HEIGHT_TILES - 1) * TILE_SIZE;
-            break;
-        case SECTOR_BOT_LEFT:
-        case SECTOR_BOT_MID:
-        case SECTOR_BOT_RIGHT:
-            offsetBg = (MAP_HEIGHT_TILES - SCREEN_HEIGHT_TILES) * TILE_SIZE;
-            break;
-        default:
-            offsetBg = (playerY - SCREEN_HEIGHT_TILES / 2) * TILE_SIZE;
-        }
-    }
-    return offsetBg;
-}
-
-//------------------------------------------------------------------
 // Function: updateGraphics
 // 
 // Updates player sprite position and screen map offset based on
@@ -317,106 +231,48 @@ uint16_t getBgOffset( uint8_t const mapSector, uint8_t const dimension)
 //------------------------------------------------------------------
 void updateGraphics()
 {
-    uint8_t mapSector = getMapSector(playerX, playerY);
-    uint16_t playerScreenX = 0, playerScreenY = 0;
+    uint16_t playerScreenX = 112, playerScreenY = 80;
 
-    if (offsetX != 0)
-        offsetX = approachValue(offsetX, 0, 1);
-    else if (offsetY != 0)
-        offsetY = approachValue(offsetY, 0, 1);
-    else if (screenOffsetX != 0)
-        screenOffsetX = approachValue(screenOffsetX, 0, 1);
-    else if (screenOffsetY != 0)
-        screenOffsetY = approachValue(screenOffsetY, 0, 1);
-    else if (playerAction != PLAYER_NO_ACTION)
+    if (playerMoveOffsetX != 0)
+        playerMoveOffsetX = approachValue(playerMoveOffsetX, 0, 1);
+    else if (playerMoveOffsetY != 0)
+        playerMoveOffsetY = approachValue(playerMoveOffsetY, 0, 1);
+
+    // screenOffsets can loop around multiple times and can throw off calcs
+    if (screenOffsetX >= SCREEN_WIDTH + TILE_SIZE)
+        screenOffsetX -= (SCREEN_WIDTH + TILE_SIZE);
+    else if (screenOffsetX < 0)
+        screenOffsetX += (SCREEN_WIDTH + TILE_SIZE);
+
+    if (screenOffsetY >= SCREEN_WIDTH + TILE_SIZE)
+        screenOffsetY -= (SCREEN_WIDTH + TILE_SIZE);
+    else if (screenOffsetY < 0)
+        screenOffsetY += (SCREEN_WIDTH + TILE_SIZE);
+    
+
+    if (playerAction != PLAYER_NO_ACTION)
     {
-        if (playerAction < PLAYER_EARTH_BEND)
+        switch (playerAction)
         {
-            switch(mapSector)
-            {
-            case SECTOR_TOP_LEFT:
-                if (MAP_SECTOR_EDGE_UP == playerY && playerAction == PLAYER_WALKED_UP)
-                    screenOffsetY += dirY[playerFacing] * TILE_SIZE;
-                else
-                    offsetY += dirY[playerFacing] * TILE_SIZE;
-                if (MAP_SECTOR_EDGE_LEFT == playerX && playerAction == PLAYER_WALKED_LEFT)
-                    screenOffsetX += dirX[playerFacing] * TILE_SIZE;
-                else
-                    offsetX += dirX[playerFacing] * TILE_SIZE;
-                break;
-            case SECTOR_TOP_MID:
-                if (MAP_SECTOR_EDGE_UP == playerY && playerAction == PLAYER_WALKED_UP)
-                    screenOffsetY += dirY[playerFacing] * TILE_SIZE;
-                else
-                    offsetY += dirY[playerFacing] * TILE_SIZE;
-                screenOffsetX += dirX[playerFacing] * TILE_SIZE;
-                break;
-            case SECTOR_TOP_RIGHT:
-                if (MAP_SECTOR_EDGE_UP == playerY && playerAction == PLAYER_WALKED_UP)
-                    screenOffsetY += dirY[playerFacing] * TILE_SIZE;
-                else
-                    offsetY += dirY[playerAction] * TILE_SIZE;
-                if (MAP_SECTOR_EDGE_RIGHT == playerX && playerAction == PLAYER_WALKED_RIGHT)
-                    screenOffsetX += dirX[playerFacing] * TILE_SIZE;
-                else
-                    offsetX += dirX[playerFacing] * TILE_SIZE;
-                break;
-            case SECTOR_MID_LEFT:
-                screenOffsetY += dirY[playerFacing] * TILE_SIZE;
-                if (MAP_SECTOR_EDGE_LEFT == playerX && playerAction == PLAYER_WALKED_LEFT)
-                    screenOffsetX += dirX[playerFacing] * TILE_SIZE;
-                else
-                    offsetX += dirX[playerFacing] * TILE_SIZE;
-                break;
-            case SECTOR_MID_MID:
-                screenOffsetY += dirY[playerFacing] * TILE_SIZE;
-                screenOffsetX += dirX[playerFacing] * TILE_SIZE;
-                break;
-            case SECTOR_MID_RIGHT:
-                screenOffsetY += dirY[playerFacing] * TILE_SIZE;
-                if (MAP_SECTOR_EDGE_RIGHT == playerX && playerAction == PLAYER_WALKED_RIGHT)
-                    screenOffsetX += dirX[playerFacing] * TILE_SIZE;
-                else
-                    offsetX += dirX[playerFacing] * TILE_SIZE;
-                break;
-            case SECTOR_BOT_LEFT:
-                if (MAP_SECTOR_EDGE_BOT == playerY && playerAction == PLAYER_WALKED_DOWN)
-                    screenOffsetY += dirY[playerFacing] * TILE_SIZE;
-                else
-                    offsetY += dirY[playerFacing] * TILE_SIZE;
-                if (MAP_SECTOR_EDGE_LEFT == playerX && playerAction == PLAYER_WALKED_LEFT)
-                    screenOffsetX += dirX[playerFacing] * TILE_SIZE;
-                else
-                    offsetX += dirX[playerFacing] * TILE_SIZE;
-                break;
-            case SECTOR_BOT_MID:
-                if (MAP_SECTOR_EDGE_BOT == playerY && playerAction == PLAYER_WALKED_DOWN)
-                    screenOffsetY += dirY[playerFacing] * TILE_SIZE;
-                else
-                    offsetY += dirY[playerFacing] * TILE_SIZE;
-                screenOffsetX += dirX[playerFacing] * TILE_SIZE;
-                break;
-            case SECTOR_BOT_RIGHT:
-                if (MAP_SECTOR_EDGE_BOT == playerY && playerAction == PLAYER_WALKED_DOWN)
-                    screenOffsetY += dirY[playerFacing] * TILE_SIZE;
-                else
-                    offsetY += dirY[playerFacing] * TILE_SIZE;
-                if (MAP_SECTOR_EDGE_RIGHT == playerX && playerAction == PLAYER_WALKED_RIGHT)
-                    screenOffsetX += dirX[playerFacing] * TILE_SIZE;
-                else
-                    offsetX += dirX[playerFacing] * TILE_SIZE;
-                break;
-            }
+        case PLAYER_WALKED_LEFT:
+        case PLAYER_WALKED_RIGHT:
+        case PLAYER_WALKED_UP:
+        case PLAYER_WALKED_DOWN:
+            redrawGameMapEdge(playerAction);
+        default:
+            updateGameMapSight(playerX, playerY);
         }
-        updateGameMapSight(playerX, playerY);
+        #ifdef PRINT_MAP
+            printMapInLog();
+        #endif
     }
 
-    playerScreenX = getPlayerScreenCoord(playerX, mapSector, DIM_WIDTH) - offsetX;
-    playerScreenY = getPlayerScreenCoord(playerY, mapSector, DIM_HEIGHT) - offsetY;
-    REG_BG1HOFS = screenOffsetX * -1;
-    REG_BG1VOFS = screenOffsetY * -1;
-    REG_BG2HOFS = getBgOffset(mapSector, DIM_WIDTH) - screenOffsetX;
-    REG_BG2VOFS = getBgOffset(mapSector, DIM_HEIGHT) - screenOffsetY;
+    //REG_BG1HOFS = screenOffsetX * -1;
+    //REG_BG1VOFS = screenOffsetY * -1;
+
+    REG_BG2HOFS = screenOffsetX + playerMoveOffsetX;
+    REG_BG2VOFS = screenOffsetY + playerMoveOffsetY;
+
     playerAction = PLAYER_NO_ACTION;
     loadPlayerSprite(playerScreenX, playerScreenY);
     REG_BLDCNT= BLD_BUILD(
@@ -515,7 +371,7 @@ int main(void)
         case STATE_TITLE_SCREEN:
             if (__key_curr != 0)
             {
-                randomSeed = frameCount;
+                randomSeed = 2915;//frameCount;
                 srand(randomSeed);
 
                 #ifdef DEBUG
@@ -523,8 +379,8 @@ int main(void)
                 #endif
 
                 generateGameMap();
-                initFOV();
-                drawHUD();
+                //initFOV();
+                //drawHUD();
 
                 // Randomize player position
                 do
@@ -533,16 +389,20 @@ int main(void)
                     playerY = randomInRange(1, MAP_HEIGHT_TILES - 1);
                 } while (isSolid(playerX, playerY));
 
+                #ifdef PRINT_MAP
+                    printMapInLog();
+                #endif
+
+                drawGameMap();
                 doStateTransition(STATE_GAMEPLAY);
             }
             break;
         case STATE_GAMEPLAY:
-            if (offsetX == 0 && offsetY == 0 && screenOffsetX == 0
-            && screenOffsetY == 0)
+            if (playerMoveOffsetX == 0 && playerMoveOffsetY == 0)
                 doPlayerInput();
             if (playerAction != PLAYER_NO_ACTION)
             {
-                doFOV(playerX, playerY, sightRange);
+                //doFOV(playerX, playerY, sightRange);
                 REG_BLDALPHA= BLDA_BUILD(BG_0_BLEND_UP/8, blendingValue/8);
             }
             updateGraphics();
