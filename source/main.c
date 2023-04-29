@@ -29,7 +29,7 @@ uint8_t playerSightId = TILE_IN_SIGHT;
 int sightRange = SIGHT_RANGE_STANDARD;
 enum direction playerFacing = DIR_LEFT;
 enum playerAction playerAction = PLAYER_NO_ACTION;
-bool debugCollisionIsOff = false, debugMapIsVisible = true;
+bool debugCollisionIsOff = false, debugMapIsVisible = false;
 u32 blendingValue = 0x40;
 int8_t playerMoveOffsetX = 0, playerMoveOffsetY = 0;
 int16_t screenOffsetX = 0, screenOffsetY = 0;
@@ -260,16 +260,19 @@ void updateGraphics()
         case PLAYER_WALKED_DOWN:
             redrawGameMapEdge(playerAction);
         default:
-            updateGameMapSight(playerX, playerY);
+            updateGameMapSight();
         }
-        #ifdef PRINT_MAP
+        #ifdef PRINT_SIGHT_DRAW
+            printTileSightInLog();
+        #endif
+        #ifdef PRINT_MAP_DRAW
             printMapInLog();
         #endif
     }
 
-    //REG_BG1HOFS = screenOffsetX * -1;
-    //REG_BG1VOFS = screenOffsetY * -1;
-
+    // Update background scrolling offsets
+    REG_BG1HOFS = playerMoveOffsetX;
+    REG_BG1VOFS = playerMoveOffsetY;
     REG_BG2HOFS = screenOffsetX + playerMoveOffsetX;
     REG_BG2VOFS = screenOffsetY + playerMoveOffsetY;
 
@@ -371,7 +374,7 @@ int main(void)
         case STATE_TITLE_SCREEN:
             if (__key_curr != 0)
             {
-                randomSeed = 2915;//frameCount;
+                randomSeed = frameCount;//2915;
                 srand(randomSeed);
 
                 #ifdef DEBUG
@@ -379,8 +382,8 @@ int main(void)
                 #endif
 
                 generateGameMap();
-                //initFOV();
-                //drawHUD();
+                initFOV();
+                drawHUD();
 
                 // Randomize player position
                 do
@@ -389,7 +392,7 @@ int main(void)
                     playerY = randomInRange(1, MAP_HEIGHT_TILES - 1);
                 } while (isSolid(playerX, playerY));
 
-                #ifdef PRINT_MAP
+                #ifdef PRINT_MAP_DRAW
                     printMapInLog();
                 #endif
 
@@ -402,7 +405,7 @@ int main(void)
                 doPlayerInput();
             if (playerAction != PLAYER_NO_ACTION)
             {
-                //doFOV(playerX, playerY, sightRange);
+                doFOV(playerX, playerY, sightRange);
                 REG_BLDALPHA= BLDA_BUILD(BG_0_BLEND_UP/8, blendingValue/8);
             }
             updateGraphics();

@@ -31,7 +31,7 @@ static void markLOS(int startX, int startY, int const endX, int const endY)
 
     while(1)
     {
-        #ifdef DEBUG_FOV
+        #ifdef DEBUG_LOS
             mgba_printf(MGBA_LOG_DEBUG, "markLOS (%d, %d)", currentX, currentY);
         #endif
 
@@ -80,46 +80,8 @@ static void drawFOV(int positionX, int positionY)
     int currentTileX = 0, currentTileY = 0;
     
     // Get coordinates of screen entry origin
-    switch (getMapSector(positionX, positionY))
-    {
-    case SECTOR_TOP_LEFT:                         // SECTOR_TOP_LEFT
-        originTileX = 0;
-        originTileY = 0;
-        break;
-    case SECTOR_MID_LEFT:                         // SECTOR_MID_LEFT
-        originTileX = 0;
-        originTileY = positionY - (SCREEN_HEIGHT_TILES / 2 - 1);
-        break;
-    case SECTOR_BOT_LEFT:                         // SECTOR_BOT_LEFT
-        originTileX = 0;
-        originTileY = MAP_HEIGHT_TILES - (SCREEN_HEIGHT_TILES - 1);
-        break;
-    case SECTOR_TOP_MID:                           // SECTOR_TOP_MID
-        originTileX = positionX - SCREEN_WIDTH_TILES / 2;
-        originTileY = 0;
-        break;
-    case SECTOR_MID_MID:                           // SECTOR_MID_MID
-        originTileX = positionX - SCREEN_WIDTH_TILES / 2;
-        originTileY = positionY - (SCREEN_HEIGHT_TILES / 2 - 1);
-        break;
-    case SECTOR_BOT_MID:                           // SECTOR_BOT_MID
-        originTileX = positionX - SCREEN_WIDTH_TILES / 2;
-        originTileY = MAP_HEIGHT_TILES - (SCREEN_HEIGHT_TILES - 1);
-        break;
-    case SECTOR_TOP_RIGHT:                       // SECTOR_TOP_RIGHT
-        originTileX = MAP_WIDTH_TILES - SCREEN_WIDTH_TILES;
-        originTileY = 0;
-        break;
-    case SECTOR_MID_RIGHT:                       // SECTOR_MID_RIGHT
-        originTileX = MAP_WIDTH_TILES - SCREEN_WIDTH_TILES;
-        originTileY = positionY - (SCREEN_HEIGHT_TILES / 2 - 1);
-        break;
-    case SECTOR_BOT_RIGHT:                       // SECTOR_BOT_RIGHT
-        originTileX = MAP_WIDTH_TILES - SCREEN_WIDTH_TILES;
-        originTileY = MAP_HEIGHT_TILES - (SCREEN_HEIGHT_TILES - 1);
-        break;
-    default:
-    }
+    originTileX = playerX - SCREEN_WIDTH_TILES / 2;
+    originTileY = playerY - SCREEN_HEIGHT_TILES / 2 + 1;
 
     currentTileX = originTileX;
     currentTileY = originTileY;
@@ -246,7 +208,7 @@ extern bool checkLOS(int startX, int startY, int const endX, int const endY)
 
     while(1)
     {
-        #ifdef DEBUG_FOV
+        #ifdef DEBUG_LOS
             mgba_printf(MGBA_LOG_DEBUG, "checkLOS (%d, %d)", currentX, currentY);
         #endif
 

@@ -14,6 +14,8 @@
 #define SCREEN_HEIGHT_TILES    SCREEN_HEIGHT / TILE_SIZE       // 10
 
 #define SCREEN_BLOCK_SIZE 32
+// The top-left screen entry of the player's position on screen(when scrolling offsets are 0)
+#define SCREEN_ENTRY_PLAYER 336
 
 #define PAUSE_MENU_SB 20
 #define GAME_HUD_SB   25
