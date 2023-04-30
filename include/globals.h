@@ -6,6 +6,7 @@
 //------------------------------------------------------------------
 u32 randomInRange(int minimumValue, int maximumValue);
 int8_t approachValue(int8_t currentValue, int8_t const targetValue, int8_t const increment);
+bool isNumberEven(int value);
 
 //------------------------------------------------------------------
 // Global Variables

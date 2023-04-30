@@ -24,7 +24,7 @@ extern u32 randomInRange(int minimumValue, int maximumValue)
 //------------------------------------------------------------------
 // Function: approachValue
 //
-// Increment the passed variable to the target goal
+// Increment the passed variable to the target goal.
 //------------------------------------------------------------------
 extern int8_t approachValue(int8_t currentValue, int8_t const targetValue, int8_t const increment)
 {
@@ -34,4 +34,17 @@ extern int8_t approachValue(int8_t currentValue, int8_t const targetValue, int8_
         currentValue -= increment;
 
     return currentValue;
+}
+
+//------------------------------------------------------------------
+// Function: isNumberEven
+//
+// Returns whether the given number is evenly divisble by two.
+//------------------------------------------------------------------
+extern bool isNumberEven(int value)
+{
+    if (value % 2 == 0)
+        return true;
+    else
+        return false;
 }
