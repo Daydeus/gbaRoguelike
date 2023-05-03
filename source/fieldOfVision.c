@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
-#include <tonc.h>
+#include "../libtonc/include/tonc.h"
 #include "constants.h"
 #include "debug.h"
 #include "fieldOfVision.h"
@@ -199,9 +199,9 @@ extern void doFOV(int const positionX, int const positionY, int const sightRange
 // Function: checkLOS
 // 
 // Walks through a line using function getTileDirInline (which uses
-// Bresenham's algorithm) and returns false if any tiles block sight.
+// Bresenham's algorithm) and returns FALSE if any tiles block sight.
 //------------------------------------------------------------------
-extern bool checkLOS(int startX, int startY, int const endX, int const endY)
+extern boolean checkLOS(int startX, int startY, int const endX, int const endY)
 {
     int currentX = startX, currentY = startY;
     enum direction direction = DIR_NULL;
@@ -215,20 +215,20 @@ extern bool checkLOS(int startX, int startY, int const endX, int const endY)
         // Ensure that line-of-sight doesn't cross diagonally through walls
         if (direction == DIR_UP_LEFT && !isSolid(currentX, currentY)
         && isSolid(currentX + dirX[DIR_RIGHT], currentY) && isSolid(currentX, currentY + dirY[DIR_DOWN]))
-            return false;
+            return FALSE;
         else if (direction == DIR_UP_RIGHT && !isSolid(currentX, currentY)
         && isSolid(currentX + dirX[DIR_LEFT], currentY) && isSolid(currentX, currentY + dirY[DIR_DOWN]))
-            return false;
+            return FALSE;
         if (direction == DIR_DOWN_LEFT && !isSolid(currentX, currentY)
         && isSolid(currentX + dirX[DIR_RIGHT], currentY) && isSolid(currentX, currentY + dirY[DIR_UP]))
-            return false;
+            return FALSE;
         if (direction == DIR_DOWN_RIGHT && !isSolid(currentX, currentY)
         && isSolid(currentX + dirX[DIR_LEFT], currentY) && isSolid(currentX, currentY + dirY[DIR_UP]))
-            return false;
+            return FALSE;
 
         // Check the non-diagonal conditions for ending loop
         if (isSolid(currentX, currentY))
-            return false;
+            return FALSE;
         else if (currentX == endX && currentY == endY)
             break;
 
@@ -237,6 +237,6 @@ extern bool checkLOS(int startX, int startY, int const endX, int const endY)
         currentX += dirX[direction];
         currentY += dirY[direction];
     }
-    // Should only return true if loop reached end position without being solid
-    return true;
+    // Should only return TRUE if loop reached end position without being solid
+    return TRUE;
 }

@@ -6,7 +6,7 @@
 //------------------------------------------------------------------
 u32 randomInRange(int minimumValue, int maximumValue);
 int8_t approachValue(int8_t currentValue, int8_t const targetValue, int8_t const increment);
-bool isNumberEven(int value);
+boolean isNumberEven(int value);
 
 //------------------------------------------------------------------
 // Global Variables
@@ -21,7 +21,7 @@ extern int8_t const dirX[9];            // Horizontal movement array
 extern int8_t const dirY[9];              // Vertical movement array
 extern int16_t screenOffsetX, screenOffsetY;     // BG origin offset
 extern enum direction playerFacing;
-extern bool debugCollisionIsOff, debugMapIsVisible;
+extern boolean debugCollisionIsOff, debugMapIsVisible;
 extern u32 blendingValue;
 
 #endif // GLOBALS_H

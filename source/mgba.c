@@ -20,11 +20,11 @@
 */
 
 #include <sys/iosupport.h>
-#include <tonc.h>
 
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
+#include "../libtonc/include/tonc.h"
 #include "mgba.h"
 
 #define REG_DEBUG_ENABLE (vu16*) 0x4FFF780
@@ -74,16 +74,16 @@ static const devoptab_t dotab_mgba_stderr = {
 	mgba_stderr_write
 };
 
-bool mgba_console_open(void) {
+boolean mgba_console_open(void) {
 	if (!mgba_open()) {
-		return false;
+		return FALSE;
 	}
 	devoptab_list[STD_OUT] = &dotab_mgba_stdout;
 	devoptab_list[STD_ERR] = &dotab_mgba_stderr;
-	return true;
+	return TRUE;
 }
 
-bool mgba_open(void) {
+boolean mgba_open(void) {
 	*REG_DEBUG_ENABLE = 0xC0DE;
 	return *REG_DEBUG_ENABLE == 0x1DEA;
 }

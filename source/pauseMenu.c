@@ -1,5 +1,5 @@
-#include <tonc.h>
 #include <string.h>
+#include "../libtonc/include/tonc.h"
 #include "constants.h"
 #include "globals.h"
 #include "fieldOfVision.h"
@@ -66,46 +66,46 @@ static void tte_write_var_int(int const varToPrint)
 // Changes variable values by reading keys pressed with key_poll()
 // Only used while in STATE_MENU
 //------------------------------------------------------------------
-extern bool doPauseMenuInput()
+extern boolean doPauseMenuInput()
 {
     if (KEY_EQ(key_hit, KI_A))
     {
-        debugCollisionIsOff = (debugCollisionIsOff == false) ? true : false;
-        return true;
+        debugCollisionIsOff = (debugCollisionIsOff == FALSE) ? TRUE : FALSE;
+        return TRUE;
     }
     if (KEY_EQ(key_hit, KI_B))
     {
-        debugMapIsVisible = (debugMapIsVisible == false) ? true : false;
-        return true;
+        debugMapIsVisible = (debugMapIsVisible == FALSE) ? TRUE : FALSE;
+        return TRUE;
     }
     if (KEY_EQ(key_hit, KI_LEFT))
     {
         blendingValue -= 20;
-        return true;
+        return TRUE;
     }
     if (KEY_EQ(key_hit, KI_RIGHT))
     {
         blendingValue += 20;
-        return true;
+        return TRUE;
     }
     if (KEY_EQ(key_hit, KI_UP))
     {
         sightRange += 1;
-        return true;
+        return TRUE;
     }
     if (KEY_EQ(key_hit, KI_DOWN))
     {
         sightRange -= 1;
-        return true;
+        return TRUE;
     }
     if (KEY_EQ(key_hit, KI_START))
     {
         doStateTransition(STATE_GAMEPLAY);
-        return false;
+        return FALSE;
     }
     sightRange = clamp(sightRange, SIGHT_RANGE_SELF, SIGHT_RANGE_MAX + 1);
     blendingValue = clamp(blendingValue, 0, 0x81);
-    return false;
+    return FALSE;
 }
 
 //------------------------------------------------------------------
@@ -132,9 +132,9 @@ extern void drawPauseMenu()
     tte_write("\nLEFT/RIGHT\tBG Blending: ");
     tte_write_var_int(blendingValue);
     tte_write("\nA-BUTTON\tCollision: ");
-    (debugCollisionIsOff == true) ? tte_write("OFF") : tte_write("ON");
+    (debugCollisionIsOff == TRUE) ? tte_write("OFF") : tte_write("ON");
     tte_write("\nB-BUTTON\tMapVisible: ");
-    (debugMapIsVisible == true) ? tte_write("ON") : tte_write("OFF");
+    (debugMapIsVisible == TRUE) ? tte_write("ON") : tte_write("OFF");
 }
 
 //------------------------------------------------------------------

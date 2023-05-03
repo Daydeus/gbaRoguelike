@@ -28,8 +28,8 @@ extern void drawGameMap();
 extern void redrawGameMapEdge(enum playerAction playerWalkedDir);
 extern void updateGameMapSight();
 
-extern bool isOutOfBounds(uint8_t const positionX, uint8_t const positionY);
-extern bool isSolid(uint8_t const positionX, uint8_t const positionY);
+extern boolean isOutOfBounds(uint8_t const positionX, uint8_t const positionY);
+extern boolean isSolid(uint8_t const positionX, uint8_t const positionY);
 extern uint8_t getMapSector(int const positionX, int const positionY);
 
 #endif // TILE_H

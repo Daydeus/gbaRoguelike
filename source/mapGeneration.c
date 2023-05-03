@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
-#include <tonc.h>
+#include "../libtonc/include/tonc.h"
 #include "constants.h"
 #include "debug.h"
 #include "globals.h"
@@ -12,13 +12,14 @@
 // Function Prototypes
 //------------------------------------------------------------------
 static void initGameMap();
-static bool placeRoom(int const startingX, int const startingY, int const width, int const height);
+static boolean placeRoom(int const startingX, int const startingY, int const width, int const height);
 static void carveMaze();
 static void ensureMapBoundarySolid();
 static void placeStairs();
 static struct Tile* getUnmarkedTile(struct Tile* const tile);
 static void addEndNode(struct Node* const listHead, struct Tile *tile);
 static void markEndNode(struct Node* const listHead);
+static void markSkippedOverTile(struct Node* listHead);
 static struct Node* deleteEndNode(struct Node *listHead);
 static struct Node* deleteAllNodes(struct Node *listHead);
 static u32 getNodeCount(struct Node* const listHead);
@@ -53,7 +54,7 @@ static void initGameMap()
 // width and height. All tiles within the rectangle have their terrainId
 // set to ID_FLOOR.
 //------------------------------------------------------------------
-static bool placeRoom(int const startingX, int const startingY, int const width, int const height)
+static boolean placeRoom(int const startingX, int const startingY, int const width, int const height)
 {
     #ifdef PRINT_ROOM_PLACEMENT
         mgba_printf(MGBA_LOG_DEBUG, "placeRoom: (%d, %d), width: %d, height: %d", startingX, startingY, width, height);
@@ -70,7 +71,7 @@ static bool placeRoom(int const startingX, int const startingY, int const width,
             mgba_printf(MGBA_LOG_DEBUG, "    placeRoom FAILED");
         #endif
 
-        return false;
+        return FALSE;
     }
 
     // Turn all tiles in rectangle to floor tiles
@@ -86,7 +87,7 @@ static bool placeRoom(int const startingX, int const startingY, int const width,
         mgba_printf(MGBA_LOG_DEBUG, "    placeRoom SUCCEEDED");
     #endif
 
-    return true;
+    return TRUE;
 }
 
 //------------------------------------------------------------------
@@ -106,9 +107,16 @@ static void carveMaze()
     // Set the first node's tile
     listHead->tile = getTile(randomInRange(1, MAP_WIDTH_TILES - 2), randomInRange(1, MAP_HEIGHT_TILES - 2));
 
-    // Randomize the starting tile
-    while (!isSolid(listHead->tile->posX, listHead->tile->posY))
+    // Randomize the starting tile to one with a wall terrainId and an odd position value
+    while (1)
+    {
         listHead->tile = getTile(randomInRange(1, MAP_WIDTH_TILES - 2), randomInRange(1, MAP_HEIGHT_TILES - 2));
+        if (isSolid(listHead->tile->posX, listHead->tile->posY))
+        {
+            if (!isNumberEven(listHead->tile->posX) && !isNumberEven(listHead->tile->posY))
+                break;
+        }
+    }
 
     // Initialize starting node's tile data
     listHead->tile->terrainId = ID_FLOOR;
@@ -153,6 +161,7 @@ static void carveMaze()
         else
         {
             // Create a new end node and set currentTile to be its tile
+            markSkippedOverTile(listHead);
             addEndNode(listHead, currentTile);
             markEndNode(listHead);
         }
@@ -183,19 +192,19 @@ static void ensureMapBoundarySolid()
 {
     // Top Boundary: Coord (0, 0) to (MAP_WIDTH_TILES - 1, 0)
     for (int x = 0; x <= MAP_WIDTH_TILES - 1; x++)
-        setTileTerrain(x, 0, ID_WALL);
+        if (getTileTerrain(x, 0) != ID_WALL) setTileTerrain(x, 0, ID_WALL);
 
     // Bottom Boundary: Coord (0, MAP_HEIGHT_TILES - 1) to (MAP_WIDTH_TILES - 1, MAP_HEIGHT_TILES - 1)
     for (int x = 0; x <= MAP_WIDTH_TILES - 1; x++)
-        setTileTerrain(x, MAP_HEIGHT_TILES - 1, ID_WALL);
+        if (getTileTerrain(x, MAP_HEIGHT_TILES - 1) != ID_WALL) setTileTerrain(x, MAP_HEIGHT_TILES - 1, ID_WALL);
 
     // Left Boundary: Coord (0, 0) to (0, MAP_HEIGHT_TILES - 1)
     for (int y = 0; y <= MAP_HEIGHT_TILES - 1; y++)
-        setTileTerrain(0, y, ID_WALL);
+        if (getTileTerrain(0, y) != ID_WALL) setTileTerrain(0, y, ID_WALL);
 
     // Right Boundary: Coord (MAP_WIDTH_TILES - 1, 0) to (MAP_WIDTH_TILES - 1, MAP_HEIGHT_TILES - 1)
     for (int y = 0; y <= MAP_HEIGHT_TILES - 1; y++)
-        setTileTerrain(MAP_WIDTH_TILES - 1, y, ID_WALL);
+        if (getTileTerrain(y, MAP_WIDTH_TILES - 1) != ID_WALL) setTileTerrain(MAP_WIDTH_TILES - 1, y, ID_WALL);
 }
 
 //------------------------------------------------------------------
@@ -233,7 +242,7 @@ static void placeStairs()
 static struct Tile* getUnmarkedTile(struct Tile* const tile)
 {
     int positionX = 0, positionY = 0, direction = randomInRange(1, 4);
-    bool checkedLeft = false, checkedRight = false, checkedUp = false, checkedDown = false;
+    boolean checkedLeft = FALSE, checkedRight = FALSE, checkedUp = FALSE, checkedDown = FALSE;
 
     // Loop until every cardinal direction is checked
     while (!checkedLeft || !checkedRight || !checkedUp || !checkedDown)
@@ -260,10 +269,10 @@ static struct Tile* getUnmarkedTile(struct Tile* const tile)
         // Set direction checked
         switch (direction)
         {
-        case DIR_LEFT: checkedLeft = true;    break;
-        case DIR_RIGHT: checkedRight = true;  break;
-        case DIR_UP: checkedUp = true;        break;
-        case DIR_DOWN: checkedDown = true;    break;
+        case DIR_LEFT: checkedLeft = TRUE;    break;
+        case DIR_RIGHT: checkedRight = TRUE;  break;
+        case DIR_UP: checkedUp = TRUE;        break;
+        case DIR_DOWN: checkedDown = TRUE;    break;
         default:
         }
 
@@ -319,16 +328,11 @@ static void addEndNode(struct Node* listHead, struct Tile* tile)
 //------------------------------------------------------------------
 // Function: markEndNode
 // 
-// As function getUnmarkedTile checks tiles two spaces away, it skips
-// over a tile as it moves along its path.
-// 
-// This function (markEndNode) marks tiles by setting their terrainId
-// to ID_FLOOR. It does this for both the end node's tile and the
-// skipped-over tile by checking backwards in the end node's tileDirection.
+// This function marks tiles by setting their terrainId
+// to ID_FLOOR.
 //------------------------------------------------------------------
 static void markEndNode(struct Node* listHead)
 {
-    int skippedX = 0, skippedY = 0;
     struct Node *endNode = listHead;
 
     // Iterate endNode until it points at the end of the list
@@ -341,6 +345,27 @@ static void markEndNode(struct Node* listHead)
     #ifdef PRINT_MAZE_MARKING
         mgba_printf(MGBA_LOG_DEBUG, "    markEndNode endNode tile: (%d, %d)", endNode->tile->posX, endNode->tile->posY);
     #endif
+}
+
+//------------------------------------------------------------------
+// Function: markSkippedOverTile
+// 
+// As function getUnmarkedTile checks tiles two spaces away, it skips
+// over a tile as it moves along its path. This marks the skipped-over
+// tile.
+//------------------------------------------------------------------
+static void markSkippedOverTile(struct Node* listHead)
+{
+    int skippedX = 0, skippedY = 0;
+    struct Node *endNode = listHead;
+
+    // Iterate endNode until it points at the end of the list
+    while (endNode->linkedNode != NULL)
+        endNode = endNode->linkedNode;
+
+    // If first node(tile) in list, there is no skipped-over tile
+    if (endNode == listHead)
+        return;
 
     // Get the skipped-over tile's position
     skippedX = endNode->tile->posX - dirX[endNode->tileDirection];
@@ -481,8 +506,17 @@ extern void generateGameMap()
     // Place Rooms
     while (placeRoomFailures < 20)
     {
-        int startingX = randomInRange(1, MAP_WIDTH_TILES - 1), startingY = randomInRange(1, MAP_HEIGHT_TILES - 1);
+        int startingX = 0, startingY = 0;
         int width = randomInRange(4, 12), height = randomInRange(4, 12);
+
+        // Ensure rooms are placed at odd-numbered positions with even dimensions
+        while (isNumberEven(startingX) || isNumberEven(startingY) || !isNumberEven(width) || !isNumberEven(height))
+        {
+            startingX = randomInRange(1, MAP_WIDTH_TILES - 1);
+            startingY = randomInRange(1, MAP_HEIGHT_TILES - 1);
+            width = randomInRange(4, 12);
+            height = randomInRange(4, 12);
+        }
 
         // If placeRoom failed (due to outOfBounds or overlapping)
         if (!placeRoom(startingX, startingY, width, height))
@@ -507,10 +541,8 @@ extern void generateGameMap()
             {
                 switch(randomInRange(0, 5))
                 {
-                case 1: 
+                case 1: setTileTerrain(x, y, ID_FLOOR_CHIP);    break;
                 case 2: setTileTerrain(x, y, ID_FLOOR_MOSSY);   break;
-                case 3: setTileTerrain(x, y, ID_FLOOR_BIG);     break;
-                case 4: setTileTerrain(x, y, ID_FLOOR_CHIP);    break;
                 }
             }
         }

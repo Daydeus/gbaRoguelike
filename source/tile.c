@@ -1,5 +1,5 @@
-#include <tonc.h>
 #include <string.h>
+#include "../libtonc/include/tonc.h"
 #include "constants.h"
 #include "debug.h"
 #include "globals.h"
@@ -61,7 +61,7 @@ static int* getTilesetIndex(struct Tile* const tile, uint8_t const screenEntryCo
     // Conditions for immediate return
     if (tile == NULL)
         return (int*)BLANK_BLACK;
-    else if (tile->sightId == TILE_NEVER_SEEN && debugMapIsVisible == false)
+    else if (tile->sightId == TILE_NEVER_SEEN && debugMapIsVisible == FALSE)
         return (int*)BLANK_BLACK;
 
     tileSubId = getDynamicTerrainId(tile);
@@ -662,13 +662,13 @@ extern void updateGameMapSight()
 // Returns whether the tile at the given position is out of bounds
 // for the player or not.
 //------------------------------------------------------------------
-extern bool isOutOfBounds(uint8_t const positionX, uint8_t const positionY)
+extern boolean isOutOfBounds(uint8_t const positionX, uint8_t const positionY)
 {
     if (positionX < 0 || positionX > MAP_WIDTH_TILES - 1
     || positionY < 0 || positionY > MAP_HEIGHT_TILES - 1)
-        return true;
+        return TRUE;
     else
-        return false;
+        return FALSE;
 }
 
 //------------------------------------------------------------------
@@ -677,12 +677,12 @@ extern bool isOutOfBounds(uint8_t const positionX, uint8_t const positionY)
 // Returns whether the tile at the given position is solid or not.
 // NOTE: Solid tiles should block player movement.
 //------------------------------------------------------------------
-extern bool isSolid(uint8_t const positionX, uint8_t const positionY)
+extern boolean isSolid(uint8_t const positionX, uint8_t const positionY)
 {
     if(getTileTerrain(positionX, positionY) != ID_WALL)
-        return false;
-    else if (debugCollisionIsOff == true)
-        return false;
+        return FALSE;
+    else if (debugCollisionIsOff == TRUE)
+        return FALSE;
     else
-        return true;
+        return TRUE;
 }

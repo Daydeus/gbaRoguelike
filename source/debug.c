@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
-#include <tonc.h>
+#include "../libtonc/include/tonc.h"
 #include "constants.h"
 #include "debug.h"
 #include "globals.h"

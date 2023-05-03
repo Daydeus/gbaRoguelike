@@ -32,11 +32,11 @@ extern "C" {
 #define MGBA_LOG_INFO  3
 #define MGBA_LOG_DEBUG 4
 
-bool mgba_open(void);
+boolean mgba_open(void);
 void mgba_close(void);
 
 void mgba_printf(int level, const char* string, ...);
-bool mgba_console_open(void);
+boolean mgba_console_open(void);
 
 #ifdef __cplusplus
 }

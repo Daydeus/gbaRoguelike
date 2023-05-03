@@ -4,7 +4,7 @@
 //------------------------------------------------------------------
 // Function Prototypes
 //------------------------------------------------------------------
-extern bool doPauseMenuInput();
+extern boolean doPauseMenuInput();
 extern void drawPauseMenu();
 extern void doStateTransition(enum state const targetState);
 

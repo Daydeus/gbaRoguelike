@@ -13,7 +13,7 @@
         #endif
     #define DEBUG_GRAPHICS
         #ifdef DEBUG_GRAPHICS
-            //#define PRINT_MAP_DRAW
+            #define PRINT_MAP_DRAW
             //#define PRINT_SIGHT_DRAW
         #endif
     #define DEBUG_FOV

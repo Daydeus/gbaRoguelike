@@ -1,6 +1,6 @@
 #include <stdlib.h>
-#include <tonc.h>
 #include <string.h>
+#include "../libtonc/include/tonc.h"
 #include "constants.h"
 #include "debug.h"
 #include "fieldOfVision.h"
@@ -29,7 +29,7 @@ uint8_t playerSightId = TILE_IN_SIGHT;
 int sightRange = SIGHT_RANGE_STANDARD;
 enum direction playerFacing = DIR_LEFT;
 enum playerAction playerAction = PLAYER_NO_ACTION;
-bool debugCollisionIsOff = false, debugMapIsVisible = false;
+boolean debugCollisionIsOff = FALSE, debugMapIsVisible = FALSE;
 u32 blendingValue = 0x40;
 int8_t playerMoveOffsetX = 0, playerMoveOffsetY = 0;
 int16_t screenOffsetX = 0, screenOffsetY = 0;
@@ -59,8 +59,8 @@ void doPlayerInput()
         #endif
 
         playerFacing = DIR_LEFT;
-        if(isSolid(playerX + dirX[playerFacing], playerY + dirY[playerFacing]) ==  false
-        && isOutOfBounds(playerX + dirX[playerFacing], playerY + dirY[playerFacing]) == false)
+        if(isSolid(playerX + dirX[playerFacing], playerY + dirY[playerFacing]) ==  FALSE
+        && isOutOfBounds(playerX + dirX[playerFacing], playerY + dirY[playerFacing]) == FALSE)
         {
             movePlayer(playerFacing);
             playerAction = PLAYER_WALKED_LEFT;
@@ -77,8 +77,8 @@ void doPlayerInput()
         #endif
 
         playerFacing = DIR_RIGHT;
-        if(isSolid(playerX + dirX[playerFacing], playerY + dirY[playerFacing]) ==  false
-        && isOutOfBounds(playerX + dirX[playerFacing], playerY + dirY[playerFacing]) == false)
+        if(isSolid(playerX + dirX[playerFacing], playerY + dirY[playerFacing]) ==  FALSE
+        && isOutOfBounds(playerX + dirX[playerFacing], playerY + dirY[playerFacing]) == FALSE)
         {
             movePlayer(playerFacing);
             playerAction = PLAYER_WALKED_RIGHT;
@@ -95,8 +95,8 @@ void doPlayerInput()
         #endif
 
         playerFacing = DIR_UP;
-        if(isSolid(playerX + dirX[playerFacing], playerY + dirY[playerFacing]) ==  false
-        && isOutOfBounds(playerX + dirX[playerFacing], playerY + dirY[playerFacing]) == false)
+        if(isSolid(playerX + dirX[playerFacing], playerY + dirY[playerFacing]) ==  FALSE
+        && isOutOfBounds(playerX + dirX[playerFacing], playerY + dirY[playerFacing]) == FALSE)
         {
             movePlayer(playerFacing);
             playerAction = PLAYER_WALKED_UP;
@@ -113,8 +113,8 @@ void doPlayerInput()
         #endif
 
         playerFacing = DIR_DOWN;
-        if(isSolid(playerX + dirX[playerFacing], playerY + dirY[playerFacing]) ==  false
-        && isOutOfBounds(playerX + dirX[playerFacing], playerY + dirY[playerFacing]) == false)
+        if(isSolid(playerX + dirX[playerFacing], playerY + dirY[playerFacing]) ==  FALSE
+        && isOutOfBounds(playerX + dirX[playerFacing], playerY + dirY[playerFacing]) == FALSE)
         {
             movePlayer(playerFacing);
             playerAction = PLAYER_WALKED_DOWN;

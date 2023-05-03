@@ -1,6 +1,6 @@
 #include <stdlib.h>
-#include <tonc.h>
 #include <string.h>
+#include "../libtonc/include/tonc.h"
 #include "constants.h"
 #include "globals.h"
 
@@ -41,10 +41,10 @@ extern int8_t approachValue(int8_t currentValue, int8_t const targetValue, int8_
 //
 // Returns whether the given number is evenly divisble by two.
 //------------------------------------------------------------------
-extern bool isNumberEven(int value)
+extern boolean isNumberEven(int value)
 {
     if (value % 2 == 0)
-        return true;
+        return TRUE;
     else
-        return false;
+        return FALSE;
 }
