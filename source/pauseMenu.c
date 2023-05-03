@@ -155,7 +155,7 @@ extern void doStateTransition(enum state const targetState)
         REG_BG1CNT= BG_CBB(0) | BG_SBB(FOV_SB) | BG_4BPP | BG_REG_32x32;
         REG_BG2CNT= BG_CBB(0) | BG_SBB(GAME_MAP_SB) | BG_4BPP | BG_REG_32x32;
         REG_DISPCNT= DCNT_MODE0 | DCNT_BG0 | DCNT_BG1 | DCNT_BG2 | DCNT_OBJ | DCNT_OBJ_1D;
-        //doFOV(playerX, playerY, sightRange);
+        doFOV(playerX, playerY, sightRange);
         drawGameMap();
         gameState = STATE_GAMEPLAY;
         break;

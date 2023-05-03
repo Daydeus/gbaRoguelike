@@ -396,7 +396,6 @@ int main(void)
                     printMapInLog();
                 #endif
 
-                drawGameMap();
                 doStateTransition(STATE_GAMEPLAY);
             }
             break;
