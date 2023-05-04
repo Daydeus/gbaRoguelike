@@ -14,13 +14,12 @@ boolean isNumberEven(int value);
 extern unsigned int frameCount;
 extern unsigned int randomSeed;
 extern enum state gameState;
-extern int playerX, playerY;                      // Player position
+extern int turnOfEntityIndex;
 extern uint8_t playerSightId;      // Value visible tiles are set to
-extern int sightRange;                // Blends shadow outside range
 extern int8_t const dirX[9];            // Horizontal movement array
 extern int8_t const dirY[9];              // Vertical movement array
 extern int16_t screenOffsetX, screenOffsetY;     // BG origin offset
-extern enum direction playerFacing;
+extern int8_t playerMoveOffsetX, playerMoveOffsetY;
 extern boolean debugCollisionIsOff, debugMapIsVisible;
 extern u32 blendingValue;
 

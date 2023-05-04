@@ -3,6 +3,7 @@
 #include "../libtonc/include/tonc.h"
 #include "constants.h"
 #include "debug.h"
+#include "entity.h"
 #include "fieldOfVision.h"
 #include "globals.h"
 #include "mgba.h"
@@ -69,30 +70,19 @@ static void markLOS(int startX, int startY, int const endX, int const endY)
 // Updates field-of-vision background layer by copying the correct
 // 8x8 graphic based on tile.sightId.
 //------------------------------------------------------------------
-static void drawFOV(int positionX, int positionY)
+static void drawFOV(int playerX, int playerY)
 {
     int screenEntryTL = 0;                     // screenEntryTopLeft
-    int screenEntryTR = 0;                    // screenEntryTopRight
-    int screenEntryBL = 0;                  // screenEntryBottomLeft
-    int screenEntryBR = 0;                 // screenEntryBottomRight
     int *tileToDraw = NULL;
-    int originTileX = 0, originTileY = 0;
-    int currentTileX = 0, currentTileY = 0;
-    
-    // Get coordinates of screen entry origin
-    originTileX = playerX - SCREEN_WIDTH_TILES / 2;
-    originTileY = playerY - SCREEN_HEIGHT_TILES / 2 + 1;
+    int originTileX = playerX - SCREEN_WIDTH_TILES / 2;
+    int originTileY = playerY - SCREEN_HEIGHT_TILES / 2 + 1;
+    int currentTileX = originTileX, currentTileY = originTileY;
 
-    currentTileX = originTileX;
-    currentTileY = originTileY;
     for (int y = 0; y < SCREEN_HEIGHT_TILES; y++)
     {
         for (int x = 0; x < SCREEN_WIDTH_TILES; x++)
         {
             screenEntryTL = y * SCREEN_BLOCK_SIZE * 2 + x * 2 + SCREEN_BLOCK_SIZE * 2;
-            screenEntryTR = screenEntryTL + 1;
-            screenEntryBL = screenEntryTL + SCREEN_BLOCK_SIZE;
-            screenEntryBR = screenEntryBL + 1;
 
             // Get tileset index of tile to draw
             if (getTileSight(currentTileX, currentTileY) == playerSightId)
@@ -102,12 +92,14 @@ static void drawFOV(int positionX, int positionY)
 
             // Copy the 8x8 tile into map memory
             memcpy(&se_mem[FOV_SB][screenEntryTL], &tileToDraw, 2);
-            memcpy(&se_mem[FOV_SB][screenEntryTR], &tileToDraw, 2);
-            memcpy(&se_mem[FOV_SB][screenEntryBL], &tileToDraw, 2);
-            memcpy(&se_mem[FOV_SB][screenEntryBR], &tileToDraw, 2);
+            memcpy(&se_mem[FOV_SB][screenEntryTL + 1], &tileToDraw, 2);
+            memcpy(&se_mem[FOV_SB][screenEntryTL + SCREEN_BLOCK_SIZE], &tileToDraw, 2);
+            memcpy(&se_mem[FOV_SB][screenEntryTL + 1 + SCREEN_BLOCK_SIZE], &tileToDraw, 2);
 
+            // Move along the current row
             currentTileX++;
         }
+        // Move to the next row
         currentTileX = originTileX;
         currentTileY++;
     }
@@ -124,27 +116,23 @@ static void drawFOV(int positionX, int positionY)
 //------------------------------------------------------------------
 static void resetFOV()
 {
-    // Check that playerSightId is about to overflow
-    if (playerSightId == 255)
+    // Set all tile's sightId back to TILE_NOT_IN_SIGHT(1)
+    for (int y = 0; y < MAP_HEIGHT_TILES; y++)
     {
-        // Set all tile's sightId back to TILE_NOT_IN_SIGHT(1)
-        for (int y = 0; y < MAP_HEIGHT_TILES; y++)
+        for (int x = 0; x < MAP_WIDTH_TILES; x++)
         {
-            for (int x = 0; x < MAP_WIDTH_TILES; x++)
-            {
-                // Don't make TILE_NEVER_SEEN(0) suddenly visible
-                if (getTileSight(x, y) != TILE_NEVER_SEEN)
-                    setTileSight(x, y, TILE_NOT_IN_SIGHT);
-            }
+            // Don't make TILE_NEVER_SEEN(0) suddenly visible
+            if (getTileSight(x, y) != TILE_NEVER_SEEN)
+                setTileSight(x, y, TILE_NOT_IN_SIGHT);
         }
-
-        // Set playerSightId to new lowest value: TILE_IN_SIGHT(2)
-        playerSightId = TILE_IN_SIGHT;
-
-        #ifdef DEBUG_FOV
-            mgba_printf(MGBA_LOG_INFO, "FOV reset");
-        #endif
     }
+
+    // Set playerSightId to new lowest value: TILE_IN_SIGHT(2)
+    playerSightId = TILE_IN_SIGHT;
+
+    #ifdef DEBUG_FOV
+        mgba_printf(MGBA_LOG_INFO, "FOV reset");
+    #endif
 }
 
 //------------------------------------------------------------------
@@ -172,27 +160,29 @@ extern void initFOV()
 // Performs a line-of-sight check on every bounding tile at the edge
 // of the player's sight range.
 //------------------------------------------------------------------
-extern void doFOV(int const positionX, int const positionY, int const sightRange)
+extern void doFOV(int const playerX, int const playerY, int const playerSightRange)
 {
-    resetFOV();
+    // Check that playerSightId is about to overflow
+    if (playerSightId == 255)
+        resetFOV();
 
     // Top Boundary
-    for (int x = positionX - sightRange; x <= positionX + sightRange; x++)
-        markLOS(positionX, positionY, x, positionY - sightRange);
+    for (int x = playerX - playerSightRange; x <= playerX + playerSightRange; x++)
+        markLOS(playerX, playerY, x, playerY - playerSightRange);
 
     // Bottom Boundary
-    for (int x = positionX - sightRange; x <= positionX + sightRange; x++)
-        markLOS(positionX, positionY, x, positionY + sightRange);
+    for (int x = playerX - playerSightRange; x <= playerX + playerSightRange; x++)
+        markLOS(playerX, playerY, x, playerY + playerSightRange);
 
     // Left Boundary
-    for (int y = positionY - sightRange; y <= positionY + sightRange; y++)
-        markLOS(positionX, positionY, positionX - sightRange, y);
+    for (int y = playerY - playerSightRange; y <= playerY + playerSightRange; y++)
+        markLOS(playerX, playerY, playerX - playerSightRange, y);
 
     // Right Boundary
-    for (int y = positionY - sightRange; y <= positionY + sightRange; y++)
-        markLOS(positionX, positionY, positionX + sightRange, y);
+    for (int y = playerY - playerSightRange; y <= playerY + playerSightRange; y++)
+        markLOS(playerX, playerY, playerX + playerSightRange, y);
 
-    drawFOV(positionX, positionY);
+    drawFOV(playerX, playerY);
 }
 
 //------------------------------------------------------------------

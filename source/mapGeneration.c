@@ -497,7 +497,7 @@ extern void generateGameMap()
     int placeRoomFailures = 0;
 
     #ifdef DEBUG_MAP_GEN
-        mgba_printf(MGBA_LOG_DEBUG, "createGameMap");
+        mgba_printf(MGBA_LOG_DEBUG, "generateGameMap");
     #endif
 
     // Set starting values for gameMap[][]

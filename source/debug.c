@@ -3,6 +3,7 @@
 #include "../libtonc/include/tonc.h"
 #include "constants.h"
 #include "debug.h"
+#include "entity.h"
 #include "globals.h"
 #include "mgba.h"
 #include "tile.h"
@@ -15,6 +16,9 @@
 //------------------------------------------------------------------
 extern void printMapInLog()
 {
+    struct Entity *player = getEntity(PLAYER_INDEX);
+    int playerX = player->posX, playerY = player->posY;
+
     for (int y = 0; y < MAP_HEIGHT_TILES; y++)
     {
         char mapRow[MAP_WIDTH_TILES + 1];
@@ -62,6 +66,9 @@ extern void printMapInLog()
 //------------------------------------------------------------------
 extern void printTileSightInLog()
 {
+    struct Entity *player = getEntity(PLAYER_INDEX);
+    int playerX = player->posX, playerY = player->posY;
+
     for (int y = 0; y < MAP_HEIGHT_TILES; y++)
     {
         char mapRow[MAP_WIDTH_TILES + 1];

@@ -2,6 +2,7 @@
 #include "../libtonc/include/tonc.h"
 #include "constants.h"
 #include "debug.h"
+#include "entity.h"
 #include "globals.h"
 #include "mapGeneration.h"
 #include "mgba.h"
@@ -15,7 +16,7 @@
 static void drawTile(struct Tile* const tile, int const screenEntryTL);
 static int* getTilesetIndex(struct Tile* const tile, uint8_t const screenEntryCorner);
 static uint8_t getDynamicTerrainId(struct Tile* const tile);
-static int getGameMapSEOrigin(enum playerAction playerWalkedDir);
+static int getGameMapSEOrigin(enum entityAction playerWalkedDir);
 static uint8_t getNumberNeighborsOfType(int const positionX, int const positionY, int const terrainId);
 static struct Tile* getRandomTileOfType(uint8_t const terrainId);
 
@@ -206,13 +207,13 @@ static uint8_t getDynamicTerrainId(struct Tile* const tile)
 // Used in redrawGameMapEdge to redraw the edge of the map where the
 // player can't see.
 //------------------------------------------------------------------
-static int getGameMapSEOrigin(enum playerAction playerWalkedDir)
+static int getGameMapSEOrigin(enum entityAction playerWalkedDir)
 {
     int screenEntryTL = 0;
 
     switch (playerWalkedDir)
     {
-    case PLAYER_WALKED_LEFT:
+    case WALKED_LEFT:
         screenEntryTL = screenOffsetX / TILE_SIZE;
 
         // Loop around to first column
@@ -224,7 +225,7 @@ static int getGameMapSEOrigin(enum playerAction playerWalkedDir)
         // Add the vertical offset
         screenEntryTL = (screenEntryTL + screenOffsetY / TILE_SIZE * SCREEN_BLOCK_SIZE) * 2;
         break;
-    case PLAYER_WALKED_RIGHT:
+    case WALKED_RIGHT:
         screenEntryTL = screenOffsetX / TILE_SIZE + SCREEN_WIDTH_TILES - 1;
 
         // Loop around to first column
@@ -236,7 +237,7 @@ static int getGameMapSEOrigin(enum playerAction playerWalkedDir)
         // Add the vertical offset
         screenEntryTL = (screenEntryTL + screenOffsetY / TILE_SIZE * SCREEN_BLOCK_SIZE) * 2;
         break;
-    case PLAYER_WALKED_UP:
+    case WALKED_UP:
         screenEntryTL = (screenOffsetX / TILE_SIZE + screenOffsetY / TILE_SIZE * SCREEN_BLOCK_SIZE) * 2;
 
         // Loop around first row
@@ -245,7 +246,7 @@ static int getGameMapSEOrigin(enum playerAction playerWalkedDir)
         else if (screenEntryTL < 0)
             screenEntryTL = SCREEN_BLOCK_SIZE * SCREEN_BLOCK_SIZE;
         break;
-    case PLAYER_WALKED_DOWN:
+    case WALKED_DOWN:
         screenEntryTL = (screenOffsetX / TILE_SIZE + (screenOffsetY / TILE_SIZE + SCREEN_HEIGHT_TILES) * SCREEN_BLOCK_SIZE) * 2;
 
         // Loop around first row
@@ -478,11 +479,9 @@ enum direction getTileDirInLine(int startX, int startY, int const endX, int cons
 // Fills all screen entries of the gameMap's screen block with the
 // appropriate tiles based on the player's position.
 //------------------------------------------------------------------
-extern void drawGameMap()
+extern void drawGameMap(int originTileX, int originTileY)
 {
     int screenEntryTL = 0;                     // screenEntryTopLeft
-    int originTileX = playerX - SCREEN_WIDTH_TILES / 2;
-    int originTileY = playerY - SCREEN_HEIGHT_TILES / 2;
 
     // Load palette (TODO: set outside function)
     memcpy(pal_bg_mem, tileset_stonePal, tileset_stonePalLen);
@@ -492,7 +491,6 @@ extern void drawGameMap()
 
     #ifdef PRINT_MAP_DRAW
         mgba_printf(MGBA_LOG_DEBUG, "drawGameMap START");
-        mgba_printf(MGBA_LOG_DEBUG, "  player position: (%d, %d)", playerX, playerY);
         mgba_printf(MGBA_LOG_DEBUG, "  origin tile: (%d, %d)", originTileX, originTileY);
     #endif
 
@@ -524,8 +522,11 @@ extern void drawGameMap()
 // Draws over the gameMap screenblock's farthest column or row depending
 // on the player's movement direction.
 //------------------------------------------------------------------
-extern void redrawGameMapEdge(enum playerAction playerWalkedDir)
+// TODO: Tile drawn is offset when (screenEntryTL % 64 = 0). Why and fix it
+extern void redrawGameMapEdge(enum entityAction playerWalkedDir)
 {
+    struct Entity *player = getEntity(PLAYER_INDEX);
+    int playerX = player->posX, playerY = player->posY;
     int screenEntryTL = getGameMapSEOrigin(playerWalkedDir);
     int startingRow = screenEntryTL / SCREEN_BLOCK_SIZE;
     int tileToDrawX = 0, tileToDrawY = 0;
@@ -537,19 +538,19 @@ extern void redrawGameMapEdge(enum playerAction playerWalkedDir)
     // Set the first tile to draw based on walking direction
     switch (playerWalkedDir)
     {
-    case PLAYER_WALKED_LEFT:
+    case WALKED_LEFT:
         tileToDrawX = playerX - SCREEN_WIDTH_TILES / 2;
         tileToDrawY = playerY - SCREEN_HEIGHT_TILES / 2;
         break;
-    case PLAYER_WALKED_RIGHT:
+    case WALKED_RIGHT:
         tileToDrawX = playerX + SCREEN_WIDTH_TILES / 2;
         tileToDrawY = playerY - SCREEN_HEIGHT_TILES / 2;
         break;
-    case PLAYER_WALKED_UP:
+    case WALKED_UP:
         tileToDrawX = playerX - SCREEN_WIDTH_TILES / 2;
         tileToDrawY = playerY - SCREEN_HEIGHT_TILES / 2;
         break;
-    case PLAYER_WALKED_DOWN:
+    case WALKED_DOWN:
         tileToDrawX = playerX - SCREEN_WIDTH_TILES / 2;
         tileToDrawY = playerY + SCREEN_HEIGHT_TILES / 2;
         break;
@@ -563,9 +564,9 @@ extern void redrawGameMapEdge(enum playerAction playerWalkedDir)
         struct Tile *currentTile = NULL;
 
         // Current tile loops along either column or row
-        if (playerWalkedDir == PLAYER_WALKED_LEFT || playerWalkedDir == PLAYER_WALKED_RIGHT)
+        if (playerWalkedDir == WALKED_LEFT || playerWalkedDir == WALKED_RIGHT)
             currentTile = getTile(tileToDrawX, tileToDrawY + c);
-        else if (playerWalkedDir == PLAYER_WALKED_UP || playerWalkedDir == PLAYER_WALKED_DOWN)
+        else if (playerWalkedDir == WALKED_UP || playerWalkedDir == WALKED_DOWN)
             currentTile = getTile(tileToDrawX + c, tileToDrawY);
 
         drawTile(currentTile, screenEntryTL);
@@ -575,7 +576,7 @@ extern void redrawGameMapEdge(enum playerAction playerWalkedDir)
         #endif
 
         // Move screenEntryTL to the next draw position
-        if (playerWalkedDir == PLAYER_WALKED_LEFT || playerWalkedDir == PLAYER_WALKED_RIGHT)
+        if (playerWalkedDir == WALKED_LEFT || playerWalkedDir == WALKED_RIGHT)
         {
             screenEntryTL += SCREEN_BLOCK_SIZE * 2;
 
@@ -583,7 +584,7 @@ extern void redrawGameMapEdge(enum playerAction playerWalkedDir)
             if (screenEntryTL > SCREEN_BLOCK_SIZE * SCREEN_BLOCK_SIZE)
                 screenEntryTL -= SCREEN_BLOCK_SIZE * SCREEN_BLOCK_SIZE;
         }
-        else if (playerWalkedDir == PLAYER_WALKED_UP || playerWalkedDir == PLAYER_WALKED_DOWN)
+        else if (playerWalkedDir == WALKED_UP || playerWalkedDir == WALKED_DOWN)
         {
             screenEntryTL += 2;
 
@@ -610,6 +611,8 @@ extern void redrawGameMapEdge(enum playerAction playerWalkedDir)
 //------------------------------------------------------------------
 extern void updateGameMapSight()
 {
+    struct Entity *player = getEntity(PLAYER_INDEX);
+    int playerX = player->posX, playerY = player->posY, sightRange = player->sightRange;
     int distFromScreenOriginX = (SCREEN_WIDTH_TILES / 2) - sightRange;
     int distFromScreenOriginY = (SCREEN_HEIGHT_TILES / 2) - sightRange;
     int sightOriginScreenEntry = 0, currentScreenEntry = 0, currentRow = 0;
@@ -680,8 +683,6 @@ extern boolean isOutOfBounds(uint8_t const positionX, uint8_t const positionY)
 extern boolean isSolid(uint8_t const positionX, uint8_t const positionY)
 {
     if(getTileTerrain(positionX, positionY) != ID_WALL)
-        return FALSE;
-    else if (debugCollisionIsOff == TRUE)
         return FALSE;
     else
         return TRUE;
